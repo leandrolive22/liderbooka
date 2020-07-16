@@ -362,11 +362,10 @@ class Monitorias extends Controller
             'nConf' => 'required',
             'nAv' => 'required',
         ];
-
-        $request->validate($rules,['required' => 'O campo :attribute não pode ser vazio']);
-
         // itens da monitoria
         $MonitoriaItem = [];
+
+        $request->validate($rules,['required' => 'O campo :attribute não pode ser vazio']);
 
         // trata variáveis para salvar
         $operador = $request->input('operador');

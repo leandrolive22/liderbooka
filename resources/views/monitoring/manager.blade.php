@@ -474,11 +474,19 @@
                     });
                 } else if(xhr.status == 429){
                     noty({
+<<<<<<< HEAD
                         text: 'Erro de Conexão!',
+=======
+                        text: 'Erro! Tente novamente mais tarde.',
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                         timeout: 3000,
                         layout: 'topRight',
                         type: 'error',
                     });
+<<<<<<< HEAD
+=======
+                    window.reload()
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                 } else {
                     noty({
                         text: 'Erro! Tente novamente mais tarde.',
@@ -523,11 +531,19 @@
                     });
                 } else if(xhr.status == 429){
                     noty({
+<<<<<<< HEAD
                         text: 'Erro de Conexão!',
+=======
+                        text: 'Erro! Tente novamente mais tarde.',
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                         timeout: 3000,
                         layout: 'topRight',
                         type: 'error',
                     });
+<<<<<<< HEAD
+=======
+                    window.reload()
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                 } else {
                     noty({
                         text: 'Erro! Tente novamente mais tarde.',
@@ -577,11 +593,19 @@
                         });
                     } else if(xhr.status == 429){
                         noty({
+<<<<<<< HEAD
                             text: 'Erro de conexão!',
+=======
+                            text: 'Erro! Tente novamente mais tarde.',
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                             timeout: 3000,
                             layout: 'topRight',
                             type: 'error',
                         });
+<<<<<<< HEAD
+=======
+                        window.reload()
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                     } else {
                         noty({
                             text: 'Erro! Tente novamente mais tarde.',
@@ -646,11 +670,19 @@
                         });
                     } else if(xhr.status == 429){
                         noty({
+<<<<<<< HEAD
                             text: 'Erro de conexão!',
+=======
+                            text: 'Erro! Tente novamente mais tarde.',
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                             timeout: 3000,
                             layout: 'topRight',
                             type: 'error',
                         });
+<<<<<<< HEAD
+=======
+                        location.reload()
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                     } else {
                         noty({
                             text: 'Erro! Tente novamente mais tarde.',

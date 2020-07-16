@@ -596,6 +596,16 @@
                                     type: 'error',
                                 });
                             });
+<<<<<<< HEAD
+=======
+                        } else if(xhr.status == 429){
+                            noty({
+                                text: 'Erro de conexão!',
+                                timeout: 3000,
+                                layout: 'topRight',
+                                type: 'error',
+                            });
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                         } else {
                             noty({
                                 text: 'Erro! Verifique os campos e Tente novamente mais tarde.',

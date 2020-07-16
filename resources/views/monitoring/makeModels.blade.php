@@ -98,7 +98,11 @@
 
     </div>
     <!-- PAGE CONTENT -->
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
 </div>
 @endsection
 @section('modal')
@@ -156,10 +160,17 @@
 
             // soa numero de linhas
             newNumber = Number(n)+1
+<<<<<<< HEAD
 
             // Coloca nova contagem de linhas
             $("input#lines").val(newNumber)
 
+=======
+            
+            // Coloca nova contagem de linhas
+            $("input#lines").val(newNumber)
+            
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
             // Coloca linha na tabela
             $("tbody#laudosCreate").append(linha)
 
@@ -193,6 +204,7 @@
 
             //pega linhas
             $.each($("tr[name=linhas]"),function(i,v){
+<<<<<<< HEAD
                 // id da linha
                 id = v.id
 
@@ -204,6 +216,19 @@
                 sinal = $("input#sinal_"+id+".tdInput").val()
 
                 // Verifica campos vazios
+=======
+                // id da linha 
+                id = v.id
+
+                // dados dos inputs 
+                number = $("input#number_"+id+".tdInput").val()
+
+                pergunta = $("input#pergunta_"+id+".tdInput").val()
+                
+                sinal = $("input#sinal_"+id+".tdInput").val()
+
+                // Verifica campos vazios 
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                 if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1) {
                     error += Number(1)
                 }
@@ -273,11 +298,19 @@
                             });
                         } else if(xhr.status == 429){
                             noty({
+<<<<<<< HEAD
                                 text: 'Erro de Conexão!',
+=======
+                                text: 'Erro! Tente novamente mais tarde.',
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                                 timeout: 3000,
                                 layout: 'topRight',
                                 type: 'error',
                             });
+<<<<<<< HEAD
+=======
+                            window.reload()
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                         } else {
                             noty({
                                 text: 'Erro! Tente novamente mais tarde.',
@@ -291,4 +324,8 @@
             }
         }
     </script>
+<<<<<<< HEAD
 @endsection
+=======
+@endsection
+>>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
