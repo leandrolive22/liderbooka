@@ -1,0 +1,3 @@
+- Aumentei o tempo de espera para finalizar o alerta (notice)
+- Defini um z-index auto para que o alerta (notice) fique por cima de uma tela modal
+- coloquei width para o alerta nao ir para 100% de tamanho (notice)

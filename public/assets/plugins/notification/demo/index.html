@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Bootstrap 4 Pop Plugin Examples</title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/flatly/bootstrap.min.css">
+	<link rel="stylesheet" href="../bs4.pop.css">
+
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+	<script src="../bs4.pop.js"></script>
+<style>
+	.container { margin: 50px auto; }
+</style>
+</head>
+<body>
+	<div class="container">
+
+		<h1>Bootstrap 4 Pop Plugin Examples</h1>
+
+		<div class="group">
+
+			<button class="btn btn-primary" onclick="demo_dialog()">Dialog</button>
+			<button class="btn btn-primary" onclick="bs4pop.alert('Alert Message', function(){ console.log('You Clicked Okay');})">Alert</button>
+			<button class="btn btn-primary" onclick="bs4pop.confirm('Are You Sure?', function(sure){ console.log('You Just Clicked:', sure);})">Confirm</button>
+			<button class="btn btn-primary" onclick="bs4pop.prompt('Username', 'Your Username Here', function(sure, value){ console.log('Your Username: ', value);})">Prompt</button>
+			<hr>
+			<p>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'topleft'})">Notice topleft</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'topcenter'})">Notice topcenter</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'topright'})">Notice topright</button>
+			</p>
+			<p>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'center'})">Notice center</button>
+			</p>
+			<p>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'bottomleft'})">Notice bottomleft</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'bottomcenter'})">Notice bottomcenter</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {position: 'bottomright'})">Notice bottomright</button>
+			</p>
+			<hr>
+			<p>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'primary'})">Notice primary</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'secondary'})">Notice secondary</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'success'})">Notice success</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'danger'})">Notice danger</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'warning'})">Notice warning</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'info'})">Notice info</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'light'})">Notice light</button>
+				<button class="btn btn-primary" onclick="bs4pop.notice('This is a notification message', {type: 'dark'})">Notice dark</button>
+			</p>
+
+		</div>
+
+	</div>
+
+	<script>
+
+		function demo_dialog(){
+
+			let dia = bs4pop.dialog({
+
+				title: 'Dialog Title',
+				content: 'Any Dialog Content Here',
+
+				closeBtn: true,
+				backdrop: 'static',
+				btns: [
+					{label: 'Okay',	className: 'btn-primary', onClick(cb){}},
+					{label: 'Cancel',	className: 'btn-default', onClick(cb){}}
+				],
+				onShowStart: function(){
+					// console.log('onShowStart');
+				},
+				onShowEnd: function(){
+					// console.log('onShowEnd');
+				},
+				onHideStart: function(){
+					// console.log('onHideStart');
+				},
+				onHideEnd: function(){
+					// console.log('onHideEnd');
+				},
+				onDragStart: function(){
+					console.log('onDragStart');
+				},
+				onDragEnd: function(){
+					// console.log('onDragEnd');
+				},
+				onDrag: function(){
+					console.log('onDrag');
+				}
+
+			});
+
+			setTimeout(() => {
+				// dia.hide()
+			}, 2000);
+
+		}
+
+		function demo_alert(){
+
+		}
+
+		setTimeout(() => {
+			$('#alert').alert();
+
+			setTimeout(() => {
+				$('#alert').alert('close');
+			}, 2000);
+		}, 2000);
+
+	</script>
+</body>
+</html>
