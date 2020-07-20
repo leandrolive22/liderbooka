@@ -320,22 +320,24 @@ class Monitorias extends Controller
         // str_replace($select,'none','');
 
         // filtros de data tipo_monitoria
-        $de = date('Y-m-d 00:00:00', strtotime($request->input('periodo')));
+        $de = date('Y-m-d', strtotime($request->input('periodo')));
 
         if($request->input('duasDatas') == 0) {
-            $ate = date('Y-m-d 23:59:59');
+            $ate = date('Y-m-d');
         } else {
-            $ate =  date('Y-m-d 23:59:59', strtotime($request->input('ate')));
+            $ate =  date('Y-m-d', strtotime($request->input('ate')));
         }
 
-	    $search = DB::select("select `book_monitoria`.`monitorias`.`quartil` AS `Quartil`,`book_monitoria`.`monitorias`.`id_audio` AS `ID_Audio`,`book_monitoria`.`monitorias`.`usuario_cliente` AS `usuario_cliente`,`book_monitoria`.`monitorias`.`pontos_positivos` AS `pontos_positivos`,`book_monitoria`.`monitorias`.`pontos_desenvolver` AS `pontos_desenvolver`,`book_monitoria`.`monitorias`.`pontos_atencao` AS `pontos_atencao`,`book_monitoria`.`monitorias`.`feedback_monitor` AS `feedback_monitor`,`book_monitoria`.`monitorias`.`feedback_operador` AS `resposta_operador`,`book_monitoria`.`monitorias`.`resp_operador` AS `aceite_operador`,`book_monitoria`.`monitorias`.`hash_operator` AS `hash_operator`,`book_monitoria`.`monitorias`.`hash_monitoria` AS `hash_monitoria`,`book_monitoria`.`monitorias`.`id` AS `Registro`,`laudos`.`valor` AS `Avaliacoes`,`book_usuarios`.`setores`.`name` AS `Segmento`,`carteiras`.`name` AS `Grupo`,`operador`.`name` AS `Operador`,`monitor`.`name` AS `Monitor`,`supervisor`.`name` AS `Supervisor`,`coordenador`.`name` AS `Coordenador`,`gerente`.`name` AS `Gerente`,`superintendente`.`name` AS `Superintendente`,`book_monitoria`.`monitorias`.`media` AS `Media`,`book_monitoria`.`monitorias`.`cliente` AS `Cliente`,date_format(`book_monitoria`.`monitorias`.`created_at`,'%d/%m/%Y') AS `data_monitoria`,`book_monitoria`.`monitorias`.`tipo_ligacao` AS `tipo_ligacao`,`book_monitoria`.`monitorias`.`cpf_cliente` AS `cpf_cliente`,`book_monitoria`.`monitorias`.`data_ligacao` AS `data_ligacao`,`modelos`.`tipo_monitoria` AS `tipo_monitoria`,`book_usuarios`.`ilhas`.`name` AS `Ilha`,if(isnull(`book_monitoria`.`monitorias`.`feedback_supervisor`),'Não Aplicado','Aplicado') AS `feedback_supervisor`,if(isnull(date_format(`book_monitoria`.`monitorias`.`feedback_supervisor`,'%d/%m/%Y')),'N/A',date_format(`book_monitoria`.`monitorias`.`feedback_supervisor`,'%d/%m/%Y')) AS `data_feedback`,`laudos`.`questao` AS `Item`,`itens`.`value` AS `Procedimento`,`laudos`.`sinalizacao` AS `grupo_atendimento`,if((`itens`.`value` = 'Conforme'),1,0) AS `Conforme`,if((`itens`.`value` = 'Não Conforme'),1,0) AS `Nao_conforme`,if(isnull(`operador`.`data_admissao`),'Informação Não Disponível',if((`operador`.`data_admissao` >= (now() - interval 3 month)),'Novo','Maturado')) AS `operador_novo`,`book_monitoria`.`monitorias`.`ncg` AS `ncg`,`book_monitoria`.`monitorias`.`created_at` AS `monitoria_created_at` from ((((((((((((`book_monitoria`.`monitorias` left join `book_usuarios`.`users` `operador` on((`book_monitoria`.`monitorias`.`operador_id` = `operador`.`id`))) left join `book_usuarios`.`ilhas` on((`operador`.`ilha_id` = `book_usuarios`.`ilhas`.`id`))) left join `book_usuarios`.`setores` on((`book_usuarios`.`setores`.`id` = `operador`.`setor_id`))) left join `book_usuarios`.`ilhas` `carteiras` on((`carteiras`.`id` = `operador`.`carteira_id`))) left join `book_usuarios`.`users` `supervisor` on((`supervisor`.`id` = `book_monitoria`.`monitorias`.`supervisor_id`))) left join `book_usuarios`.`users` `coordenador` on((`coordenador`.`id` = `operador`.`coordenador_id`))) left join `book_usuarios`.`users` `gerente` on((`gerente`.`id` = `operador`.`gerente_id`))) left join `book_usuarios`.`users` `superintendente` on((`superintendente`.`id` = `operador`.`superintendente_id`))) left join `book_usuarios`.`users` `monitor` on((`monitor`.`id` = `book_monitoria`.`monitorias`.`monitor_id`))) left join `book_monitoria`.`laudos_itens` `laudos` on((`laudos`.`modelo_id` = `book_monitoria`.`monitorias`.`modelo_id`))) left join `book_monitoria`.`monitoria_itens` `itens` on(((`laudos`.`id` = `itens`.`id_laudo_item`) and (`book_monitoria`.`monitorias`.`id` = `itens`.`monitoria_id`)))) left join `book_monitoria`.`laudos_modelos` `modelos` on((`modelos`.`id` = `laudos`.`modelo_id`))) where ((`book_monitoria`.`monitorias`.`created_at` BETWEEN '$de' AND '$ate') and isnull(`book_monitoria`.`monitorias`.`deleted_at`))");
+	    $search = DB::table("book_monitoria.relatorio_analitico_trimestral")
+                    ->whereBetween('data_monitoria',[$de, $ate])
+                    ->get();
 
         // Grava dados na sessão
         //Session::put('excelExportsData', $search);
 
         //Exporta
         $export = new ExcelExports();
-        return $export->basicDatatable(0, 0, $search, $request);
+        return $export->basicDatatable(@Auth::id(), @Auth::user()->ilha_id, $search, $request);
     }
     // End Analítico
 

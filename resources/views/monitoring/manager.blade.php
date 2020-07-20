@@ -66,7 +66,7 @@
                                                             <p>{{ $item->titulo }}</p>
                                                         </div>
                                                         <div class="btn-group btn-group-xs">
-                                                            <a role="button" class="btn btn-success" href="{{asset("monitoring/toApply/$item->id")}}">Aplicar</a>
+                                                            <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{base64_encode(asset("monitoring/toApply/$item->id"))}}'">Aplicar</a>
                                                             {{-- <button role="button" class="btn btn-secondary">Editar</button> --}}
                                                             <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-danger">Excluir</button>
                                                         </div>
@@ -314,6 +314,10 @@
 
     {{-- Modal relatório de assinaturas --}}
     @include('monitoring.components.modais.assinaturas')
+
+    {{-- Modal de Aplicação de Laudos --}}
+    @component('monitoring.components.modais.userslaudos', ['users' => $users])
+    @endcomponent
 @endif
 
 {{-- Modal de resultado de Relatório  --}}

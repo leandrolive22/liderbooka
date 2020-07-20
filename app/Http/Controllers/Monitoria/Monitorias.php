@@ -110,8 +110,12 @@ class Monitorias extends Controller
                                 ->get();
 
             $count = $monitorias->count();
+            $userToApply = Monitoria::selectRaw('id')
+                                ->get();
+
         } else {
             $models = [];
+            $userToApply = [];
             $monitorias = Monitoria::where('supervisor_id',$id)
                                     ->orWhere('supervisor_at','IS','NULL')
                                     ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-2 Months')))
@@ -119,7 +123,7 @@ class Monitorias extends Controller
                                     ->get();
         }
 
-        return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media','signs','supers', 'operators', 'agents', 'quartis', 'count','lastMonth', 'chart'));
+        return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media','signs','supers', 'operators', 'agents', 'quartis', 'count','lastMonth', 'chart', 'userToApply'));
     }
 
     public function create()
