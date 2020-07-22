@@ -3,9 +3,12 @@
 namespace App\Monitoria;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MonitoriaItem extends Model
 {
+	use SoftDeletes;
+	
     protected $connection = 'bookmonitoria';
     protected $table = 'monitoria_itens';
 

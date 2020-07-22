@@ -131,7 +131,7 @@
                         <span class="fa fa-plus"></span>
                     </div>
                 </a>
-                <a href="{{ route('GetUsersManagerUser') }}"  class="list-group-item">
+                <a href="{{ route('GetUsersRegisterUser') }}"  class="list-group-item">
                     Usuários
                     <div class="badge badge-primary">&nbsp;
                         <span class="fa fa-plus"></span>
@@ -209,7 +209,6 @@ function saveFeedbackOperatorMonitoring(option,hash) {
                         layout: 'topRight',
                         type: 'error',
                     });
-                    window.reload()
                 } else {
                     noty({
                         text: 'Erro! Tente novamente mais tarde.',

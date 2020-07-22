@@ -12,7 +12,7 @@ Route::get('hash/{hash}/',function($hash){
     }
     return Hash::make($hash).'    '.$hash;
 });
-
+ 
 /*********** Login ***********/
 Route::get('/', 'Users\Users@index')->name('default');
 Route::group(['prefix' => 'forgot'], function () {
@@ -68,7 +68,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('create','Monitoria\Monitorias@create')
             ->name('GetMonitoriasCreate');
 
-        Route::get('toApply/{model}/','Monitoria\Laudos@toApply');
+        Route::post('toApply/{model}/','Monitoria\Laudos@toApply')->name('PostLaudoToApply');
     /**Supervisão */
         Route::get('/supervision', 'Relatorios\Monitorias@supervision');
 
@@ -165,10 +165,10 @@ Route::group(['middleware' => ['auth']], function () {
 
                     
                     Route::get('/evolutionoperator', 'Relatorios\Monitorias@findEvolutionOperator')
-                        ->name('PostFeedbacksEvolutionOperator'); 
+                        ->name('GetFeedbacksEvolutionOperator'); 
 
                     Route::post('/evolutionoperator/{id}', 'Relatorios\Monitorias@findEvolutionOperator')
-                        ->name('PostFeedbacksEvolutionOperatorPost'); 
+                        ->name('PostFeedbacksEvolutionOperator'); 
 
                 });
 

@@ -21,7 +21,7 @@
 			<!-- START PAGE CONTENT WRAP -->
 			<div class="page-content-wrap" style="padding: 2rem">
 				<div class="page-title">
-					<a href="{{ url()->previous() }}">
+					<a href="{{ route('GetMonitoriasIndex') }}">
 						<h2 class="page-title">
 							<span class="fa fa-arrow-circle-o-left">
                             </span>
@@ -55,35 +55,58 @@
                             {{-- Dados do Operador  --}}
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="user">Selecione o operador</label>
-                                    {{-- Colaborador avaliado --}}
-                                    <select data-live-search="true" name="operador" id="operador" onchange="selectSup(this)" class="form-control select monitoria ">
-                                        <option value="">Selecione um operador</option>
-                                        @forelse ($users as $item)
-                                            <option value="{{$item->id}}" @if(isset($monitoria) && $monitoria->operador_id === $item->id) selected="true" @endif id="supervisor_slct{{$item->id}}" class="{{$item->supervisor_id}}">{{$item->name}}</option>
-                                        @empty
-                                            <option value="0">Nenhum usuário encontrado</option>
-                                        @endforelse
-                                    </select>
+                                    @if(isset($operador))
+                                        <label for="operador">Operador</label>
+                                        <b class="form-control">{{$operador->name}}</b>
+                                        <input type="hidden" name="operador" id="operador" value="{{$operador->id}}">
+                                    @else
+                                        <label for="operador">Selecione o operador</label>
+                                        {{-- Colaborador avaliado --}}
+                                        <select data-live-search="true" name="operador" id="operador" onchange="selectSup(this)" class="form-control select monitoria ">
+                                            <option value="">Selecione um operador</option>
+                                            @forelse ($users as $item)
+                                                <option value="{{$item->id}}" @if(isset($monitoria) && $monitoria->operador_id === $item->id) selected="true" @endif id="supervisor_slct{{$item->id}}" class="{{$item->supervisor_id}}">{{$item->name}}</option>
+                                            @empty
+                                                <option value="0">Nenhum usuário encontrado</option>
+                                            @endforelse
+                                        </select>
+                                    @endif
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="monitor">Usuário-Cliente</label>
-                                    <input required type="text" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
+                                    <input required type="text" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @elseif(isset($operador)) value="" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
                                 </div>
                             </div>
                             {{-- Dados da Monitoria  --}}
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="supervisor">Supervisor</label>
-                                    <input type="text" name="supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-md-11" readonly>
-                                    <button class="btn btn-secondary col-md-1" type="button" onclick="$('#modalTrue').show()"><span class="fa fa-pencil"></span></button>
+                                    @if(isset($operador))
+                                        @if(!is_null($operador->supervisor))
+                                        <p class="form-control">{{$operador->supervisor}}</p>
+                                        @else
+                                        <input type="text" name="supervisor" class="form-control monitoria" >
+                                        <button class="btn btn-danger col-md-1" type="button" onclick="$('#modalTrue').show()">
+                                            <span class="fa fa-pencil"></span>
+                                        </button>
+                                        @endif
+                                    @elseif(isset($monitoria))
+                                        <input type="text" name="supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-md-11" readonly>
+                                        
+                                        <button class="btn btn-secondary col-md-1" type="button" onclick="$('#modalTrue').show()">
+                                            <span class="fa fa-pencil"></span>
+                                        </button>
+                                    @else
+                                        <label for="supervisor">Supervisor</label>
+                                        <input type="text" name="supervisor" class="form-control monitoria" >
+                                    @endif
                                     <input required type="hidden" class="monitoria" name="monitor" id="monitor" value="{{Auth::id()}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="produto">Produto</label>
                                     <select data-live-search="true" name="produto" id="produto" class="form-control select monitoria ">
                                         @forelse ($ilhas as $item)
-                                            <option value="{{$item->id}}" @if(isset($monitoria) && $monitoria->produto == $item->id) selected="true" @endif >{{$item->name}}</option>
+                                            <option value="{{$item->id}}" @if(isset($operador) && $operador->ilha_id === $item->id || isset($monitoria) && $monitoria->produto == $item->id) selected="true" @endif >{{$item->name}}</option>
                                         @empty
                                             <option value="0">Nenhum produto encontrado</option>
                                         @endforelse
@@ -574,7 +597,6 @@
                             type: 'success',
                         });
                         $("button#btnConfirmModal").prop('disabled',false)
-                        // window.location.href = "{{asset('monitoring/manager')}}"
                     },
                     error: function (xhr) {
                         console.log(xhr)
@@ -596,8 +618,6 @@
                                     type: 'error',
                                 });
                             });
-<<<<<<< HEAD
-=======
                         } else if(xhr.status == 429){
                             noty({
                                 text: 'Erro de conexão!',
@@ -605,7 +625,6 @@
                                 layout: 'topRight',
                                 type: 'error',
                             });
->>>>>>> acc459939b921b27789f848ee5cc2eadbd13215d
                         } else {
                             noty({
                                 text: 'Erro! Verifique os campos e Tente novamente mais tarde.',
@@ -621,6 +640,16 @@
     $(function(){
         $("#contentFrameMonitoring").show()
         $("#loadingPreLoader").hide()
+
+        @if(isset($operador))
+            @if(is_null($operador->supervisor))
+                noty({
+                    text:'Selecione um supervisor!',
+                    layout: 'topRight',
+                    typeo: 'warning'
+                });
+            @endif
+        @endif
     })
 </script>
 @endsection

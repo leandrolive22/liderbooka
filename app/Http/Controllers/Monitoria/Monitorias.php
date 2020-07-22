@@ -40,82 +40,33 @@ class Monitorias extends Controller
             $models = Laudo::select('titulo','id')
                             ->orderBy('utilizacoes','DESC')
                             ->orderBy('id','DESC')
+                            // ->where('carteira_id',Auth::user()->carteira_id)
                             ->get();
 
-            //Gráfico
-            $ncg = "SELECT count(ncg)
-                    FROM monitorias
-                    WHERE deleted_at IS NULL
-                    AND ncg = 1
-                    AND created_at BETWEEN CONCAT(data,' 00:00:00') AND CONCAT(data,' 23:59:59')";
-
-            $dataChart = Monitoria::selectRaw("AVG(media) as media, count(id) as ava, DATE_FORMAT(created_at,'%Y-%m-%d') AS data, ($ncg) AS ncg")
-                                    ->whereBetween("created_at",[$lastMonth,date('Y-m-d h:i:s')])
-                                    ->groupBy("data")
-                                    ->orderBy('data')
-                                    ->get();
-
-            // Seleciona dados do gráfico em array por dia do mês
-            foreach($dataChart as $data) {
-                $dataArray[(date('d',strtotime($data->data)))] = [
-                    'media' => $data->media,
-                    'ncg' => $data->ncg,
-                    'ava' => $data->ava
-                ];
-            }
-
-            $medias = '';
-            $ncgs = '';
-            $avas = '';
-
-            for($i=1; $i<=cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')); $i++) {
-                $indice = intval($i);
-                if(isset($dataArray[$i])) {
-                    $media = $dataArray[$i]['media'];
-                    $ncg = $dataArray[$i]['ncg'];
-                    $ava = $dataArray[$i]['ava'];
-                } else {
-                    $media = 0;
-                    $ncg = 0;
-                    $ava = 0;
-                }
-
-
-                $medias .= "{x : $indice,y : $media},";
-                $ncgs .= "{x : $indice,y : $ncg},";
-                $avas .= "{x : $indice,y : $ava},";
-            }
-
-            $chart = [
-                'media' => $medias,
-                'ncg' => $ncgs,
-                'ava' => $avas,
-            ];
-
             //Tabela
-            $monitorias = Monitoria::where('created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
-            ->orderBy('supervisor_at') //ASC
-            ->orderBy('id','DESC')
-            ->get();
+            $monitorias = Monitoria::select('monitorias.*')
+                                    ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
+                                    ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
+                                    ->where('users.carteira_id',Auth::user()->carteira_id)
+                                    ->orderBy('supervisor_at') //ASC
+                                    ->orderBy('id','DESC')
+                                    ->get();
 
             // dados do Cards
             $media = round(Monitoria::selectRaw('AVG(media) as media')->where('created_at','>=',$lastMonth)->first()['media'],2);
-            $signs = Monitoria::where('hash_operator', 'IS', NULL)->count();
-            $supers = User::where('cargo_id',4)->count();
-            $operators = User::where('cargo_id',5)->count();
-            $agents = User::where('cargo_id',15)->count();
-            $quartis = Monitoria::selectRaw('quartil, COUNT(quartil) AS count')
-                                ->where('created_at','>=',$lastMonth)
-                                ->groupBy('quartil')
-                                ->get();
 
             $count = $monitorias->count();
-            $userToApply = Monitoria::selectRaw('id')
-                                ->get();
+            $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name ORDER BY ocorrencias, name;');
+
+            // ncg count
+            $ncgs = Monitoria::where('ncg',1)
+                            ->where('created_at','>=',date('Y-m-d H:i:s',strtotime('-1 Month')))
+                            ->count();
 
         } else {
+            $ncgs = 0;
             $models = [];
-            $userToApply = [];
+            $usersFiltering = 0;
             $monitorias = Monitoria::where('supervisor_id',$id)
                                     ->orWhere('supervisor_at','IS','NULL')
                                     ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-2 Months')))
@@ -123,7 +74,7 @@ class Monitorias extends Controller
                                     ->get();
         }
 
-        return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media','signs','supers', 'operators', 'agents', 'quartis', 'count','lastMonth', 'chart', 'userToApply'));
+        return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media', 'ncgs', 'count','lastMonth', 'usersFiltering'));
     }
 
     public function create()
@@ -272,8 +223,8 @@ class Monitorias extends Controller
 
                 return response()->json(['success' => TRUE, 'msg' => 'Monitoria Salva!'], 201);
             } else {
-                MonitoriaItem::where('monitoria_id',$monitoria_id)->delete();
                 Monitoria::find($monitoria_id)->delete();
+                MonitoriaItem::where('monitoria_id',$monitoria_id)->delete();
                 return response()->json($monitoriaLaudos->errors()->all(), 500);
             }
         }
@@ -337,6 +288,15 @@ class Monitorias extends Controller
                                 ->get();
 
         $laudo = Laudo::withTrashed()->where('id',$monitoria->modelo_id)->get();
+
+        $operador = User::selectRaw('users.id, users.name, s.name AS supervisor')
+                ->join('book_usuarios.users AS s', 's.id', 'users.supervisor_id')
+                ->where('id',@$request->userToApply)
+                ->get();
+
+        if($operador->count() > 0) {
+            return view('monitoring.makeMonitoria',compact('itens', 'laudo' ,'monitoria', 'supers', 'ilhas', 'users', 'title', 'id', 'operador'));
+        }
 
         return view('monitoring.makeMonitoria',compact('itens', 'laudo' ,'monitoria', 'supers', 'ilhas', 'users', 'title', 'id'));
     }

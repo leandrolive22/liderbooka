@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Laudos extends Controller
 {
-    public function toApply($model)
+    public function toApply($model, Request $request)
     {
         $title = 'Aplicar Monitoria';
         $carteira = Auth::user()->carteira_id;
@@ -22,6 +22,7 @@ class Laudos extends Controller
         $laudo = Laudo::find($model);
         $users = User::select('id','name','supervisor_id')
                     ->whereIn('cargo_id',[5])
+                    ->where('carteira_id',Auth::user()->carteira_id)
                     ->orderBy('name')
                     ->get();
         $supers = User::select('id','name')
@@ -33,13 +34,18 @@ class Laudos extends Controller
                     // ->where('deleted_at','IS','NULL')
                     ->orderBy('name')
                     ->get();
+        $operador = User::selectRaw('users.ilha_id, users.id, users.name, s.name AS supervisor')
+                        ->leftJoin('users As s','s.id','users.supervisor_id')
+                        ->where('users.id',$request->userToApply)
+                        ->first();
+        // não é update
         $id = 0;
 
-        if(is_null($laudo) || $laudo->count() > 0) {
-            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers', 'id'));
+        if(is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
+            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers', 'id', 'operador'));
         }
 
-        return redirect()->route('GetMonitoriasIndex')->with('errorAlert','Laudo apagado, recarregue e tente novamente');
+        return redirect()->route('GetMonitoriasIndex')->with('errorAlert','Erro ao carregar informações do laudo, contato o suporte.');
     }
 
     public function store($user, Request $request)

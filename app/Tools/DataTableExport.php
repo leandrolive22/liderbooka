@@ -29,6 +29,6 @@ class DataTableExport implements FromView
         $column = $this->column;
         $count = count($column); // monta colunas da tabela
 
-        return view('tools.exportTable', compact('data','column','count'));
+        return view('tools.exportTable', compact('data','column','count')); 
     }
 }

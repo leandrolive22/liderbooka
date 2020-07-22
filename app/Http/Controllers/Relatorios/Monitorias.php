@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Relatorios;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Carteiras;
-use App\Http\Controllers\Tools\ExcelExports;
+use App\Tools\FromQueryExport;
 use App\Monitoria\Monitoria;
 use App\Users\User;
 use App\Users\Ilha;
 use App\Monitoria\Item;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Storage;
 use Auth;
 use DB;
 use Session;
@@ -263,87 +265,44 @@ class Monitorias extends Controller
 
     public function analyticsSearch(Request $request)
     {
-        // campos do select
-        // $registroMonitoria = $request->input("registroMonitoria");
-        // $SEGMENTOMonitoria = $request->input("SEGMENTOMonitoria");
-        // $GrupoMonitoria = $request->input("GrupoMonitoria");
-        // $OperadorMonitoria = $request->input("OperadorMonitoria");
-        // $MonitorMonitoria = $request->input("MonitorMonitoria");
-        // $ClienteMonitoria = $request->input("ClienteMonitoria");
-        // $DataMonitoria = $request->input("DataMonitoria");
-        // $TpLigacaoMonitoria = $request->input("TpLigacaoMonitoria");
-        // $cpfclienteMonitoria = $request->input("cpfclienteMonitoria");
-        // $DataLigacaoMonitoria = $request->input("DataLigacaoMonitoria");
-        // $media = $request->input('media');
-        // $SupervisorMonitoria = $request->input("SupervisorMonitoria");
-        // $tplaudoMonitoria = $request->input("tplaudoMonitoria");
-        // $ILHAMonitoria = $request->input("ILHAMonitoria");
-        // $FeedBackMonitoria = $request->input("FeedBackMonitoria");
-        // $DataFeedBackMonitoria = $request->input("DataFeedBackMonitoria");
-        // $ItemMonitoria = $request->input("ItemMonitoria");
-        // $procedimentoMonitoria = $request->input("procedimentoMonitoria");
-        // $atendimentoMonitoria = $request->input("atendimentoMonitoria");
-        // $quartil = $request->input("quartil");
-
-        // coloca variáveis em select
-        // $select = $registroMonitoria.
-        // 'laudos.valor as Avaliacoes, '.
-        // $SEGMENTOMonitoria.
-        // $GrupoMonitoria.
-        // $OperadorMonitoria.
-        // $MonitorMonitoria.
-        // $ClienteMonitoria.
-        // $DataMonitoria.
-        // $TpLigacaoMonitoria.
-        // $cpfclienteMonitoria.
-        // $DataLigacaoMonitoria.
-        // $media.
-        // $SupervisorMonitoria.
-        // $tplaudoMonitoria.
-        // $ILHAMonitoria.
-        // $FeedBackMonitoria.
-        // $DataFeedBackMonitoria.
-        // $ItemMonitoria.
-        // $procedimentoMonitoria.
-        // $atendimentoMonitoria.
-        // "IF(itens.value = 'Conforme','1','0') AS Conforme, IF(itens.value = 'Não Conforme','1','0') AS Nao_conforme";
-
-        // monta linhas
-        // $th = 'Registro|Avaliacoes|Segmento|Grupo|Operador|Monitor|Cliente|data_monitoria|tipo_ligacao|cpf_cliente|data_ligacao|Media|Supervisor|tipo_monitoria|Ilha|FeedBack|data_feedback|Item|Procedimento|grupo_atendimento|Conforme|Nao_conforme|Quartil';
-
-        // // coluna da tabela
-        // $coluna = explode('|',$th);
-
-        // trata select para não dar erro
-        // str_replace($select,null,'');
-        // str_replace($select,'null','');
-        // str_replace($select,'none','');
+        ini_set('max_execution_time', '300');
 
         // filtros de data tipo_monitoria
-        $de = date('Y-m-d', strtotime($request->input('periodo')));
+        $de = date('d/m/Y', strtotime($request->input('periodo')));
 
         if($request->input('duasDatas') == 0) {
-            $ate = date('Y-m-d');
+            $ate = date('d/m/Y');
         } else {
-            $ate =  date('Y-m-d', strtotime($request->input('ate')));
+            $ate =  date('d/m/Y', strtotime($request->input('ate')));
         }
 
-	    $search = DB::table("book_monitoria.relatorio_analitico_trimestral")
-                    ->whereBetween('data_monitoria',[$de, $ate])
-                    ->get();
+        // pega dados
+	    // $search = DB::table("book_monitoria.relatorio_analitico_trimestral")
+     //                ->whereBetween('data_monitoria',[$de, $ate])
+     //                // ->limit(5)
+     //                ->get();
 
-        // Grava dados na sessão
-        //Session::put('excelExportsData', $search);
+     //    // Verifica dados
+     //    if($search->count() === 0) {
+     //        return back()->with('successAlert','Nenhum resultado para essa pesquisa.');
+     //    }
 
+     //    // Transforma dados de Object para array
+     //    $data = collect($search)->map(function($x){ return (array) $x; })->toArray(); 
+        
+     //    $columns = array_keys($data[0]);
+
+        $where = "data_monitoria BETWEEN $de AND $ate";
+        $filename = 'liderbook_monitoria'.date('YmdHis').'.xlsx';
         //Exporta
-        $export = new ExcelExports();
-        return $export->basicDatatable(@Auth::id(), @Auth::user()->ilha_id, $search, $request);
+        return  (new FromQueryExport('data_monitoria',[$de,$ate]))->download($filename);
     }
+
     // End Analítico
 
     // Start Signs
-    public function fetchSign() {
-
+    public function tirarAcentos($string){
+        return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
     }
 
     public function searchSign(Request $request)
