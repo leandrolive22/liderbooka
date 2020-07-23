@@ -16,6 +16,10 @@ class Laudos extends Controller
 {
     public function toApply($model, Request $request)
     {
+        if($request->method() === "GET") {
+            return back()->with('errorAlert','Selecione primeiro um operador!');
+        }
+
         $title = 'Aplicar Monitoria';
         $carteira = Auth::user()->carteira_id;
 

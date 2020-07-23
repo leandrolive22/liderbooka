@@ -30,7 +30,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index(Request $request, $n)
+    public function index(Request $request)
     {
         //Verifica se usuário foi apagado
         if(!is_null(Auth::user()->deleted_at)) {
@@ -48,26 +48,6 @@ class HomeController extends Controller
         $users = new Users();
         @$users->saveLogin($user);
 
-        //Registra Login
-        $log = new Logs();
-
-        if($n == 1) {
-            $log->login($user, $ilha, $request->ip());
-        }
-
-        // retorna view de registro aceite de LGPD
-        if($lgpd == NULL) {
-            $title = 'Termo de aceitação de Politica de Privacidade - LiderBook';
-            $lgpd = TRUE;
-            return view('lgpd',compact('title','lgpd'));
-        }
-
-        //Verifica se o usuário já fez login anteriormente
-        $firstLogin = $log->firstLogin($user);
-        if($firstLogin === 0) {
-            return redirect('profile/'.base64_encode($user));
-        }
-
         if(!in_array($cargo, [4,5])) {
             //pega Ilhas
             $i = new Ilhas();
@@ -84,14 +64,6 @@ class HomeController extends Controller
 
         //title da página
         $title = 'Home Page';
-
-        //materiais não lidos
-        $countMat = $log->countNotRead($user,$ilha);
-        if($countMat !== 0) {
-            Session::put('countMaterials',$countMat[0]);
-            Session::put('countVideo',$countMat[1][2]);
-        }
-
         return view('home',compact('title','ilhas','cargos'));
 
     }

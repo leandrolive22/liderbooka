@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Logs\Logs;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -26,7 +29,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = 'home/1';
+    protected $redirectTo = 'home/page';
 
     /**
      * Create a new controller instance.
@@ -36,5 +39,49 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        // Dados de usuário
+        $ilha = $user->ilha_id;
+        $lgpd = $user->accept_lgpd;
+        $cargo = $user->cargo_id;
+
+        //Registra Log
+        $log = new Logs();
+
+        //Verifica se o usuário já fez login anteriormente
+        $firstLogin = $log->firstLogin($user->id);
+        $log->login($user->id, $ilha, $request->ip());
+
+        if($firstLogin === 0) {
+            return redirect('profile/'.base64_encode($user))->with('errorAlert','Altere sua senha');
+        }
+
+        // retorna view de registro aceite de LGPD
+        if(is_null($lgpd)) {
+            $title = 'Termo de aceitação de Politica de Privacidade - LiderBook';
+            $lgpd = TRUE;
+            return view('lgpd',compact('title','lgpd'));
+        }
+
+        if(in_array($cargo,[5,4,3])) {
+            //materiais não lidos
+            $countMat = $log->countNotRead($user,$ilha);
+            if($countMat !== 0) {
+                Session::put('countMaterials',$countMat[0]);
+                Session::put('countVideo',$countMat[1][2]);
+            }
+        }
+
+        // Pegar permissões
+
     }
 }

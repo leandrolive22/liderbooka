@@ -12,7 +12,7 @@ Route::get('hash/{hash}/',function($hash){
     }
     return Hash::make($hash).'    '.$hash;
 });
- 
+
 /*********** Login ***********/
 Route::get('/', 'Users\Users@index')->name('default');
 Route::group(['prefix' => 'forgot'], function () {
@@ -24,16 +24,14 @@ Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 Route::group(['middleware' => ['auth']], function () {
 
     //Controller de redirecionamento - login backend
-    Route::get('/home', function () {
-        return redirect('home/page');
-    })->name('home');
+    Route::get('/home/{page}','HomeController@index')->name('home');
 
     Route::get('about_blank/',function ()
     {
         return view('blank');
     });
 
-    Route::get('/home/{n}', 'HomeController@index')->name('homeN');
+    Route::get('/home', 'HomeController@index')->name('homeN');
     /*********** rotas do menu de navegação ***********/
     Route::group(['prefix' => 'messages'], function () {
         Route::get('/adm', 'Chats\Chats@msgAdm')->name('GetUsersMsgAdm');
@@ -69,13 +67,14 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('GetMonitoriasCreate');
 
         Route::post('toApply/{model}/','Monitoria\Laudos@toApply')->name('PostLaudoToApply');
+        Route::get('toApply/{model}/','Monitoria\Laudos@toApply')->name('GetLaudoToApply');
     /**Supervisão */
         Route::get('/supervision', 'Relatorios\Monitorias@supervision');
 
         Route::get('/findfeedback', 'Relatorios\Monitorias@index')->name('FindFeedBack');
 
-        Route::get('/findresult', 'Relatorios\Monitorias@findresult')->name('FindResult');    
-        
+        Route::get('/findresult', 'Relatorios\Monitorias@findresult')->name('FindResult');
+
         //editar
         Route::get('/edit/{id}','Monitoria\Monitorias@edit')->name('GetMonitoriaEdit');
         Route::put('/edit/{id}/{user}','Monitoria\Monitorias@update')->name('PutMonitoriaEdit');
@@ -100,14 +99,14 @@ Route::group(['middleware' => ['auth']], function () {
 
         /*********** rotas de edição e Gerenciamento de Medidas Disciplinares ***********/
         Route::group(['prefix' => 'measures'], function () {
-            
+
             Route::get('/manager', 'Measures\Measures@index')
                 ->name('GetMeasuresIndex');
-            
+
             Route::get('/create/{model}', 'Measures\Measures@create')
                 ->name('GetMeasuresCreate');
 
-            
+
             Route::get('export/{id}', 'Measures\Measures@export')
                 ->name('GetMeasureExport');
         });
@@ -123,12 +122,12 @@ Route::group(['middleware' => ['auth']], function () {
                 ->name('GetRelatorioQuiz');
 
             Route::get('/links_tags', 'Relatorios\Relatorios@linkTag')
-                ->name('GetRelatorioLinkTag'); 
-                
-            Route::get('/{type}/{id}','Relatorios\Materiais@getReportMaterials') 
+                ->name('GetRelatorioLinkTag');
+
+            Route::get('/{type}/{id}','Relatorios\Materiais@getReportMaterials')
                 ->name('GetMaterialsReport');
-               
-            Route::post('/chartview','Relatorios\Materiais@getViewsCharts') 
+
+            Route::post('/chartview','Relatorios\Materiais@getViewsCharts')
                 ->name('GetMaterialsChart');
 
             // monitorias
@@ -138,37 +137,37 @@ Route::group(['middleware' => ['auth']], function () {
 
                 Route::group(['prefix' => 'mediaSegments'], function () {
                     Route::get('/index', 'Relatorios\Monitorias@mediaSegments')
-                        ->name('GetMonitoriasMediaSegments'); 
+                        ->name('GetMonitoriasMediaSegments');
 
-                    Route::post('/search/{id}/{type}', 'Relatorios\Monitorias@searchDetailSegment') 
-                        ->name('MediaByIlhaPost'); 
-    
-                });                          
+                    Route::post('/search/{id}/{type}', 'Relatorios\Monitorias@searchDetailSegment')
+                        ->name('MediaByIlhaPost');
+
+                });
                 Route::group(['prefix' => 'supervisor'], function () {
                     Route::get('/search', 'Relatorios\Monitorias@findmonitoring')
                     ->name('FindMonitoring');
 
                     Route::post('/find/{id}', 'Relatorios\Monitorias@findmonitoringByDate')
-                        ->name('PostFeedbacksFindMonitoring'); 
+                        ->name('PostFeedbacksFindMonitoring');
 
                     Route::get('/findcategory', 'Relatorios\Monitorias@ilhafind')
                         ->name('FeedbacksFindIlha');
 
                     Route::post('/findscategory/{id}', 'Relatorios\Monitorias@ilhafindPost')
-                        ->name('FeedbacksFindIlhaPost');     
+                        ->name('FeedbacksFindIlhaPost');
 
                     Route::get('/findoperator', 'Relatorios\Monitorias@findoperator')
-                        ->name('PostFeedbacksFindOperator');                           
-                    
-                    Route::post('/findoperator/{id}', 'Relatorios\Monitorias@findmonitoringByDateOperator')
-                        ->name('PostFeedbacksFindOperator');         
+                        ->name('PostFeedbacksFindOperator');
 
-                    
+                    Route::post('/findoperator/{id}', 'Relatorios\Monitorias@findmonitoringByDateOperator')
+                        ->name('PostFeedbacksFindOperator');
+
+
                     Route::get('/evolutionoperator', 'Relatorios\Monitorias@findEvolutionOperator')
-                        ->name('GetFeedbacksEvolutionOperator'); 
+                        ->name('GetFeedbacksEvolutionOperator');
 
                     Route::post('/evolutionoperator/{id}', 'Relatorios\Monitorias@findEvolutionOperator')
-                        ->name('PostFeedbacksEvolutionOperator'); 
+                        ->name('PostFeedbacksEvolutionOperator');
 
                 });
 
@@ -177,8 +176,8 @@ Route::group(['middleware' => ['auth']], function () {
                     ->name('FindMonitoringByAgent');
 
                     Route::post('/evolution/{id}', 'Relatorios\Monitorias@findmonitoringAgent')
-                        ->name('PostMonitoriasFindByAgent'); 
-                            
+                        ->name('PostMonitoriasFindByAgent');
+
                 });
 
                 Route::group(['prefix' => 'analytic'], function () {
@@ -198,16 +197,16 @@ Route::group(['middleware' => ['auth']], function () {
                 // Route::group(['prefix' => 'operator'], function () {
                 //     Route::get('findAll','Relatorios\Monitorias@reportIndexAll')
                 //     ->name('GetMonitoringAlla');
-                    
+
                 // });
 
                 // Route::group(['prefix' => 'signs'], function () {
                 //     Route::get('findAll','Relatorios\Monitorias@reportIndexAll')
                 //     ->name('GetMonitoringAlle');
-                    
+
                 // });
             });
-            
+
 
             //exporta relatorios
             Route::group(['prefix' => 'export'], function () {
@@ -382,7 +381,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('CalculadoraPainel');
 
         Route::get('/painel/getBase/{id}/{ilha}/{cpf}','Materials\Calculadoras@getPainelCPF')->name('');
-        
+
         Route::get('/siape', 'Materials\Calculadoras@Siape')
         ->name('CalculadoraSiape');
 
@@ -500,7 +499,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/simuladorimobiliario', 'Materials\Calculadoras@Imobiliario')
         ->name('CalculadoraImobiliario');
-        
+
         Route::get('/painel', 'Materials\Calculadoras@Painel')
         ->name('CalculadoraPainel');
 

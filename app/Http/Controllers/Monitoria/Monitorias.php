@@ -153,8 +153,8 @@ class Monitorias extends Controller
             $ncg += 1;
             unset($media);
             $media = 0;
-        } else if(round(@intval(($conf/($conf+$nConf))*100),2) !== $media) {
-            $media = round(@intval(($conf/($conf+$nConf))*100),2);
+        } else if(round((($conf/($conf+$nConf))*100),2) !== $media) {
+            $media = round((($conf/($conf+$nConf))*100),2);
         }
 
         // Calcula quartil
@@ -264,7 +264,7 @@ class Monitorias extends Controller
     }
 
     //edita monitoria
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         $title = 'Editar Monitoria';
         $monitoria = Monitoria::find($id);
@@ -291,7 +291,7 @@ class Monitorias extends Controller
 
         $operador = User::selectRaw('users.id, users.name, s.name AS supervisor')
                 ->join('book_usuarios.users AS s', 's.id', 'users.supervisor_id')
-                ->where('id',@$request->userToApply)
+                ->where('users.id',@$request->userToApply)
                 ->get();
 
         if($operador->count() > 0) {
@@ -367,8 +367,8 @@ class Monitorias extends Controller
             $ncg += 1;
             unset($media);
             $media = 0;
-        } else if(round(@intval(($conf/($conf+$nConf))*100),2) !== $media) {
-            $media = round(@intval(($conf/($conf+$nConf))*100),2);
+        } else if(round((($conf/($conf+$nConf))*100),2) !== $media) {
+            $media = round((($conf/($conf+$nConf))*100),2);
         }
 
         // Calcula quartil
