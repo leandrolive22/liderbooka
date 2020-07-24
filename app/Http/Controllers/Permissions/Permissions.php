@@ -74,4 +74,19 @@ class Permissions extends Controller
     {
         $this->permissions = $permissions;
     }
+
+    // Lista todas permissões
+    public function allPermissions($webMaster = FALSE)
+    {
+        return Permission::when(!$webMaster, function($q) {
+                        return $q->where('id','<>',1);
+                    })
+                    ->orderBy('name')
+                    ->get();
+    }
+
+    public function index()
+    {
+        return view('gerenciamento.permissions.index',compact($this->allPermissions(in_array(1,$this->getPermissions()))));
+    }
 }
