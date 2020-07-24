@@ -151,7 +151,7 @@
                         '<input type="radio" class="iradio" name="iradio" id="iradio'+id+'_'+n+'" checked="checked" style="position: absolute; opacity: 0;">'+
                     '</div>'+
                     '<div class="input-group col-md-11">'+
-                        '<input type="text" name="radioBtninput" id="radio'+id+'_'+n+'" placeholder="Escreva a alternativa"'+
+                        '<input type="text" maxlength="255" name="radioBtninput" id="radio'+id+'_'+n+'" placeholder="Escreva a alternativa"'+
                             'class="form-control col-md-11">'+
                         '<a onclick="clearRadio('+id+','+n+')" '+
                             'title="Excluir alternativa" '+
@@ -272,7 +272,7 @@
             ok++
         }
 
-        $.each($('input[name=questionTitle]'),function(index,questions){
+        $.each($('textarea[name=questionTitle]'),function(index,questions){
             if(questions.value == '') {
 
                 ok++
@@ -323,7 +323,7 @@
         question = ''
 
         //concatena questões
-        $.each($('input[name=questionTitle]'),function(index,input){
+        $.each($('textarea[name=questionTitle]'),function(index,input){
             value = input.value
             id = input.id
 
@@ -351,10 +351,11 @@
                 //desativa btn preloader
                 $(".fa.fa-cloud-upload").show()
                 $("#preloaderBtnsave").hide()
+                $("#saveBtn").attr('class','list-group-item btn-success')
 
                 if(response.success) {
                     noty({
-                        text: 'Quiz Criado com sucesso',
+                        text: 'Quiz Criado com sucesso!',
                         timeout: '2000',
                         layout: 'topRight',
                         type: 'success'
@@ -362,10 +363,6 @@
                 }
 
                 $("#viewquiz").show();
-
-                if(response['multiple'].length > 1) {
-                    window.location.replace("{{ asset('quiz/view/correct/') }}/"+response['id'])
-                }
             },
             error: function(xhr, status) {
                 console.log(xhr)
@@ -378,6 +375,8 @@
                             type: 'error',
                         })
                 });
+
+                $("#saveBtn").attr('class','list-group-item btn-success')
 
                 noty({
                     text: xhr.responseJSON.message,

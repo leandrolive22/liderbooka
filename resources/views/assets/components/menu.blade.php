@@ -63,16 +63,16 @@
         @if(in_array(Auth::user()->id,[37]))
         <li @if($current == 'tabulador') class="active" @endif>
             @php
-                if(in_array(Auth::user()->cargo_id,[1,15])) {
+            if(in_array(Auth::user()->cargo_id,[1,15])) {
 
-                    $link = 'GetTabsBackOffice';
-                }
-                elseif(in_array(Auth::user()->cargo_id,[4])) {
-                    $link = 'GetTabsSupervisor';
-                }
-                elseif(in_array(Auth::user()->cargo_id,[5])) {
-                    $link = 'GetTabsOperador';
-                }
+                $link = 'GetTabsBackOffice';
+            }
+            elseif(in_array(Auth::user()->cargo_id,[4])) {
+                $link = 'GetTabsSupervisor';
+            }
+            elseif(in_array(Auth::user()->cargo_id,[5])) {
+                $link = 'GetTabsOperador';
+            }
             @endphp
             <a href="{{route($link)}}">
                 <span class="fa fa-dot-circle-o"></span>
@@ -90,91 +90,91 @@
         <li @if($current == 'msgs') class="active"@else @endif>
             @if(in_array(Auth::user()->cargo_id,[5,11,12,13,14]))
             <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG OPERATOR  --}}
-            @elseif(in_array(Auth::user()->cargo_id,[7]))
-            <a href="{{route('GetUsersMsgCoord')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG COORD --}}
-            @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
-            <a href="{{route('GetUsersMsgAdm')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG ADM  --}}
-            @elseif(in_array(Auth::user()->cargo_id,[4]) || Auth::user()->ilha_id == 48)
-            <a href="{{route('GetUsersMsgSup')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG SUPERVISOR  --}}
-            @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
-            <a href="{{route('GetUsersMsgOpeSup')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG ANOTHERS  --}}
-            @elseif(in_array(Auth::user()->cargo_id,[3]))
-            <a href="{{route('GetUsersMsgTraining')}}"id="MessagesTaskBtnMenu">
-            {{-- MSG TRAINING  --}}
-            @elseif(in_array(Auth::user()->cargo_id,[15]))
-            <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtnMenu">
-            {{-- MSG Monitor  --}}
-            @else
-            <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
-                {{-- MSG ELSE  --}}
-                @endif
-                <span class="fa fa-comments"></span>
-                <span class="xn-text">Chat<strong>Book</strong></span>
-            </a>
-        </li>
-        <li @if($current == 'quiz') class="active" @else @endif>
-            <a href="{{ route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0 ]) }}">
-                <span class="fa fa-gamepad"></span>
-                <span class="xn-text">Quizzes</span>
-            </a>
-        </li>
-        <li @if($current == 'wiki') class="active"@else @endif>
-            <a href="{{ asset('wiki/' . Auth::user()->ilha_id) }}">
-                <span class="fa fa-bar-chart-o"></span>
-                <span class="xn-text">Wiki</span>
-            </a>
-        </li>
-        <li @if($current == '') class="active"@else @endif>
-            <a href="{{route('Faq')}}">
-                <span class="fa fa-question-circle"></span>
-                <span class="xn-text">FAQ</span>
-            </a>
-        </li>
-        <li @if($current == '') class="active"@else @endif>
-            <a href="https://suporte.ativy.com">
-                <span class="fa fa-envelope-o"></span>
-                <span >Suporte</span>
-            </a>
-        </li>
-    </ul>
-    <!-- END X-NAVIGATION -->
-</div>
+                {{-- MSG OPERATOR  --}}
+                @elseif(in_array(Auth::user()->cargo_id,[7]))
+                <a href="{{route('GetUsersMsgCoord')}}"id="MessagesTaskBtnMenu">
+                    {{-- MSG COORD --}}
+                    @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
+                    <a href="{{route('GetUsersMsgAdm')}}"id="MessagesTaskBtnMenu">
+                        {{-- MSG ADM  --}}
+                        @elseif(in_array(Auth::user()->cargo_id,[4]) || Auth::user()->ilha_id == 48)
+                        <a href="{{route('GetUsersMsgSup')}}"id="MessagesTaskBtnMenu">
+                            {{-- MSG SUPERVISOR  --}}
+                            @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
+                            <a href="{{route('GetUsersMsgOpeSup')}}"id="MessagesTaskBtnMenu">
+                                {{-- MSG ANOTHERS  --}}
+                                @elseif(in_array(Auth::user()->cargo_id,[3]))
+                                <a href="{{route('GetUsersMsgTraining')}}"id="MessagesTaskBtnMenu">
+                                    {{-- MSG TRAINING  --}}
+                                    @elseif(in_array(Auth::user()->cargo_id,[15]))
+                                    <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtnMenu">
+                                        {{-- MSG Monitor  --}}
+                                        @else
+                                        <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
+                                            {{-- MSG ELSE  --}}
+                                            @endif
+                                            <span class="fa fa-comments"></span>
+                                            <span class="xn-text">Chat<strong>Book</strong></span>
+                                        </a>
+                                    </li>
+                                    <li @if($current == 'quiz') class="active" @else @endif>
+                                        <a href="{{ route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0, 'take' => 20 ]) }}">
+                                            <span class="fa fa-gamepad"></span>
+                                            <span class="xn-text">Quizzes</span>
+                                        </a>
+                                    </li>
+                                    <li @if($current == 'wiki') class="active"@else @endif>
+                                        <a href="{{ asset('wiki/' . Auth::user()->ilha_id) }}">
+                                            <span class="fa fa-bar-chart-o"></span>
+                                            <span class="xn-text">Wiki</span>
+                                        </a>
+                                    </li>
+                                    <li @if($current == '') class="active"@else @endif>
+                                        <a href="{{route('Faq')}}">
+                                            <span class="fa fa-question-circle"></span>
+                                            <span class="xn-text">FAQ</span>
+                                        </a>
+                                    </li>
+                                    <li @if($current == '') class="active"@else @endif>
+                                        <a href="https://suporte.ativy.com">
+                                            <span class="fa fa-envelope-o"></span>
+                                            <span class="xn-text">Suporte</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <!-- END X-NAVIGATION -->
+                            </div>
 
-@section('menuJs')
-<script type="text/javascript">
-    $("#formTransferLogin > a").click(function(){
-        $.ajax({
-            type: "POST",
-            url: $("#formTransferLogin").attr('action'),
-            data: $("#formTransferLogin").serialize(),
-            dataType: "application/json",
-            success: function (response) {
-                console.log(response)
-            },
-            error: function (xhr, status) {
-                console.log(xhr)
-                alert(status)
-            }
-        });
-    });
+                            @section('menuJs')
+                            <script type="text/javascript">
+                                $("#formTransferLogin > a").click(function(){
+                                    $.ajax({
+                                        type: "POST",
+                                        url: $("#formTransferLogin").attr('action'),
+                                        data: $("#formTransferLogin").serialize(),
+                                        dataType: "application/json",
+                                        success: function (response) {
+                                            console.log(response)
+                                        },
+                                        error: function (xhr, status) {
+                                            console.log(xhr)
+                                            alert(status)
+                                        }
+                                    });
+                                });
 
-    setTimeout(() => {
-        $.getJSON("{{route('getIlhasEditBySetor', ['setor' => Auth::user()->setor_id] )}}", function(data) {
-            if(data.lenght > 0) {
-                linhas = ''
-                for(i=0; i<data.lenght; i++) {
-                    linhas += '<option value="'+data.id+'">'+data.setor+' | '+data.name+'</option>'
-                }
+                                setTimeout(() => {
+                                    $.getJSON("{{route('getIlhasEditBySetor', ['setor' => Auth::user()->setor_id] )}}", function(data) {
+                                        if(data.lenght > 0) {
+                                            linhas = ''
+                                            for(i=0; i<data.lenght; i++) {
+                                                linhas += '<option value="'+data.id+'">'+data.setor+' | '+data.name+'</option>'
+                                            }
 
-                $("select#ilha_idEdit").html(linhas)
-                $("div#editIsland").show()
-            }
-        });
-    },5000);
-</script>
-@endsection
+                                            $("select#ilha_idEdit").html(linhas)
+                                            $("div#editIsland").show()
+                                        }
+                                    });
+                                },5000);
+                            </script>
+                            @endsection

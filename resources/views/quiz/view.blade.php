@@ -14,7 +14,7 @@
 						<div class="row text-center">
 							<div class="panel panel-primary" style="padding-top: 1rem;">
 								<div class="panel-heading ui-draggable-handle">
-									<a href="{{url()->previous()}}"> <h3 class="panel-title"><span class="fa fa-arrow-circle-o-left"></span> <b>Quiz #{{ $quiz->id }}</b> {{ $quiz->title }}</h3></a>
+									<a href="{{url()->previous()}}"> <h3 class="panel-title text-justify"><span class="fa fa-arrow-circle-o-left"></span> <b>Quiz #{{ $quiz->id }}</b> {{ $quiz->title }}</h3></a>
 								</div>
 							</div>
 						</div>
@@ -36,11 +36,11 @@
 					@foreach($questions as $question)
 					<div class="panel panel-info">
 						<div class="panel-heading ui-draggable-handle ui-sortable-handle">
-							<p class="panel-title col-md-5">{{ $question->question }}</p>
+							<p class="panel-title col-md-12 text-justify">{{ $question->question }}</p>
 						</div>
 						<div class="panel-body">
 							<!-- alternativas -->
-							<div class="form-group col-md-12" id="option{{$question->id}}">
+							<div class="form-group col-md-12  text-justify" id="option{{$question->id}}">
 								<!-- Questões  -->
 							</div>
 							<!-- ./alternativas -->
@@ -140,7 +140,7 @@
 				$("#message-box-success").show();
 				$("#tagPsuccess").html('Resposta salva com sucesso!');
 				console.log(xhr)
-				window.location.href="{{ url()->previous() }}"
+				window.location.href="{{route('GetQuizIndex',['ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'take' => 20, 'skip' => 0]) }}"
 			}, 
 			error: function(xhr,status) {
 				$("#message-box-danger").show();

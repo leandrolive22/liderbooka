@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Relatorios;
 
+use App\Http\Controllers\Tools\ExcelExports;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Users\Ilha;
 use App\Users\User;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
 use App\Http\Controllers\Users\Superiors;
@@ -18,8 +20,71 @@ use App\Quiz\Quiz;
 use App\Users\Cargo;
 use App\Users\Carteira;
 use App\Users\Filial;
+use DB;
 
 class Quizzes extends Controller {
+
+
+    public function quizDataById($i)
+    {
+        try {
+            $id = base64_decode($i);
+            $ids = '';
+            //$ids = 'a.id As answer_id, q.id AS quiz_id, questions.id AS question_id, o.id As option_id, a.user_id, a.option_id AS multiple_answer';
+            $result = DB::select('
+                SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
+                questions.question, o.text AS question_text, a.text AS text_answer, 
+                u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
+
+                FROM book_quizzes.quizzes AS q
+                LEFT JOIN book_quizzes.questions 
+                    ON q.id = questions.quiz_id
+                LEFT JOIN book_quizzes.options AS o
+                    ON o.question_id = questions.id
+                JOIN book_quizzes.answers AS a 
+                    ON o.id = a.option_id AND a.question_id = questions.id
+                LEFT JOIN book_usuarios.users AS creator 
+                    ON q.creator_id = creator.id
+                LEFT JOIN book_usuarios.users AS u 
+                    ON u.id = a.user_id
+                LEFT JOIN book_usuarios.users AS supervisor 
+                    ON supervisor.id = u.supervisor_id
+                LEFT JOIN book_usuarios.users AS coordenador 
+                    ON coordenador.id = u.coordenador_id
+                LEFT JOIN book_usuarios.users AS gerente 
+                    ON gerente.id = u.gerente_id
+                LEFT JOIN book_usuarios.users AS superintendente 
+                    ON superintendente.id = u.superintendente_id
+                WHERE q.id = ?
+                ',[$id]);
+
+            
+            $data = collect($result)->map(function($x){ return (array) $x; })->toArray(); 
+            if(count($data) === 0) {
+                return back()->with('errorAlert','Nenhum dado encontrado!');
+            }
+            $columns = array_keys($data[0]);
+
+            $excel = new ExcelExports();
+            return $excel->analyticMonitoria($data,$columns,'liderbook_quiz_'.$i.'_report');
+
+            // return $result
+
+            return back()->with('errorAlert','Quiz Não encontrado');
+        } catch (Exception $e) {
+            @DB::table('book_relatorios.error_logs')->insert([
+                'user' => Auth::id(),
+                'error' => 'ERROR_QUIZ_REPORT',
+                'error_detail' => $e->getMessage(),
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            return back()->with('errorAlert','Erro, contate o suporte!');
+        }
+        
+    }
+
+
     //mmonta filtros da página de acordo com o quiz escolhido
     public function setfilters($quiz_id)
     {

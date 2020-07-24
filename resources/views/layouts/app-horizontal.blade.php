@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon" />
     @include('assets.title.title')
     @include('assets.meta')
     @include('assets.css.app')
@@ -11,6 +12,11 @@
     @endif
     @include('assets.css.scroll')
 </head>
+
+@hasSection('modal')
+@yield('modal')
+@endif
+
 <body>
     {{-- <div class="d-flex justify-content-center" id="preLoaderApp">
         <div class="spinner-grow" role="status" style="width: 10rem; height: 10rem; margin-top: 20%; margin-bottom: 20%;">
@@ -58,102 +64,6 @@
             }
         });
     }
-
-    // funçaõ para mostrar msg na navbar
-    function getMsgNotify() {
-        $.getJSON('{{ route('GetChatsNotify', [ 'id' => Auth::user()->id ])  }}', function(data) {
-            if(data['n'] > 0) {
-                $("#MsgNotifyX").remove();
-
-                $("#msgVal").attr('value',data['n'])
-
-                div = '<div class="informer informer-danger" id="MsgNotifyX">'+data['n']+'</div>';
-
-                $("#MessagesTaskDiv").append(div);
-
-                //pesquisa apenas quem enviou a msg e indica ao usuario, caso esteja dentro das view chat.*
-                @if( in_array(Route::current()->getName(),['GetUsersMsgAdm','GetUsersMsgCoord','GetUsersMsgOpe','GetUsersMsgSup','GetUsersMsgTraining','GetUsersMsgOpeSup ','GetUsersMsgMonit']))
-                    // Pesquisa novos contatos
-                    newContacts()
-
-                    //mostra icone de msgs
-                    $.each(data['ids'],function(index, value){
-                        msgNumber(value);
-                    })
-                @else
-                @endif
-                document.title = '('+data['n']+') Novas mensagens - LiderBook'
-                pushNoty('ChatBook',"Você tem novas mensagens no ChatBook, Venha conferir!",$('#MessagesTaskBtn').attr('href'))
-
-
-            } else {
-                $("#msgVal").attr('value','0');
-                $("#MsgNotifyX").remove();
-                document.title = 'LiderBook 2.0 - {{ isset($title) ? $title : "Login" }}'
-            }
-        });
-    }
-
-    //Abre modal Calculadora
-    //lista calculadoras ao clicar
-    $("#CalculadoraTask").click(function() {
-        $.getJSON('{{ route("GetMaterialsCalculadoras", ['ilha' => Auth::user()->ilha_id ])  }}',function(data){
-            n = data.length;
-            if(n > 0) {
-                $("#calcXnav").remove()
-                div = "<div id='calcXnav'>";
-                calc = '';
-                for(i=0; i< n; i++){
-                    nameAspas = "'"+data[i].name+"'";
-                    calc +=
-                    '<div class="card">'+
-                    '<a class="list-group-item" onCLick="window.open('{{ asset('api/download/calculator') }}/'+ data[i].id +'/{{ Auth::user()->id }}'','_blank');"  onclick="notifyCalculator('+nameAspas+')" >' +
-
-                    '<span class="fa fa-paperclip"></span>'+
-                    '<strong> ' + data[i].name + '</strong>' +
-                    '</a>'+
-                    '</div>';
-                }
-                div += calc + '</div>'
-                $('#calculadoraJS').append(div);
-            }
-        })
-    });
-
-    $("#CalculadoraTask").click(function() {
-        $.getJSON('{{ route("GetMaterialsCalculadoras", ['ilha' => Auth::user()->ilha_id ])  }}',function(data){
-            n = data.length;
-            if(n > 0) {
-                $("#calcXnav").remove()
-                div = "<div id='calcXnav'>";
-                calc = '';
-                for(i=0; i< n; i++){
-                    nameAspas = "'"+data[i].name+"'";
-                    calc +=
-                    '<div class="card">'+
-                    '<a class="list-group-item" onCLick="window.open('{{ asset('api/download/calculator') }}/'+ data[i].id +'/{{ Auth::user()->id }}'','_blank');"  onclick="notifyCalculator('+nameAspas+')" >' +
-                    '<span class="fa fa-paperclip"></span>'+
-                    '<strong> ' + data[i].name + '</strong>' +
-                    '</a>'+
-                    '</div>';
-                }
-                div += calc + '</div>'
-                $('#calculadoraJS').append(div);
-            }
-        })
-    });
-
-    function myTimer() {
-        var d = new Date();
-        var t = d.toLocaleTimeString();
-        $("#Clock").remove();
-        clock = '<div id="Clock">'+t+'</div>';
-
-        $("#myClock").append(clock);
-    }
-
-    var myVar = setInterval(myTimer, 1000);
-    var msg = setInterval(getMsgNotify, 300000)
 
     $(document).ready(function(){
         carregarCargo( {{Auth::user()->cargo_id}} );

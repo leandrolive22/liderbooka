@@ -52,7 +52,38 @@
                 </div>
                 @endif
             </div>
-            <!-- ./Div Relógio e Clima -->
+
+            @php
+            
+            $i = 0;
+
+            @endphp
+
+            <!-- Quizzes Alerts -->
+            @forelse($quiz as $item)
+            @php
+
+            $i++;
+
+            @endphp
+            
+            <a class="widget @if(($i % 2) === 0) widget-success @else widget-danger @endif widget-item-icon" href="{{ route('GetQuizzesView',[ 'id' => base64_encode($item->id) ]) }}">
+                <div class="widget-item-left">
+                    <img src="{{$item->avatar}}">
+                </div>
+                <div class="widget-data">
+                    <div class="widget-title">Quiz #{{$item->id}}</div>
+                    <div class="widget-subtitle">{{$item->title}}</div>
+                    <div class="widget-subtitle">{{substr($item->description,0,30)}}</div>
+                    <div class="widget-subtitle">Clique Aqui para responder</div>
+                </div>
+            </a>
+            @empty
+
+            @endforelse
+
+
+            {{-- ./Div Relógio e Clima --}}
             @if( in_array(Auth::user()->cargo_id,[1,2,4,9,7]) )
             {{-- Chart's Environment  --}}
             <div class="widget widget-default widget-padding-sm" id="chart1">
@@ -107,8 +138,8 @@
             'ilha' => Auth::user()->ilha_id
             ] ) }}',function(data) {
 
-            if(data.length > 0) {
-                console.log(data)
+                if(data.length > 0) {
+                    console.log(data)
 
                 // insatisfeito
                 if(typeof data[0] !== 'undefined' &&  data[0]['valTypes'] == 'Insatisfeito') {
@@ -147,17 +178,17 @@
                 total =env1+env2+env3
 
                 Morris.Donut({
-                        element: 'enviroChart',
-                        data: [
-                            {label: "Insatisfeito", value: env1},
-                            {label: "Indiferente", value: env2},
-                            {label: "Satisfeito", value: env3}
-                        ],
-                        colors: [
-                            'red',
-                            '#ffd700',
-                            'green'
-                        ]
+                    element: 'enviroChart',
+                    data: [
+                    {label: "Insatisfeito", value: env1},
+                    {label: "Indiferente", value: env2},
+                    {label: "Satisfeito", value: env3}
+                    ],
+                    colors: [
+                    'red',
+                    '#ffd700',
+                    'green'
+                    ]
 
                 });
 
@@ -170,9 +201,9 @@
             }//endif
         })
     }
-@endif
+    @endif
 
-@if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
+    @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
     // pega materiais não lideos
     function nonReadMaterials() {
         // $.getJSON('{{ route('GetLogsCountRead', [ 'user' => Auth::id(), 'ilha' => Auth::user()->ilha_id ]) }}',function(data) {
@@ -223,21 +254,21 @@
         //     }
         // }
     }
-@endif
+    @endif
     //chama a função ao carergar a page
     $(window).on('load',function () {
         @if (session('countVideo') && in_array(Auth::user()->cargo_id, [4,5]))
-            try {
-                pushNoty('Wiki - LiderBook','Você tem vídeos não visualizados',"{{ asset('/videos/' . Auth::user()->ilha_id ) }}");
-                setTimeout(function() {return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"}, 2000);
-            } catch (e) {
-                alert('Você tem ' + data[1][2] + ' VIDEO(S) não vistos')
-                return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"
-            }
+        try {
+            pushNoty('Wiki - LiderBook','Você tem vídeos não visualizados',"{{ asset('/videos/' . Auth::user()->ilha_id ) }}");
+            setTimeout(function() {return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"}, 2000);
+        } catch (e) {
+            alert('Você tem ' + data[1][2] + ' VIDEO(S) não vistos')
+            return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"
+        }
         @endif
 
         @if(in_array(Auth::user()->cargo_id,[1,2,4,9,7]))
-            getEnvironment();
+        getEnvironment();
         @endif
 
         //chama as funções à cada 5 minutos
@@ -249,7 +280,7 @@
             @endif
 
           //tempo de busca
-        },5*60*1000);
+      },5*60*1000);
 
         //if Laravel
         @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))

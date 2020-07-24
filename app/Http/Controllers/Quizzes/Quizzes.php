@@ -18,7 +18,22 @@ use App\Http\Controllers\Logs\Logs;
 
 class Quizzes extends Controller
 {
-    //trata respostas para salvar
+    public function getQuizFromUser($ilha,$user)
+    {
+        try {
+            return Quiz::selectRaw('quizzes.id, quizzes.title, quizzes.description, quizzes.num_responses, u.avatar')
+            ->leftJoin('book_relatorios.logs AS l', 'quizzes.id', 'l.value')
+            ->leftJoin('book_usuarios.users As u', 'quizzes.creator_id', 'u.id')
+            // ->where('quizzes.ilhas','%'.$ilha.'%')
+            ->where('l.action','QUIZ_ANSWERED')
+            // ->whereRaw('NOT l.user_id = '.$user)
+            ->get();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    //trata respostas para salvar no banco
     public function saveAnswers(Request $request)
     {
         //data array to save in database
@@ -26,7 +41,7 @@ class Quizzes extends Controller
         $questionReq = $request->input('question');
         $alternativaReq = $request->input('multiple');
 
-        //insert_data
+        // trata dados de insert
         $quiz_id = $request->input('quiz');
         $user = $request->input('user');
         $texto = explode('|_|___@___|_|',substr($questionReq,0,-13));
@@ -58,44 +73,55 @@ class Quizzes extends Controller
 
         if(count($data) > 0) {
 
-            $insert = DB::table('book_quizzes.answers')->insert($data);
+            try {
+                $insert = Answer::insert($data);    
+                if($insert) {
+                    $quiz = Quiz::find($quiz_id);
+                    $quiz->num_responses++;
+                    $quiz->save();
+                    //grava logs
+                    $log = new Logs();
+                    @$log->awnswerQuiz($user,$quiz_id);
 
-            $quiz = Quiz::find($quiz_id);
-            $quiz->num_responses++;
-            $quiz->save();
+                    return response()->json(['success' => TRUE], 201);    
+                }
 
-            //log de resposta salva
-            $log = new Logs();
-            $log->awnswerQuiz($user,$quiz_id,"QUIZ_ANSWERED");
-
-            return response()->json(['success' => TRUE], 201);
+                return response()->json(['success' => FALSE], 422);     
+            } catch (Exception $e) {
+                return response()->json(['success' => FALSE, 'msg' => $e->getMessage()], 422);   
+            }
         }
         
 
         return response()->json(['success' => FALSE], 422);
     }
 
-    //retorna view com quizzes
-    public function index($ilha, $id, $skip = 0) {
+    //////////////////////////////////////////////////////////////
+
+    //retorna view com quizzes - index
+    public function index($ilha, $id, $skip = 0, $take = 20) {
         $title = 'Quizzes';
 
         if(is_null($ilha)) {
             return back()->with(['errorAlert','Sessão expirada ou inválida, faça login novamente!']);
         }
 
-        $quizzes = Quiz::select('quizzes.id','quizzes.creator_id','quizzes.title','quizzes.description','quizzes.num_responses','logs.user_id as answered')
+        $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered')
                 ->leftJoin('book_relatorios.logs','quizzes.id','logs.value')
-                ->where('quizzes.validity', '<=',date('Y-m-d h:i:s'))
-                ->whereRaw('quizzes.ilhas LIKE "%' . $ilha . '%"')
+                ->where('quizzes.validity', '<=',now())
+                ->whereRaw('quizzes.ilhas LIKE "%,' . $ilha . ',%"')
+                ->orWhereRaw('(IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.')')
                 ->orWhere('quizzes.creator_id',$id)
+                ->orderBy('logs.user_id')
                 ->orderBy('quizzes.id','DESC')
                 ->skip($skip)
-                ->take(20)
+                ->take($take)
                 ->get();
 
-        return view('quiz.quizzes',compact('title','quizzes'));
+        return view('quiz.quizzes',compact('title','quizzes','skip','take'));
     }
 
+    // retorna view de criação de quiz (criar)
     public function create(Request $request) {
 
         //Registra log de página
@@ -103,8 +129,8 @@ class Quizzes extends Controller
         $log->page($request->fullUrl(),Auth::user()->id,Auth::user()->ilha_id,$request->ip());
 
         //pega ilhas
-        $i = new Ilhas();
-        $ilhas = json_decode($i->indexPost());
+        $i = new Ilhas(); 
+        $ilhas = ($i->indexPost('*',null,FALSE));
 
         $title = 'Criar Quiz';
         return view('quiz.make',compact('title','ilhas'));
@@ -182,7 +208,6 @@ class Quizzes extends Controller
         $return = NULL;
         $correct = NULL;
 
-
         // $request->validate($rules,$messages);
 
         //dados do form
@@ -191,9 +216,9 @@ class Quizzes extends Controller
         $datepicker = implode('-',array_reverse(explode('-',$request->input('validity')))).' 00:00:00';//timestamp
         $icheckbox = $request->input('icheckbox'); //always on
 
-        $ilhas = $request->input('ilhas'); // ilha_id (ilha-1,ilha-2,...,ilha-n)
+        $ilhas = ','.$request->input('ilhas').','; // ilha_id (ilha-1,ilha-2,...,ilha-n)
         $question = explode('@|||||/*-@',substr($request->input('question'),0,-10));
-        $options = explode('@|||||/*-@',$request->input('qvalues'));
+        $options = explode('@|||||/*-@',substr($request->input('qvalues'),0,-10));
 
         //salva quiz
         $quizId = $this->saveQuiz($user,$title,$datepicker,$icheckbox,$ilhas,$descript);
@@ -249,6 +274,7 @@ class Quizzes extends Controller
 
     }
 
+    // grava quiz
     public function saveQuiz($user,$title,$datepicker,$icheckbox,$ilhas,$description = NULL) : INT
     {
 
@@ -369,7 +395,7 @@ class Quizzes extends Controller
         return response()->json(['success' => $data], $n);
     }
 
-    //salva resposa no banco
+    //salva resposta no banco
     public function saveOption($user, $option_id = NULL, $text = NULL)
     {
         $answer = new Answer();

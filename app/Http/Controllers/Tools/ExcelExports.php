@@ -39,7 +39,7 @@ class ExcelExports extends Controller
         return Excel::download($export, "liderbook_export_$date.xlsx");
     }
 
-    public function analyticMonitoria(array $data, array $columns)
+    public function analyticMonitoria(array $data, array $columns, string $filename = 'liderbook_export_monitoring')
     {
         // Define data atual
         $date = date('YmdHis');
@@ -49,7 +49,7 @@ class ExcelExports extends Controller
             $export = new DataTableExport($data, $columns);
 
             // Força download
-            return Excel::download($export, "liderbook_export_monitoring.xlsx");
+            return Excel::download($export, "$filename.xlsx");
         } catch (Exception $e) {
             throw new Exception("Error Processing Request".$e->getMessage(), 1);
         }

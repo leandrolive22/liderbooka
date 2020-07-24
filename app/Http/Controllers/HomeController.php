@@ -10,6 +10,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Cargos;
 use App\Http\Controllers\Users\Users;
+use App\Http\Controllers\Quizzes\Quizzes;
 use App\Users\User;
 
 
@@ -38,7 +39,7 @@ class HomeController extends Controller
             return redirect('/')->withErrors(['username' => 'Usuário não encontrado ou desativado.']);
         }
 
-        //deine variáveis à serem utilizadas na função
+        //define variáveis à serem utilizadas na função
         $ilha = Auth::user()->ilha_id;
         $user = Auth::id();
         $lgpd = Auth::user()->accept_lgpd;
@@ -48,6 +49,7 @@ class HomeController extends Controller
         $users = new Users();
         @$users->saveLogin($user);
 
+        // se pode publicar, carrega ilhas
         if(!in_array($cargo, [4,5])) {
             //pega Ilhas
             $i = new Ilhas();
@@ -61,10 +63,13 @@ class HomeController extends Controller
             $cargos = NULL;
         }
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser($ilha, $user);
 
         //title da página
         $title = 'Home Page';
-        return view('home',compact('title','ilhas','cargos'));
+        return view('home',compact('title','ilhas','cargos','quiz'));
 
     }
 }

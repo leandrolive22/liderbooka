@@ -121,6 +121,9 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/quizzes', 'Relatorios\Relatorios@quiz')
                 ->name('GetRelatorioQuiz');
 
+            // Analitico provisório
+            Route::post('/quizDataBy/{id}','Relatorios\Quizzes@quizDataById')->name('GetReportQuizDataById');
+
             Route::get('/links_tags', 'Relatorios\Relatorios@linkTag')
                 ->name('GetRelatorioLinkTag');
 
@@ -477,7 +480,7 @@ Route::group(['middleware' => ['auth']], function () {
     /*********** Quizz ***********/
     Route::group(['prefix' => 'quiz'], function () {
 
-        Route::get('/get/{ilha}/{id}/{skip}', 'Quizzes\Quizzes@index')
+        Route::get('/get/index/{ilha}/{id}/{skip}/{take}', 'Quizzes\Quizzes@index')
         ->name('GetQuizIndex');
 
         Route::get('/create', 'Quizzes\Quizzes@create')

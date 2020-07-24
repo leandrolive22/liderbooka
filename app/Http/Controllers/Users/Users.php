@@ -18,6 +18,7 @@ use App\Http\Controllers\Materials\Roteiros;
 use App\Http\Controllers\Materials\SubLocais;
 use App\Http\Controllers\Materials\Videos;
 use App\Http\Controllers\Monitoria\Monitorias;
+use App\Http\Controllers\Quizzes\Quizzes;
 use App\Logs\Log;
 use App\Users\User;
 use App\Users\DeletedUser;
@@ -92,7 +93,11 @@ class Users extends Controller
     {
         $title = 'Administrador';
 
-        return view('gerenciamento.gerenciamento', compact('title'));
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
+        return view('gerenciamento.gerenciamento', compact('title','quiz'));
     }
 
     public function profile($id)

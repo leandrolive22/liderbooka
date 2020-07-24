@@ -23,14 +23,17 @@ class Ilhas extends Controller
         return $ilhas->toJSON();
     }
 
-    public function indexPost($select = '*',$where = NULL)
+    public function indexPost($select = '*',$where = NULL, $json = TRUE)
     {
         $ilhas = Ilha::selectRaw($select)
-                    ->when(!is_null($where),function($q,$where) {
+                    ->when(!is_null($where),function($q) use ($where) {
                         return $q->whereRaw($where);
                     })
                     ->orderBy('name')
                     ->get();
+        if(!$json) {
+            return $ilhas;
+        }
         return $ilhas->toJSON();
     }
 
