@@ -197,79 +197,15 @@
 
                 <!-- START CONTENT FRAME LEFT -->
                 <div class="content-frame-body content-frame-body-left">
-                    <div class="row">
-                        <div class="panel panel-default panel-toggled">
-                            <div class="panel-heading ui-draggable-handle">
-                                <h3 class="panel-title">Incluir Materiais</h3>
-                                <ul class="panel-controls">
-                                    <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
-                                </ul>
-                            </div>
-                            <div class="panel-body" data-toggle="tooltip" data-placement="top"
-                            data-original-title="Clique em um dos ícones para incluir o respecivo material">
-                            {{-- Ciculares  --}}
-                            <div class="col-md-1"></div>
-                            <a href="{{ route('GetCircularesCreate') }}" class="col-md-2">
-                                <div class="form-row align-center col-md-12">
-                                    <h3 class="panel-title"> Circulares</h3>
-                                    <div class="form-group col-md-12">
-                                        <i class="fa fa-bookmark fa-3x"></i>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {{-- Roteiros  --}}
-                            <a href="{{ route('GetRoteirosCreate') }}" class="col-md-2">
-                                <div class="form-row align-center col-md-12">
-                                    <h3 class="panel-title"> Roteiros</h3>
-                                    <div class="form-group col-md-12">
-                                        <i class="fa fa-file-text fa-3x"></i>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {{-- Materiais  --}}
-                            <a href="{{ route('GetMateriaisCreate') }}" class="col-md-2">
-                                <div class="form-row align-center col-md-12">
-                                    <h3 class="panel-title"> Materiais</h3>
-                                    <div class="form-group col-md-12">
-                                        <i class="fa fa-book fa-3x"></i>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {{-- Videos--}}
-                            <a href="{{route('GetVideosCreate')}}" class="col-md-2">
-                                <div class="form-row align-center col-md-12">
-                                    <h3 class="panel-title"> Videos</h3>
-                                    <div class="form-group col-md-12">
-                                        <i class="fa fa-youtube-play fa-3x"></i>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {{-- Telefones--}}
-                            <a href="{{route('GetTelefonesCreate')}}" class="col-md-2">
-                                <div class="form-row align-center col-md-12">
-                                    <h3 class="panel-title"> Telefones</h3>
-                                    <div class="form-group col-md-12">
-                                        <i class="fa fa-phone fa-3x"></i>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="col-md-1"></div>
-                        </div>
-                    </div>
-                </div>
                 {{-- Gerenciamento  --}}
                 <div class="row">
-                    <div class="panel panel-default panel-toggled">
+                    <div class="panel panel-default">
                         <!-- start gerenciamento  -->
                         <div class="row">
                             <div class="panel-title-box panel-heading ui-draggable-handle">
                                 <h3 class="panel-title">Gerenciamento</h3>
                                 <ul class="panel-controls">
-                                    <li><a href="#" class="panel-collapse"><span class="fa fa-angle-up"></span></a></li>
+                                    <li><a href="#" class="panel-collapse"><span class="fa fa-down-up"></span></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -293,10 +229,10 @@
                                     </div>
                                 </a>
                                 <!-- Gerenciamento de Ilhas, setores, Filiais, etc -->
-                                <a href="#" class="col-md-6" data-placement="top" data-toggle="popover" data-content="Em Breve...">
+                                <a href="{{ route('GetPermissionsIndex') }}" class="col-md-6" data-placement="top" data-toggle="popover" data-content="Em Breve...">
                                     <div class="panel panel-default">
                                         <div class="panel-heading ui-draggable-handle btn btn-primary">
-                                            <h3 class="panel-title"><i class="fa fa-sitemap"></i> <strong>Setores e Áreas</strong></h3>
+                                            <h3 class="panel-title"><i class="fa fa-unlock-alt"></i> <strong>Permissões</strong></h3>
                                         </div>
                                     </div>
                                 </a>

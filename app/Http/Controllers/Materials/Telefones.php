@@ -9,6 +9,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
 use App\Materials\Telefone;
+use App\Http\Controllers\Quizzes\Quizzes;
 
 class Telefones extends Controller
 {
@@ -68,7 +69,11 @@ class Telefones extends Controller
         //titulo da página
         $title = "Inserir Telefones";
 
-        return view('gerenciamento.materials.insert.telephones',compact('title','setores'));
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
+        return view('gerenciamento.materials.insert.telephones',compact('title','setores', 'quiz'));
     }
 
     public function delete($user,$ilha,$id)

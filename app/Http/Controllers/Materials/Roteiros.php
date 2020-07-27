@@ -11,6 +11,7 @@ use App\Materials\Roteiro;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
+use App\Http\Controllers\Quizzes\Quizzes;
 
 class Roteiros extends Controller
 {
@@ -175,8 +176,12 @@ class Roteiros extends Controller
         // Cargos
         $cargos = Cargo::select('id','description')->get();
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
         $title = 'Incluir Roteiro';
-        return view('gerenciamento.materials.insert.roteiro',compact('title','setores','ilhas','cargos'));
+        return view('gerenciamento.materials.insert.roteiro',compact('title','setores','ilhas','cargos', 'quiz'));
 
     }
 

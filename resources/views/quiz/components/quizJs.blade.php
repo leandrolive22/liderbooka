@@ -146,10 +146,8 @@
         var div =
         '<li id="radio'+id+'_'+n+'" name="radiobtnLi" class="align-center">'+
             '<div class="form-group col-md-12">'+
-                '<label class="check col-md-12">'+
-                    '<div class="icheckbox_minimal-grey checked col-md-1" style="position: relative;">'+
-                        '<input type="radio" class="iradio" name="iradio" id="iradio'+id+'_'+n+'" checked="checked" style="position: absolute; opacity: 0;">'+
-                    '</div>'+
+                '<label class="col-md-12">'+
+                        '<input type="checkbox" class="form-check col-md-1 '+n+'correct_radio'+id+' radio_correct" value="1" name="iradio'+id+'" id="iradio'+id+'_'+n+'">'+
                     '<div class="input-group col-md-11">'+
                         '<input type="text" maxlength="255" name="radioBtninput" id="radio'+id+'_'+n+'" placeholder="Escreva a alternativa"'+
                             'class="form-control col-md-11">'+
@@ -274,14 +272,17 @@
 
         $.each($('textarea[name=questionTitle]'),function(index,questions){
             if(questions.value == '') {
-
+                console.log('faltam titulos')
                 ok++
             }
         })
 
         $.each($('input[name=radioBtninput]'),function(index,input){
             if(input.value == '') {
-                ok++
+                // if($('input.radio_correct:checked').val() != 1 || $('input.radio_correct:checked').length < 1 ) {
+                    ok++
+                    console.log('faltam alternativas')
+                // }
             }
         })
 
@@ -289,7 +290,7 @@
             saveQuiz()
         } else {
             noty({
-                text: 'As <b>questões</b> e/ou <b>alternativas</b> não podem estar vazias',
+                text: 'As <b>questões</b>, <b>alternativas</b> e/ou <br><b>Marcação de questões corretas</b> não podem estar vazias',
                 timeOut: 3000,
                 layout: 'topRight',
                 type: 'warning',
@@ -322,7 +323,7 @@
         qvalues = '' 
         question = ''
 
-        //concatena questões
+        //concatena questões (titulos)
         $.each($('textarea[name=questionTitle]'),function(index,input){
             value = input.value
             id = input.id
@@ -332,10 +333,17 @@
 
         //concatena alternativas
         $.each($('input[name=radioBtninput]'),function(index,input){
-            id = input.id.split("_")[0]
-
+            data = input.id.split("_")
+            id = data[0]
+            n = data[1]
             value = input.value
-            qvalues += id+' _=_=_=_ '+value+'@|||||/*-@'
+
+            correct = 0
+            if($('input.'+n+'correct_'+id+':checked').val() === '1') {
+                correct++
+            }
+
+            qvalues += id+'_=_=_=_'+value+'|_is_correct_|'+correct+'@|||||/*-@'
 
         })
 

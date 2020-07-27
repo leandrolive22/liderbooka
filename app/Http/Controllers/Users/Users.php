@@ -236,8 +236,12 @@ class Users extends Controller
         $setor = new Setores();
         $setores = $setor->index();
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
 
-        return view('gerenciamento.materials.manage', compact('title', 'ilhas', 'setores', 'circulares', 'roteiros', 'calculadoras', 'materiais', 'videos', 'subs'));
+
+        return view('gerenciamento.materials.manage', compact('title', 'ilhas', 'setores', 'circulares', 'roteiros', 'calculadoras', 'materiais', 'videos', 'subs', 'quiz'));
     }
 
     //redireciona para wiki/lidos

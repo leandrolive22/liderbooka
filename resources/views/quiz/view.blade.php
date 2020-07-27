@@ -39,11 +39,30 @@
 							<p class="panel-title col-md-12 text-justify">{{ $question->question }}</p>
 						</div>
 						<div class="panel-body">
-							<!-- alternativas -->
+
+							{{-- alternativas --}}
+							@if(isset($question->option) || @count($question->option) > 0)
+							@php 
+							$options = ($question->option);
+							@endphp
+							
 							<div class="form-group col-md-12  text-justify" id="option{{$question->id}}">
-								<!-- Questões  -->
+								<input type="hidden" name="multiple" id="multiple{{$question->id}}" value>
+								{{-- Alternativas --}}
+								@foreach($options as $option)
+								<div class="col-md-3">
+									<label class="check @if($option->is_correct == 1) checkdataBaseCO @endif" id="{{$question->id}}">
+										<input type="radio" class="iradio option_of_question @if($option->is_correct == 1) dataBaseCO @endif " value="{{$question->id}}" id="{{$option->id}}" name="question{{$question->id}}"/> 
+										{{$option->text}}
+									</label>
+								</div>
+								@endforeach
 							</div>
-							<!-- ./alternativas -->
+							@else
+							<div class="panel-body">
+								<textarea  name="question" id="{{$question->id}}" rows="5" placeholder="Digite aqui tua resposta" class="form-control"></textarea>
+							</div>
+							@endif
 
 						</div>
 					</div>
@@ -98,7 +117,7 @@
 
 	function multiple(value) {
 		linha = ' <div class="col-md-3"><label class="check">'+
-					'<input type="radio" class="option_of_question" value="'+value.question_id+'" id="'+value.id+'" name="question'+value.question_id+'"/> '+value.text+'</label></div>';
+		'<input type="radio" class="option_of_question" value="'+value.question_id+'" id="'+value.id+'" name="question'+value.question_id+'"/> '+value.text+'</label></div>';
 
 		return linha;
 	}
@@ -140,7 +159,8 @@
 				$("#message-box-success").show();
 				$("#tagPsuccess").html('Resposta salva com sucesso!');
 				console.log(xhr)
-				window.location.href="{{route('GetQuizIndex',['ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'take' => 20, 'skip' => 0]) }}"
+				
+				showCorrect()
 			}, 
 			error: function(xhr,status) {
 				$("#message-box-danger").show();
@@ -150,11 +170,30 @@
 		})
 	}
 
+	function showCorrect() {
+		$.each($("label.checkdataBaseCO"),function(i,v){
+			//  destaca todos os corretos
+			$(v).attr('class','check bg-success')
+
+			// id da questão
+			id = v.id
+
+			//verifica se a resposta escolhida é a mesma que está vermelha
+			// if($("input.option_of_question:checked[value="+id+"]").attr('id') == selected) {
+				
+
+			// } 
+		});
+
+	}
+
 	$(document).ready(function(){
-		@foreach($questions as $question)
-		option({{$question->id}})
-		@endforeach
-	});
-</script>
-@include('quiz.components.quizJs')
-@endsection
+		{{--
+			@foreach($questions as $question)
+			option({{$question->id}})
+			@endforeach
+			--}}
+		});
+	</script>
+	@include('quiz.components.quizJs')
+	@endsection

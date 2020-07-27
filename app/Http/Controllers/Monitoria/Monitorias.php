@@ -18,63 +18,67 @@ class Monitorias extends Controller
 {
     public function index()
     {
-        $cargo = Auth::user()->cargo_id;
-        $id = Auth::id();
-        if(is_null($cargo) || is_null($id)) {
-            return back()->withErrors(['errorAlert' => 'Você pode não ter permissão para acessar essa página']);
+        try {
+            $cargo = Auth::user()->cargo_id;
+            $id = Auth::id();
+            if(is_null($cargo) || is_null($id)) {
+                return back()->withErrors(['errorAlert' => 'Você pode não ter permissão para acessar essa página']);
+            }
+
+            // registra que usuário está online
+            $users = new Users();
+            @$users->saveLogin($id);
+
+            $title = 'Monitoria';
+
+            $qualCargo = in_array($cargo,[15,1]);
+
+            if($qualCargo) {
+                $dataArray = [];
+                $lastMonth = date('Y-m-1 00:00:00');
+
+                // Laudos
+                $models = Laudo::select('titulo','id')
+                                ->orderBy('utilizacoes','DESC')
+                                ->orderBy('id','DESC')
+                                // ->where('carteira_id',Auth::user()->carteira_id)
+                                ->get();
+
+                //Tabela
+                $monitorias = Monitoria::select('monitorias.*')
+                                        ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
+                                        ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
+                                        ->where('users.carteira_id',Auth::user()->carteira_id)
+                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-2 Months')))// Pega monitorias dos ultimos 2 mese
+                                        ->orderBy('supervisor_at') //ASC
+                                        ->orderBy('id','DESC')
+                                        ->get();
+
+                // dados do Cards
+                $media = round(Monitoria::selectRaw('AVG(media) as media')->where('created_at','>=',$lastMonth)->first()['media'],2);
+
+                $count = $monitorias->count();
+                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name ORDER BY ocorrencias, name;');
+
+                // ncg count
+                $ncgs = Monitoria::where('ncg',1)
+                                ->where('created_at','>=',date('Y-m-d H:i:s',strtotime('-1 Month')))
+                                ->count();
+
+            } else {
+                $ncgs = 0;
+                $models = [];
+                $usersFiltering = 0;
+                $monitorias = Monitoria::where('supervisor_id',$id)
+                                        ->orWhere('supervisor_at','IS','NULL')
+                                        ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-2 Months')))
+                                        ->orderBy('supervisor_at') //ASC
+                                        ->get();
+            }
+            return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media', 'ncgs', 'count','lastMonth', 'usersFiltering'));
+        } catch (Exception $e) {
+            return back()->with('errorAlert','Erro de Rede, tente novamente');
         }
-
-        // registra que usuário está online
-        $users = new Users();
-        @$users->saveLogin($id);
-
-        $title = 'Monitoria';
-
-        $qualCargo = in_array($cargo,[15,1]);
-
-        if($qualCargo) {
-            $dataArray = [];
-            $lastMonth = date('Y-m-1 00:00:00');
-
-            // Laudos
-            $models = Laudo::select('titulo','id')
-                            ->orderBy('utilizacoes','DESC')
-                            ->orderBy('id','DESC')
-                            // ->where('carteira_id',Auth::user()->carteira_id)
-                            ->get();
-
-            //Tabela
-            $monitorias = Monitoria::select('monitorias.*')
-                                    ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
-                                    ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
-                                    ->where('users.carteira_id',Auth::user()->carteira_id)
-                                    ->orderBy('supervisor_at') //ASC
-                                    ->orderBy('id','DESC')
-                                    ->get();
-
-            // dados do Cards
-            $media = round(Monitoria::selectRaw('AVG(media) as media')->where('created_at','>=',$lastMonth)->first()['media'],2);
-
-            $count = $monitorias->count();
-            $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name ORDER BY ocorrencias, name;');
-
-            // ncg count
-            $ncgs = Monitoria::where('ncg',1)
-                            ->where('created_at','>=',date('Y-m-d H:i:s',strtotime('-1 Month')))
-                            ->count();
-
-        } else {
-            $ncgs = 0;
-            $models = [];
-            $usersFiltering = 0;
-            $monitorias = Monitoria::where('supervisor_id',$id)
-                                    ->orWhere('supervisor_at','IS','NULL')
-                                    ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-2 Months')))
-                                    ->orderBy('supervisor_at') //ASC
-                                    ->get();
-        }
-
-        return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media', 'ncgs', 'count','lastMonth', 'usersFiltering'));
     }
 
     public function create()

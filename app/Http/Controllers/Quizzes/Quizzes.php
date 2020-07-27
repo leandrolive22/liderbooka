@@ -16,7 +16,7 @@ use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Logs\Logs;
  
 
-class Quizzes extends Controller
+class Quizzes extends Controller 
 {
     public function getQuizFromUser($ilha,$user)
     {
@@ -108,6 +108,7 @@ class Quizzes extends Controller
 
         $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered')
                 ->leftJoin('book_relatorios.logs','quizzes.id','logs.value')
+                ->whereRaw('isnull(quizzes.deleted_at)')
                 ->where('quizzes.validity', '<=',now())
                 ->whereRaw('quizzes.ilhas LIKE "%,' . $ilha . ',%"')
                 ->orWhereRaw('(IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.')')
@@ -183,7 +184,7 @@ class Quizzes extends Controller
         return view('quiz.correct',compact('title','quiz','questions'));
     }
 
-    //salva quiz
+    //cria quiz
     public function store($user, Request $request) {
         /* Validação */
         // $rules = [
@@ -238,16 +239,24 @@ class Quizzes extends Controller
                 $questionId = $this->saveQuestions($questionTitle,$quizId);
 
                 // verifica se a questão é objetiva*(title_Multiple)* ou dissertativa *(title_dissert)*
-                if($type != 'title_dissert ') {
-
+                if($type !== 'title_dissert ') {
+                    
+                    // Separa alternativas das questões
                     for($n = 0; $n < count($options); $n++) {
                         $alternativa = explode('_=_=_=_',$options[$n]);
                         $correct .= 'ok.';
 
-                        // $alternativa[0] = titulo da quest]ao
-                        if($type == $alternativa[0]) {
+                        // $alternativa[0] = titulo da questão
+                        $idQuestionLoop = $alternativa[0];
+                        // Verifica
+                        if(trim($type) == trim($idQuestionLoop)) {
+                            // Separa Alternativa e verifica qual é a correta
+                            $dados_alternativa = explode('|_is_correct_|',$alternativa[1]);
 
-                            if(!$this->saveOptions($questionId,$alternativa[1])) {
+                            $texto_alternativa = $dados_alternativa[0];
+                            $alternativa_correta = isset($dados_alternativa[1]) ? $dados_alternativa[1] : 0;
+
+                            if(!$this->saveOptions($questionId,$texto_alternativa,$alternativa_correta)) {
                                 $return += '+fail';
                             }
 
@@ -324,10 +333,12 @@ class Quizzes extends Controller
         return $question->id;
     }
 
-    public function saveOptions($question_id,$text = NULL) : BOOL
+    public function saveOptions($question_id,$text = NULL, $correct = 0) : BOOL
     {
+
         $option = new Option();
         $option->question_id = $question_id;
+        $option->is_correct = $correct;
         $option->text = $text;
         if($option->save()) {
             return TRUE;

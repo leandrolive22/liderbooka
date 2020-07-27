@@ -20,7 +20,7 @@
             </div>
         </div>
         <!-- END CONTENT FRAME TOP -->
-        @if(Auth::user()->cargo_id == 1)
+        @if(in_array(Auth::user()->cargo_id,[1,2,3,9,7]))
         <div class="content-frame-top">
             <div class="panel panel-colorful">
                 <div class="panel-heading ui-draggable-handle">

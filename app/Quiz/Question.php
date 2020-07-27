@@ -13,7 +13,7 @@ class Question extends Model
     protected $table = 'questions';
 
     public function option() {
-    	return $this->hasOne('App\Quiz\Option','question_id','id');
+    	return $this->hasMany('App\Quiz\Option','question_id','id');
     }
 
     public function quiz() {

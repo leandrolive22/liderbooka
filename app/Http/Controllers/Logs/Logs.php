@@ -9,10 +9,23 @@ use App\Logs\MaterialLogs;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Users\Users;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Storage;
+
 
 class Logs extends Controller
 {
+    public function logFileDay($log) : bool
+    {
+        try {
+            Storage::disk('local')->put('logs'.DIRECTORY_SEPARATOR.'logFileDay'.date('Ymd').'.txt',$log);
+            Storage::disk('local')->put('logs'.DIRECTORY_SEPARATOR.'logFileDay'.date('Ymd').'.txt',"\n\r");
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
+        }
+    }
+
     //registra que usuário clicou em um link externo
     public function clickLink(Request $request)
     {

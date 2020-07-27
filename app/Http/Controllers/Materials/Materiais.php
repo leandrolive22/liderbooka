@@ -11,6 +11,7 @@ use App\Http\Controllers\Users\Setores;
 use App\Materials\Material;
 use App\Users\Cargo;
 use App\Users\Ilha;
+use App\Http\Controllers\Quizzes\Quizzes;
 use Illuminate\Support\Facades\DB;
 
 
@@ -148,8 +149,12 @@ class Materiais extends Controller
         // Cargos
         $cargos = Cargo::select('id','description')->get();
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
         $title = 'Incluir material';
-        return view('gerenciamento.materials.insert.materiais',compact('title','setores','ilhas','cargos'));
+        return view('gerenciamento.materials.insert.materiais',compact('title','setores','ilhas','cargos', 'quiz'));
 
     }
 

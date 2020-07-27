@@ -9,6 +9,7 @@ use App\Materials\Video;
 use App\Users\Ilha;
 use App\Users\Cargo;
 use App\Http\Controllers\Logs\Logs;
+use App\Http\Controllers\Quizzes\Quizzes;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
 
@@ -153,8 +154,12 @@ class Videos extends Controller
         // Cargos
         $cargos = Cargo::select('id','description')->get();
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
         $title = 'Incluir video';
-        return view('gerenciamento.materials.insert.video',compact('title','setores','ilhas','cargos'));
+        return view('gerenciamento.materials.insert.video',compact('title','setores','ilhas','cargos', 'quiz'));
 
     }
 

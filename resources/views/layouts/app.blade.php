@@ -11,7 +11,7 @@
         @include('assets.css.app')
     @endif
     @if(Auth::check())
-        @include("assets.css.".Auth::user()->css)
+        @include("assets.css.".Auth::user()->css) 
     @else
         @include("assets.css.default")
     @endif

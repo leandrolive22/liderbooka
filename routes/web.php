@@ -85,6 +85,11 @@ Route::group(['middleware' => ['auth']], function () {
     /*********** rotas de edição de Gerenciamento ***********/
     Route::group(['prefix' => 'manager'], function () {
 
+        /**/
+        Route::group(['prefix' => 'permissions'], function () {
+            Route::get('/','Permissions\Permissions@index')->name('GetPermissionsIndex');
+        });
+
         Route::get('/materials', 'Users\Users@manageMaterials')
         ->name('GetMaterialsManage');
 

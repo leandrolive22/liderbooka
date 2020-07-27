@@ -9,6 +9,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
 use App\Materials\Circular;
+use App\Http\Controllers\Quizzes\Quizzes;
 use App\Users\Ilha;
 use App\Users\Cargo;
 
@@ -72,8 +73,12 @@ class Circulares extends Controller
         // Cargos
         $cargos = Cargo::select('id','description')->get();
 
+        // Pega quizzes não vistos
+        $q = new Quizzes();
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
         $title = 'Incluir Circular';
-        return view('gerenciamento.materials.insert.circular',compact('title','ilhas','cargos'));
+        return view('gerenciamento.materials.insert.circular',compact('title','ilhas','cargos', 'quiz'));
     }
 
     /**
