@@ -117,6 +117,7 @@
                                     <a class="text-success">
                                         <i class="fa fa-check"></i>
                                         Respondido
+                                    </a>
                                         @else
                                         <a href="{{ route('GetQuizzesView',[ 'id' => base64_encode($quiz->id) ]) }}" class="btn btn-{{Auth::user()->css}}">
                                             <!-- else eu tiver respondido -->
