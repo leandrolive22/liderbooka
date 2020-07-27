@@ -40,14 +40,17 @@
 						</div>
 						<div class="panel-body">
 
-							{{-- alternativas --}}
-							@if(isset($question->option) || @count($question->option) > 0)
+							@if(!isset($question->option[0]->id))
+							{{-- texto --}}
+							<textarea name="question" id="{{$question->id}}" placeholder="Digite aqui tua resposta" class="form-control col-md-12"></textarea>
+							{{-- ./texto --}}
+							@else
 							@php 
 							$options = ($question->option);
 							@endphp
-							
+							{{-- alternativas --}}							
 							<div class="form-group col-md-12  text-justify" id="option{{$question->id}}">
-								<input type="hidden" name="multiple" id="multiple{{$question->id}}" value>
+								<input type="hidden" name="multiple" id="multiple{{$question->id}}">
 								{{-- Alternativas --}}
 								@foreach($options as $option)
 								<div class="col-md-3">
@@ -58,10 +61,7 @@
 								</div>
 								@endforeach
 							</div>
-							@else
-							<div class="panel-body">
-								<textarea  name="question" id="{{$question->id}}" rows="5" placeholder="Digite aqui tua resposta" class="form-control"></textarea>
-							</div>
+							{{-- ./alternativas --}}
 							@endif
 
 						</div>
@@ -72,7 +72,7 @@
 				<div class="panel">
 					<div class="panel-body">
 						<div class="form-group">
-							<button type="button" onclick="saveAnswer()" class="btn btn-primary btn-block">Salvar Resposta</button>
+							<button type="button" onclick="saveAnswer()" id="svBtnQ" class="btn btn-primary btn-block">Salvar Resposta</button>
 						</div>	
 					</div>
 				</div>
@@ -97,37 +97,6 @@
 		var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
 		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
 	}
-	
-	/******* Alternativas e seus formatos *******/
-	function option(id) {
-		$.getJSON('{{asset("api/quiz/options")}}/'+id,function(data){
-
-			if(data.length == 0) {
-				$("#option"+id).append(text(id))
-			} else {
-				input = '<input type="hidden" name="multiple" id="multiple'+id+'" value>';
-				$("#option"+id).append(input)
-				
-				$.each(data,function(index, value){
-					$("#option"+id).append(multiple(value))
-				});
-			}
-		});
-	}
-
-	function multiple(value) {
-		linha = ' <div class="col-md-3"><label class="check">'+
-		'<input type="radio" class="option_of_question" value="'+value.question_id+'" id="'+value.id+'" name="question'+value.question_id+'"/> '+value.text+'</label></div>';
-
-		return linha;
-	}
-
-	function text(id) {
-		// id = id da questão
-		return '<div class="panel-body"><textarea  name="question" id="'+id+'" rows="5" placeholder="Digite aqui tua resposta" class="form-control"></textarea></div>';
-	}
-
-	/******* /Alternativas e seus formatos *******/
 	function saveAnswer() {
 		data = '_token='+$("input[name=_token]").val()+'&user={{ Auth::id() }}&quiz={{ $quiz->id }}&question=';
 		check = '&multiple=';
@@ -171,29 +140,15 @@
 	}
 
 	function showCorrect() {
-		$.each($("label.checkdataBaseCO"),function(i,v){
-			//  destaca todos os corretos
-			$(v).attr('class','check bg-success')
-
-			// id da questão
-			id = v.id
-
-			//verifica se a resposta escolhida é a mesma que está vermelha
-			// if($("input.option_of_question:checked[value="+id+"]").attr('id') == selected) {
-				
-
-			// } 
-		});
-
+		// A parte comentada coloca como vermelho as respostas erradas
+		// v = $("input[type=radio].option_of_question:checked").parent().parent()
+		// $.each(v,function(i,va){
+		// 	$(va).attr('class',$(va).attr('class')+' bg-danger')
+		// })
+		$('label.checkdataBaseCO').attr('class','check bg-success')
+		$("#svBtnQ").attr('onclick','window.location.href="{{route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0, 'take' => 20 ])}}"')
+		$("#svBtnQ").html('Voltar')
 	}
-
-	$(document).ready(function(){
-		{{--
-			@foreach($questions as $question)
-			option({{$question->id}})
-			@endforeach
-			--}}
-		});
-	</script>
-	@include('quiz.components.quizJs')
-	@endsection
+</script>
+@include('quiz.components.quizJs')
+@endsection
