@@ -582,3 +582,11 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 });
+
+//ADMINS ROUTES
+Route::group(['prefix' => 'admin'], function(){
+    Route::get('permissions/by/user/','Permissions\Permissions@getUserPermissions')
+        ->name('GetPermissionsByUser');
+    Route::post('permissions/sync','Permissions\Permissions@store')
+        ->name('PostPermissionsStore');
+});//->middleware('Admin');

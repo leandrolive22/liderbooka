@@ -45,25 +45,19 @@ class Monitorias extends Controller
                                 ->get();
 
                 //Tabela
-                $monitorias = Monitoria::select('monitorias.*')
+                $monitorias = Monitoria::selectRaw('monitorias.*, users.name AS filtro')
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
                                         ->where('users.carteira_id',Auth::user()->carteira_id)
-                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-2 Months')))// Pega monitorias dos ultimos 2 mese
-                                        ->orderBy('supervisor_at') //ASC
+                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-20 Days')))// Pega monitorias dos ultimos 2 mese
+                                        ->orderBy('users.name') //ASC
                                         ->orderBy('id','DESC')
-                                        ->get();
+                                        ->paginate(10);
 
                 // dados do Cards
                 $media = round(Monitoria::selectRaw('AVG(media) as media')->where('created_at','>=',$lastMonth)->first()['media'],2);
 
-                $count = $monitorias->count();
-                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name ORDER BY ocorrencias, name;');
-
-                // ncg count
-                $ncgs = Monitoria::where('ncg',1)
-                                ->where('created_at','>=',date('Y-m-d H:i:s',strtotime('-1 Month')))
-                                ->count();
+                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
 
             } else {
                 $ncgs = 0;
@@ -71,11 +65,11 @@ class Monitorias extends Controller
                 $usersFiltering = 0;
                 $monitorias = Monitoria::where('supervisor_id',$id)
                                         ->orWhere('supervisor_at','IS','NULL')
-                                        ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-2 Months')))
+                                        ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-1 Months')))
                                         ->orderBy('supervisor_at') //ASC
                                         ->get();
             }
-            return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media', 'ncgs', 'count','lastMonth', 'usersFiltering'));
+            return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media','lastMonth', 'usersFiltering'));
         } catch (Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
         }

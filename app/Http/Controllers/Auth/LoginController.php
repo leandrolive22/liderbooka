@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
+use App\Http\Controllers\Permissions\UserPermission;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Session;
 
@@ -81,7 +82,9 @@ class LoginController extends Controller
             }
         }
 
-        // Pegar permissões
-
+        // Pega permissões e grava em sessão
+        $up = new UserPermission($user);
+        $permissions = $up->getPermissionsIds();
+        Session::put('permissionsIds',$permissions);
     }
 }

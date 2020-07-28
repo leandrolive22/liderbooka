@@ -43,7 +43,7 @@
 
 <body>
     @hasSection('basicDatatableExcel')
-            @yield('basicDatatableExcel')
+        @yield('basicDatatableExcel')
     @endif
     <div class="page-container page-navigation-top-fixed" style="max-height: 100%" id="app">
         <!-- MENU -->

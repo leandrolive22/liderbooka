@@ -87,9 +87,9 @@
                 @endif
             </div>
             <div class="row col-md-12">
-                @if($qualCargo)
+@if($qualCargo)
                 
-                <div class="panel panel-secondary">
+                {{-- <div class="panel panel-secondary">
                     <div class="panel-heading ui-dragable-handle">
                         <h3 class="panel-title">
                             Relatórios
@@ -100,7 +100,7 @@
                         </ul>
                     </div>
                     <div class="panel-body">
-                        {{-- Relatórios em Cards --}}
+                        {{-- Relatórios em Cards --}
                         <div class="col-md-3">
                             <div class="widget @if($media > 94 ) widget-success @elseif($media > 89) widget-primary @else widget-danger @endif widget-padding-sm">
                                 <a href="javascript:" class="text-light">
@@ -143,10 +143,11 @@
                             </div>
                         </div>
                     </div> 
-                </div>
+                </div> --}
             </div>
-            {{-- Grafico --}}
+            {{-- Grafico --}
             <div class="row col-md-12">
+                --}}
                 <div class="panel panel-secondary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -169,7 +170,7 @@
                     </div>
                 </div>
             </div>
-            @endif
+@endif
             <div class="row col-md-12">
                 {{-- Histórico --}}
                 <div class="panel panel-dark">
@@ -183,7 +184,7 @@
                         </ul>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-hover datatable">
+                        <table class="table table-hover @if(!$qualCargo) datatable @endif">
                             <thead>
                                 <tr>
                                     <th>Monitoria</th>
@@ -245,6 +246,11 @@
                             </tbody>
                         </table>
                     </div>
+                    @if($qualCargo)
+                    <div class="panel-footer">
+                        {{ $monitorias->links() }}
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
