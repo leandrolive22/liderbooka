@@ -151,9 +151,7 @@ form {
                <li class="nav-item float-left">
                     <img class="rounded float-right" style=" " >
                 </li>
-                <li class="nav-item float-right">
-                    <button class="btn btn-secondary" style=" position:relative; right: -700px; " type="button">Pesquisar</button>
-                </li>
+
                 <li class="nav-item float-right"><a href="https://liderbook.liderancacobrancas.com.br/liderbook/public/">
                     <button class="btn btn-secondary" style=" width: 10%; margin-right: 780px; position:relative; right: -700px;" type="reset">Sair</button>
                     </a>
@@ -511,7 +509,6 @@ function fetch_customer_data(query = '')
                        '<td>'+data[i].desconto_avista+'</td>'+
                    '</tr>';
     $('#Desconpar').html(linha);
-   console.log(data)
       }
  
 
@@ -728,7 +725,6 @@ function ocultarExibirIntermediarias() {
             taxaavistabol = "FALSO";
             }
             $('#Taxapar').val(String(taxaavistabol)); 
-            console.log(taxaavistabol)
         }
         })
         }
@@ -801,7 +797,8 @@ function ocultarExibirIntermediarias() {
     var entradataxa = curNum($('#taxaentrada').val());
     var quantidade3 = (entradataxa);
     var resultado3 = quantidade3;
-    $('#taxatotal').val(numCur(resultado3));
+    var resultado3 = resultado3 + "%";
+    $('#taxatotal').val(String(resultado3));
 
    
    //* Calcula Valor dos dias *\\ 
@@ -864,22 +861,32 @@ function ocultarExibirIntermediarias() {
    //* Calcular valor das parcelas *\\ 
 
     function calculoGGG() {
+
         var taxa = curNum($('#taxaentrada').val());
-        var pv = curNum($('#Entrada').val());
+        var entrada2 = curNum($('#Entrada').val());
+        var pv = curNum($('#descontonegociado').val());
         var n = curNum($('#numparcelas').val());
+        var pv = pv - entrada2;
+
 
         i = (taxa/100)
+        console.log(i)
         potenciacao = Math.pow(1+(i),n)
+        console.log(potenciacao)
+
+
         pmt = pv * ((potenciacao * i)/(potenciacao-1))
         $('#valordasparcelas').val(numCur(pmt));
-
         
 
     //* Valor total negociado *\\ 
+
     var numerodeparcelas = curNum($('#numparcelas').val());
     var valordasparcelas = curNum($('#valordasparcelas').val());
     var entrada = curNum($('#Entradatotal').val());
-    var resultado8 = ((numerodeparcelas * valordasparcelas) - entrada);
+    var resultado8 = ((numerodeparcelas * valordasparcelas) + entrada);
+    $('#totalnegociado').val(numCur(resultado8));
+
 
 
     //* Produtos Calculando desconto *\\ 
@@ -984,12 +991,6 @@ function ocultarExibirIntermediarias() {
     var descontinho2 = descontinho2 + "%";
     $('#Taxapar3').val(String(descontinho2));
 
-
-
-
-
-
-    $('#totalnegociado').val(numCur(resultado8));
         }
         
 
@@ -1173,7 +1174,6 @@ $(document).ready(function(){
             taxaavistabol = "FALSO";
             }
             $('#Taxapar').val(String(taxaavistabol)); 
-            console.log(taxaavistabol)
 
         }
         })
