@@ -50,8 +50,8 @@ class Monitorias extends Controller
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
                                         ->where('users.carteira_id',Auth::user()->carteira_id)
                                         ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-20 Days')))// Pega monitorias dos ultimos 2 mese
+                                        ->orderBy('monitorias.created_at','DESC')
                                         ->orderBy('users.name') //ASC
-                                        ->orderBy('id','DESC')
                                         ->paginate(10);
 
                 // dados do Cards

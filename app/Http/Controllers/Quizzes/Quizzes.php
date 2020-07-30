@@ -24,9 +24,9 @@ class Quizzes extends Controller
             return Quiz::selectRaw('quizzes.id, quizzes.title, quizzes.description, quizzes.num_responses, u.avatar')
             ->leftJoin('book_relatorios.logs AS l', 'quizzes.id', 'l.value')
             ->leftJoin('book_usuarios.users As u', 'quizzes.creator_id', 'u.id')
-            // ->where('quizzes.ilhas','%'.$ilha.'%')
+            ->where('quizzes.ilhas','%'.$ilha.'%')
             ->where('l.action','QUIZ_ANSWERED')
-            // ->whereRaw('NOT l.user_id = '.$user)
+            ->whereRaw('NOT l.user_id = '.$user)
             ->get();
         } catch (Exception $e) {
             return $e->getMessage();
@@ -109,7 +109,7 @@ class Quizzes extends Controller
         $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered')
                 ->leftJoin('book_relatorios.logs','quizzes.id','logs.value')
                 ->whereRaw('isnull(quizzes.deleted_at)')
-                ->where('quizzes.validity', '<=',now())
+                ->where('quizzes.validity', '>=',now())
                 ->whereRaw('quizzes.ilhas LIKE "%,' . $ilha . ',%"')
                 ->orWhereRaw('(IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.')')
                 ->orWhere('quizzes.creator_id',$id)
