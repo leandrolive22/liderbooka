@@ -1,3 +1,70 @@
+@php
+// CHECA PERMISSÔES PARA MONTAR MENU
+$permissions = session('permissionsIds');
+$webMaster = in_array(1,$permissions);
+
+//Medidas disciplinares
+$medidas = 0;
+foreach([13,14,15] AS $item) {
+    if($webMaster) {
+        $medidas++;
+    } elseif(in_array($item,$permissions)) {
+        $medidas++;
+    }
+}
+
+//Ger. users
+$usuario = 0;
+foreach([34,35,36,37,45] AS $item) {
+    if($webMaster) {
+        $usuario++;
+    } elseif(in_array($item,$permissions)) {
+        $usuario++;
+    }
+}
+
+// Monitoria
+$monitoria = 0;
+foreach([18,19,20,21,22,23,24,25] AS $item) {
+    if($webMaster) {
+        $monitoria++;
+    } elseif(in_array($item,$permissions)) {
+        $monitoria++;
+    }
+}
+
+// Chat
+$chat = 0;
+foreach([6,7,8,9,10,11] AS $item) {
+    if($webMaster) {
+        $chat++;
+    } elseif(in_array($item,$permissions)) {
+        $chat++;
+    }
+}
+
+// Quiz
+$quiz = 0;
+foreach([31,32,33,46] AS $item) {
+    if($webMaster) {
+        $wiki++;
+    } elseif(in_array($item,$permissions)) {
+        $wiki++;
+    }
+}
+
+// Wiki
+$wiki = 0;
+foreach([38,39,40,41,42,43,44] AS $item) {
+    if($webMaster) {
+        $wiki++;
+    } elseif(in_array($item,$permissions)) {
+        $wiki++;
+    }
+}
+
+
+@endphp
 <div  class="page-sidebar mCustomScrollbar _mCS_1 mCS-autoHide page-sidebar-fixed scroll">
     <!-- START X-NAVIGATION -->
     <ul  class="x-navigation" >
@@ -42,16 +109,24 @@
                 <span class="xn-text">Home Page</span>
             </a>
         </li>
-        @if(in_array(Auth::user()->cargo_id,[1,2,3,7,9,15,21]) || in_array(Auth::id(),[37,1711,1712,1746]) /*Medidas disciplinares*/)
-        <li @if($current == 'adm') class="active"@else @endif>
-            <a href="{{ asset('/gerenciamento') }}">
-                <span class="fa fa-cogs"></span>
-                <span class="xn-text">Administração </span>
+        @if($medidas > 0)
+        <li @if($current == 'measures') class="active"@else @endif>
+            <a href="{{ route('GetMeasuresIndex')}}">
+                <span class="fa fa-exclamation"></span>
+                <span class="xn-text">Medidas Disciplinares </span>
             </a>
         </li>
-        @else
         @endif
-        @if(in_array(Auth::user()->cargo_id,[1,4,15]) )
+
+        @if($usuario > 0)
+        <li @if($current == 'adm') class="active"@else @endif>
+            <a href="{{ route('GetUsersManagerUser')}}">
+                <span class="fa fa-users"></span>
+                <span class="xn-text">Usuários </span>
+            </a>
+        </li>
+        @endif
+        @if($monitoria > 0)
         <li @if($current == 'monitor') class="active" @else @endif>
             <div class="informer informer-danger text-danger" id="monitoriaMenuBtn"></div>
             <a href="{{asset('monitoring/manager')}}">
@@ -60,6 +135,7 @@
             </a>
         </li>
         @endif
+        {{--  PROJETO CANCELADO
         @if(in_array(Auth::user()->id,[37]))
         <li @if($current == 'tabulador') class="active" @endif>
             @php
@@ -79,7 +155,7 @@
                 <span class="xn-text">LiderTab (MD)</span>
             </a>
         </li>
-        @endif
+        @endif --}}
         {{-- Para todos  --}}
         <li @if($current == 'profile') class="active"@else @endif>
             <a href="{{route('GetUserProfile',['id' => base64_encode(Auth::user()->id)])}}">
@@ -87,94 +163,100 @@
                 <span class="xn-text">Perfil</span>
             </a>
         </li>
+        @if($chat >0)
         <li @if($current == 'msgs') class="active"@else @endif>
             @if(in_array(Auth::user()->cargo_id,[5,11,12,13,14]))
             <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
-                {{-- MSG OPERATOR  --}}
-                @elseif(in_array(Auth::user()->cargo_id,[7]))
-                <a href="{{route('GetUsersMsgCoord')}}"id="MessagesTaskBtnMenu">
-                    {{-- MSG COORD --}}
-                    @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
-                    <a href="{{route('GetUsersMsgAdm')}}"id="MessagesTaskBtnMenu">
-                        {{-- MSG ADM  --}}
-                        @elseif(in_array(Auth::user()->cargo_id,[4]) || Auth::user()->ilha_id == 48)
-                        <a href="{{route('GetUsersMsgSup')}}"id="MessagesTaskBtnMenu">
-                            {{-- MSG SUPERVISOR  --}}
-                            @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
-                            <a href="{{route('GetUsersMsgOpeSup')}}"id="MessagesTaskBtnMenu">
-                                {{-- MSG ANOTHERS  --}}
-                                @elseif(in_array(Auth::user()->cargo_id,[3]))
-                                <a href="{{route('GetUsersMsgTraining')}}"id="MessagesTaskBtnMenu">
-                                    {{-- MSG TRAINING  --}}
-                                    @elseif(in_array(Auth::user()->cargo_id,[15]))
-                                    <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtnMenu">
-                                        {{-- MSG Monitor  --}}
-                                        @else
-                                        <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
-                                            {{-- MSG ELSE  --}}
-                                            @endif
-                                            <span class="fa fa-comments"></span>
-                                            <span class="xn-text">Chat<strong>Book</strong></span>
-                                        </a>
-                                    </li>
-                                    <li @if($current == 'quiz') class="active" @else @endif>
-                                        <a href="{{ route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0, 'take' => 20 ]) }}">
-                                            <span class="fa fa-gamepad"></span>
-                                            <span class="xn-text">Quizzes</span>
-                                        </a>
-                                    </li>
-                                    <li @if($current == 'wiki') class="active"@else @endif>
-                                        <a href="{{ asset('wiki/' . Auth::user()->ilha_id) }}">
-                                            <span class="fa fa-bar-chart-o"></span>
-                                            <span class="xn-text">Wiki</span>
-                                        </a>
-                                    </li>
-                                    <li @if($current == '') class="active"@else @endif>
-                                        <a href="{{route('Faq')}}">
-                                            <span class="fa fa-question-circle"></span>
-                                            <span class="xn-text">FAQ</span>
-                                        </a>
-                                    </li>
-                                    <li @if($current == '') class="active"@else @endif>
-                                        <a href="https://suporte.ativy.com">
-                                            <span class="fa fa-envelope-o"></span>
-                                            <span class="xn-text">Suporte</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <!-- END X-NAVIGATION -->
-                            </div>
+            {{-- MSG OPERATOR  --}}
+            @elseif(in_array(Auth::user()->cargo_id,[7]))
+            <a href="{{route('GetUsersMsgCoord')}}"id="MessagesTaskBtnMenu">
+            {{-- MSG COORD --}}
+            @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
+            <a href="{{route('GetUsersMsgAdm')}}"id="MessagesTaskBtnMenu">
+            {{-- MSG ADM  --}}
+            @elseif(in_array(Auth::user()->cargo_id,[4]) || Auth::user()->ilha_id == 48)
+            <a href="{{route('GetUsersMsgSup')}}"id="MessagesTaskBtnMenu">
+            {{-- MSG SUPERVISOR  --}}
+            @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
+            <a href="{{route('GetUsersMsgOpeSup')}}"id="MessagesTaskBtnMenu">
+            {{-- MSG ANOTHERS  --}}
+            @elseif(in_array(Auth::user()->cargo_id,[3]))
+            <a href="{{route('GetUsersMsgTraining')}}"id="MessagesTaskBtnMenu">
+            {{-- MSG TRAINING  --}}
+            @elseif(in_array(Auth::user()->cargo_id,[15]))
+            <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtnMenu">
+            {{-- MSG Monitor  --}}
+            @else
+            <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
+                {{-- MSG ELSE  --}}
+                @endif
+                <span class="fa fa-comments"></span>
+                <span class="xn-text">Chat<strong>Book</strong></span>
+            </a>
+        </li>
+        @endif
+        @if($quiz > 0)
+        <li @if($current == 'quiz') class="active" @else @endif>
+            <a href="{{ route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0, 'take' => 20 ]) }}">
+                <span class="fa fa-gamepad"></span>
+                <span class="xn-text">Quizzes</span>
+            </a>
+        </li>
+        @endif
+        @if($wiki > 0)
+        <li @if($current == 'wiki') class="active"@else @endif>
+            <a href="{{ asset('wiki/' . Auth::user()->ilha_id) }}">
+                <span class="fa fa-bar-chart-o"></span>
+                <span class="xn-text">Wiki</span>
+            </a>
+        </li>
+        @endif
+        <li @if($current == '') class="active"@else @endif>
+            <a href="{{route('Faq')}}">
+                <span class="fa fa-question-circle"></span>
+                <span class="xn-text">FAQ</span>
+            </a>
+        </li>
+        <li @if($current == '') class="active"@else @endif>
+            <a href="https://suporte.ativy.com">
+                <span class="fa fa-envelope-o"></span>
+                <span class="xn-text">Suporte</span>
+            </a>
+        </li>
+    </ul>
+    <!-- END X-NAVIGATION -->
+</div>
 
-                            @section('menuJs')
-                            <script type="text/javascript">
-                                $("#formTransferLogin > a").click(function(){
-                                    $.ajax({
-                                        type: "POST",
-                                        url: $("#formTransferLogin").attr('action'),
-                                        data: $("#formTransferLogin").serialize(),
-                                        dataType: "application/json",
-                                        success: function (response) {
-                                            console.log(response)
-                                        },
-                                        error: function (xhr, status) {
-                                            console.log(xhr)
-                                            alert(status)
-                                        }
-                                    });
-                                });
+@section('menuJs')
+<script type="text/javascript">
+    $("#formTransferLogin > a").click(function(){
+        $.ajax({
+            type: "POST",
+            url: $("#formTransferLogin").attr('action'),
+            data: $("#formTransferLogin").serialize(),
+            dataType: "application/json",
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (xhr, status) {
+                console.log(xhr)
+                alert(status)
+            }
+        });
+    });
 
-                                setTimeout(() => {
-                                    $.getJSON("{{route('getIlhasEditBySetor', ['setor' => Auth::user()->setor_id] )}}", function(data) {
-                                        if(data.lenght > 0) {
-                                            linhas = ''
-                                            for(i=0; i<data.lenght; i++) {
-                                                linhas += '<option value="'+data.id+'">'+data.setor+' | '+data.name+'</option>'
-                                            }
+    setTimeout(() => {
+        $.getJSON("{{route('getIlhasEditBySetor', ['setor' => Auth::user()->setor_id] )}}", function(data) {
+            if(data.lenght > 0) {
+                linhas = ''
+                for(i=0; i<data.lenght; i++) {
+                    linhas += '<option value="'+data.id+'">'+data.setor+' | '+data.name+'</option>'
+                }
 
-                                            $("select#ilha_idEdit").html(linhas)
-                                            $("div#editIsland").show()
-                                        }
-                                    });
-                                },5000);
-                            </script>
-                            @endsection
+                $("select#ilha_idEdit").html(linhas)
+                $("div#editIsland").show()
+            }
+        });
+    },5000);
+</script>
+@endsection

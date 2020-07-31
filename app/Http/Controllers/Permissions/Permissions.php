@@ -100,7 +100,7 @@ class Permissions extends Controller
 
         // Pega dados do usuário
         $id =  $request->user;
-        $permissions = $request->permissions;
+        $permissions = explode(',',$request->permissions);
 
         // Pesquisa usuário
         $user = User::find($id);
@@ -112,27 +112,51 @@ class Permissions extends Controller
 
         // Instancia novo objeto USerPermission e trata as novas permissões
         $userPermission = new UserPermissionController($user);
+        // Separa as permissões
         $new = $userPermission->newPermissions($permissions);
-        $old = $userPermission->getPermissionsIds();
+        // Pega ID das permissões (taela User_permissions)
         $old = $userPermission->getUserPermissionsIds();
 
+        try {
+            // marca permissões natigas como deletadas
+            $oldDb = UserPermission::whereIn('id',$old)->get();
+            $countOldDb =$oldDb->count();
+            if($countOldDb > 0) {
+                $oldDb->delete();
+            }
+
+            // Atualiza permissões no banco
+            if(UserPermission::insert($this->setDataToSave($new, $id))) {
+                return response()->json(['msg' => 'Permissões alteradas com sucesso!'],201);
+            }
+
+            // restaura deletadas
+            if($countOldDb > 0) {
+                UserPermission::withTrashed()->whereIn('id',$id)->restore();
+            }
+            
+            return response()->json(['msg' => 'Erro ao alterar permissões!'],422);
+        } catch (Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()],500);
+        }
 
     }
 
-    public function setDataToSave(array $permissions, array $old, array $new) : array
+    private function setDataToSave(array $permissions, $user) : array
     {
-        $countN = count($new);
-        $countO = count($old);
+        $arr = array();
+        $timestamp = date('Y-m-d H:i:s');
+        foreach($permissions as $item) {
+            $line = array(
+                'permission_id' => $item,
+                'user_id' => $user,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp
+            );
 
-        if($countO >= $countN) {
-            for($i=0; $i<$countO; $i++) {
-                if(in_array($new[$i],$old)) {
-                    $ids
-                }
-            }
-        } else {
-
+            array_push($arr, $line);
         }
 
+        return $arr;
     }
 }

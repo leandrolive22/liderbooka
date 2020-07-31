@@ -45,9 +45,9 @@ class UserPermission extends Controller
     protected function fetchUserPermissions()
     {
         $id = $this->getUser()->id;
-        $userPermissions = UserPermission::selectRaw('user_id, permission_id, users.name, user_permissions.id')
+        $userPermissions = UserPermissionModel::selectRaw('user_id, permission_id, users.name, user_permissions.id')
                                 ->leftJoin('book_usuarios.users','users.id','user_id')
-                                ->where('permission_id',1)
+                                ->where('user_id',$id)
                                 ->get();
 
         return $userPermissions;
@@ -56,10 +56,9 @@ class UserPermission extends Controller
     // Pega id das permissões
     public function getPermissionsIds() : array
     {
-        $permissions = $this->getPermissions();
         $arr = [];
 
-        foreach($permissions as $item) {
+        foreach($this->getPermissions() as $item) {
             $arr[] = $item->permission_id;
         }
 
@@ -105,12 +104,12 @@ class UserPermission extends Controller
         }
 
         foreach($old AS $item) {
-            // Verifica se novas permissões são as mesmas do que as do antigas e concatena as novas
+            // Verifica se novas permissões são as mesmas do que as do antigas e concatena as antigas
             if(in_array($item,$permissions)) {
                 $new[] = $item;
             }
         }
 
-        return $new
+        return $new;
     }
 }
