@@ -1,3 +1,9 @@
+@php
+// CHECA PERMISSÔES PARA MONTAR navBar
+$permissions = session('permissionsIds');
+$webMaster = in_array(1,$permissions);
+@endphp
+
 @extends('layouts.app', ["current"=>"home"])
 @section('content')
 
@@ -40,8 +46,7 @@
                 </div>
             </div>
             <!-- END CONTENT FRAME TOP -->
-            {{-- ilha_id 48 = Marketing --}}
-            @if( in_array(Auth::user()->cargo_id, [1,2,3,9]) || Auth::user()->ilha_id == 48 )
+            @if( $webMaster || in_array(26,$permissions))
             @include('assets.components.postForm')
             @else
 
@@ -55,23 +60,9 @@
             <div class="content-frame-body content-frame-body-left">
                 <div class="panel panel-default">
 
-
-                    <!-- Altere o cargo_id para 1 para ver novo modelo de timeline -->
-                    @if(Auth::user()->cargo_id == 0)
-                    <div class="page-content-wrap bg-light @if(Auth::user()->cargo_id == 1) col-md-4 pull-left @endif">
-                        <div class="panel-body" style="height: 10000px">
-                            <div class="panel-heading">
-                                <h3>Canal Liderança</h3>
-                            </div>
-                            <div class="panel-body">
-                                Em breve...
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                     <!-- START TIMELINE -->
                         {{-- Altere o cargo_id para 1 para ver novo modelo de timeline  --}}
-                    <div class="page-content-wrap bg-light @if(Auth::user()->cargo_id == 0) col-md-8 pull-right @endif">
+                    <div class="page-content-wrap bg-light">
                         <!-- START TIMELINE -->
                         <div class="timeline timeline-right">
                             <ul type='none' style="padding:0px;">

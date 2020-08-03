@@ -14,6 +14,7 @@ use App\Quiz\Quiz;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Logs\Logs;
+use Session;
  
 
 class Quizzes extends Controller 
@@ -119,7 +120,16 @@ class Quizzes extends Controller
                 ->take($take)
                 ->get();
 
-        return view('quiz.quizzes',compact('title','quizzes','skip','take'));
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1,$permissions);
+        $createQuiz = in_array(31,$permissions);
+        $deleteQuiz = in_array(32,$permissions);
+        $exportQuiz = in_array(33,$permissions);
+
+        $compact = compact('title','quizzes','skip','take', 'permissions', 'webMaster', 'createQuiz', 'deleteQuiz', 'exportQuiz');
+
+        return view('quiz.quizzes',$compact);
     }
 
     // retorna view de criação de quiz (criar)

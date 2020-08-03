@@ -1,3 +1,48 @@
+@php
+// CHECA PERMISSÔES PARA MONTAR navBar
+$permissions = session('permissionsIds');
+$webMaster = in_array(1,$permissions);
+
+// Chat
+$chat = 0;
+foreach([6,7,8,9,10,11] AS $item) {
+    if($webMaster) {
+        $chat++;
+    } elseif(in_array($item,$permissions)) {
+        $chat++;
+    }
+}
+
+// Calculadoras
+$calculadora = 0;
+foreach([2,3,4,5] AS $item) {
+    if($webMaster) {
+        $calculadora++;
+    } elseif(in_array($item,$permissions)) {
+        $calculadora++;
+    }
+}
+
+// modulos
+$modulo = 0;
+foreach([16,17] AS $item) {
+    if($webMaster) {
+        $modulo++;
+    } elseif(in_array($item,$permissions)) {
+        $modulo++;
+    }
+}
+
+// Inserts Rápidos
+$inserts = 0;
+foreach([38, 34] AS $item) {
+    if($webMaster) {
+        $inserts++;
+    } elseif(in_array($item,$permissions)) {
+        $inserts++;
+    }
+}
+@endphp
 <!-- START X-NAVIGATION VERTICAL -->
 <ul class="x-navigation x-navigation-horizontal x-navigation-panel">
     <!-- TOGGLE NAVIGATION -->
@@ -12,29 +57,30 @@
     </li>
 
     <!-- END SIGN OUT -->
+    @if($chat > 0)
     <!-- MESSAGES -->
     <li class="xn-icon-button pull-right" id="MessagesTaskDiv">
 
-     @if(in_array(Auth::user()->cargo_id,[5,11,12,13,14]))
-     <a href="{{route('GetUsersMsgOpe')}}" id="MessagesTaskBtn">
-    {{-- MSG OPERATOR  --}}
-    @elseif(in_array(Auth::user()->cargo_id,[7]))
-    <a href="{{route('GetUsersMsgCoord')}}" id="MessagesTaskBtn">
-    {{-- MSG COORD --}}
-    @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
-    <a href="{{route('GetUsersMsgAdm')}}" id="MessagesTaskBtn">
-    {{-- MSG ADM  --}}
-    @elseif(in_array(Auth::user()->cargo_id,[4]))
-    <a href="{{route('GetUsersMsgSup')}}" id="MessagesTaskBtn">
-    {{-- MSG SUPERVISOR  --}}
-    @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
-    <a href="{{route('GetUsersMsgOpeSup')}}" id="MessagesTaskBtn">
-    {{-- MSG ANOTHERS  --}}
-    @elseif(in_array(Auth::user()->cargo_id,[3]))
-    <a href="{{route('GetUsersMsgTraining')}}" id="MessagesTaskBtn">
-    {{-- MSG TRAINING  --}}
-    @elseif(in_array(Auth::user()->cargo_id,[15]))
-    <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtn">
+        @if(in_array(Auth::user()->cargo_id,[5,11,12,13,14]))
+         <a href="{{route('GetUsersMsgOpe')}}" id="MessagesTaskBtn">
+        {{-- MSG OPERATOR  --}}
+        @elseif(in_array(Auth::user()->cargo_id,[7]))
+        <a href="{{route('GetUsersMsgCoord')}}" id="MessagesTaskBtn">
+        {{-- MSG COORD --}}
+        @elseif(in_array(Auth::user()->cargo_id,[1,2,9]))
+        <a href="{{route('GetUsersMsgAdm')}}" id="MessagesTaskBtn">
+        {{-- MSG ADM  --}}
+        @elseif(in_array(Auth::user()->cargo_id,[4]))
+        <a href="{{route('GetUsersMsgSup')}}" id="MessagesTaskBtn">
+        {{-- MSG SUPERVISOR  --}}
+        @elseif(in_array(Auth::user()->cargo_id,[10,18,19,8,6,8]))
+        <a href="{{route('GetUsersMsgOpeSup')}}" id="MessagesTaskBtn">
+        {{-- MSG ANOTHERS  --}}
+        @elseif(in_array(Auth::user()->cargo_id,[3]))
+        <a href="{{route('GetUsersMsgTraining')}}" id="MessagesTaskBtn">
+        {{-- MSG TRAINING  --}}
+        @elseif(in_array(Auth::user()->cargo_id,[15]))
+        <a href="{{route('GetUsersMsgMonit')}}" id="MessagesTaskBtn">
         {{-- MSG Monitor  --}}
         @else
         <a href="{{route('GetUsersMsgOpe')}}" id="MessagesTaskBtn">
@@ -43,10 +89,11 @@
             <span class="fa fa-comments"></span>
         </a>
     </li>
+    @endif
     <!-- END MESSAGES -->
     <!-- TASKS -->
     {{-- Calculadoras  --}}
-    @if(in_array(Auth::user()->cargo_id,[3,4,5,1,8]))
+    @if($calculadora > 0)
     <li class="xn-icon-button pull-right">
         <a id="CalculadoraTask"><span class="fa fa-tasks"></span></a>
         <div class="panel panel-success animated zoomIn xn-drop-left ">
@@ -58,7 +105,7 @@
             </div>
         </div>
     </li>
-    {{-- Telefones  --}}
+    {{-- Telefones ùteis --}}
     <li class="xn-icon-button pull-right">
         <a id="getPhones">
             <span class="fa fa-phone"></span>
@@ -74,7 +121,7 @@
     </li>
     @endif
     {{-- Módulos com login via API  --}}
-    @if(in_array(Auth::user()->cargo_id,[1,2,7]))
+    @if($modulo > 0)
     <li class="xn-icon-button pull-right">
         <a href="#"><span class="fa fa-circle-o"></span></a>
         <div class="panel panel-default  animated zoomIn xn-drop-left">
@@ -84,6 +131,7 @@
                 </div>
             </div>
             <div class="panel-body list-group scroll">
+                @if(in_array(16, $permissions) || $webMaster)
                 <div class="list-group-item">
                     <form method="POST" action="/formTransfer/public/login" id="FormTransfer" class="input-group">
                         <input type="hidden" name="username" id="usernameFormTransfer" value="{{ Auth::user()->username }}">
@@ -92,12 +140,13 @@
                         <button class="btn btn-link col-md-2"> Login | FormTransfer </button>
                     </form>
                 </div>
+                @endif
             </div>
         </div>
     </li>
     @endif
     {{-- Monitorias  --}}
-    @if(!in_array(Auth::user()->cargo_id,[4,5]))
+    @if($inserts > 0)
     <li class="xn-icon-button pull-right">
         <a href="#"><span class="fa fa-plus"></span></a>
         <div class="panel panel-default animated zoomIn xn-drop-left">
@@ -131,18 +180,20 @@
                         <span class="fa fa-plus"></span>
                     </div>
                 </a>
-                <a href="{{ route('GetUsersRegisterUser') }}"  class="list-group-item">
-                    Usuários
-                    <div class="badge badge-primary">&nbsp;
-                        <span class="fa fa-plus"></span>
-                    </div>
-                </a>
                 <a href="{{ route('GetVideosCreate') }}" class="list-group-item">
                     Videos
                     <div class="badge badge-primary">&nbsp;
                         <span class="fa fa-plus"></span>
                     </div>
                 </a>
+                @if(in_array(34, $permissions) || $webMaster)
+                <a style="border-top: solid 1px gray" href="{{ route('GetUsersRegisterUser') }}"  class="list-group-item">
+                    Usuários
+                    <div class="badge badge-primary">&nbsp;
+                        <span class="fa fa-plus"></span>
+                    </div>
+                </a>
+                @endif
             </div>
         </div>
     </li>
@@ -150,7 +201,8 @@
     {{-- END TASKS --}}
 </ul>
 <!-- END X-NAVIGATION VERTICAL -->
-@if(in_array(Auth::user()->cargo_id,[5]))
+{{-- Monitoria: Consideracoes (Operador) --}}
+@if(in_array(20,$permissions))
 @section('modalAll')
 {{-- Modal de Relatório  --}}
     @include('monitoring.components.modais.resultRelatorio')
@@ -474,9 +526,9 @@ function linePhones(phone){
                 '<div id="phone'+id+'">'+
                     '<div class="card">'+
                         '<div class="list-group-item" style="max-width:100%;">'+
-                            '@if(in_array(Auth::user()->cargo_id,[1,3]))'+
+                            @if(in_array(40,$permissions))
                             '<a onclick="deletePhone('+id+')" class="btn pull-right"><span class="fa fa-times"></span></a>'+
-                            '@endif'+
+                            @endif
                             '<p style="max-width:100%;">'+
                                 '<strong style="color:black"><i class="fa fa-phone"></i> '+name+' - </strong>'+
                                 description+
@@ -504,8 +556,8 @@ $(function(){
 
         setInterval(function() {getMsgNotify()}, (i*1000));
 
-        //If supervisor, carrega notificação de monitoria
-        @if(in_array(Auth::user()->cargo_id,[4]))
+        //If supervisor, carrega notificação de monitoria (Permission - Monitoria: Aplicar Feedback)
+        @if(in_array(19,$permissions))
              getMonitoriasNavBar()
 
 
@@ -514,7 +566,7 @@ $(function(){
             }, 70*1000);
 
         // If operador, carrega modal monitoria feedback
-        @elseif(in_array(Auth::user()->cargo_id,[5]))
+        @elseif(in_array(20,$permissions))
             openModalSupOpeMonitoria()
 
             setInterval(() => {
@@ -532,7 +584,7 @@ $(function(){
 
         //If supervisor, carrega notificação de monitoria
         setInterval( function() {getMsgNotify()}, (60*1000))
-        @if(in_array(Auth::user()->cargo_id,[4]))
+        @if(in_array(19,$permissions))
         setTimeout(() => {
             getMonitoriasNavBar()
         }, 2000);
@@ -541,7 +593,7 @@ $(function(){
         }, 1800*1000);
 
         // If operador, carrega modal monitoria feedback
-        @elseif(in_array(Auth::user()->cargo_id,[5]))
+        @elseif(in_array(20,$permissions))
         setTimeout(() => {
             openModalSupOpeMonitoria()
         }, 2000);

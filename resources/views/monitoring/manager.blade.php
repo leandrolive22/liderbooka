@@ -43,7 +43,7 @@
             </div>
             {{-- Content --}}
             <div class="row col-md-12">
-                @if($qualCargo)
+                @if($webMaster || $isMonitor)
                 <div style="padding-left: 1%; padding-right: 1%;" class="col-md-12">
                     <div class="panel panel-colorful">
                         <div class="panel-heading ui-draggable-handle">
@@ -53,6 +53,7 @@
                             <table class="col-md-10">
                                 <tbody>
                                     <tr style="max-height: 50%">
+                                        @if($webMaster || $criarLaudo)
                                         {{-- botao padrão  --}}
                                         <td class="col-md-4">
                                             <a href="{{ route('GetMonitoriasCreate') }}" class="tile tile-default col-md-12" class="col-md-12">
@@ -61,6 +62,7 @@
                                                 <p class="col-md-12">Criar Modelo/Laudo</p>
                                             </a>
                                         </td>
+                                        @endif
                                         {{-- laços com modelos pré-registrados   --}}
                                         @forelse ($models as $item)
                                         <td class="col-md-4" style="min-width: 20rem" id="laudoModel{{$item->id}}">
@@ -69,9 +71,23 @@
                                                     <p>{{ $item->titulo }}</p>
                                                 </div>
                                                 <div class="btn-group btn-group-xs">
-                                                    <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">Aplicar</a>
+                                                    {{-- Aplicar Laudo --}}
+                                                    @if($webMaster || $aplicarAplicar)
+                                                    <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
+                                                        Aplicar
+                                                    </a>
+                                                    @endif
+
+                                                    {{-- Editar Laudo --}}
+                                                    @if($webMaster || $editarLaudo)
+                                                    @endif
+
                                                     {{-- <button role="button" class="btn btn-secondary">Editar</button> --}}
-                                                    <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-danger">Excluir</button>
+                                                    @if($webMaster || $excluirLaudo)
+                                                    <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-danger">
+                                                        Excluir
+                                                    </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>
@@ -86,8 +102,7 @@
                 </div>
                 @endif
             </div>
-            <div class="row col-md-12">
-@if($qualCargo)
+@if($webMaster || $dash || $export)
                 
                 {{-- <div class="panel panel-secondary">
                     <div class="panel-heading ui-dragable-handle">
@@ -102,7 +117,7 @@
                     <div class="panel-body">
                         {{-- Relatórios em Cards --}
                         <div class="col-md-3">
-                            <div class="widget @if($media > 94 ) widget-success @elseif($media > 89) widget-primary @else widget-danger @endif widget-padding-sm">
+                            <div class="widget @if($webMaster || $media > 94 ) widget-success @elseif($media > 89) widget-primary @else widget-danger @endif widget-padding-sm">
                                 <a href="javascript:" class="text-light">
                                     <div class="widget-item-left">
                                         <input class="knob" data-width="80" data-height="80" data-min="0" data-max="100" data-displayInput=false data-bgColor="rgba(143,178,85,0.1)" data-fgColor="#FFF" value="{{$media}}%" data-readOnly="true" data-thickness=".3"/>
@@ -144,20 +159,20 @@
                         </div>
                     </div> 
                 </div> --}
-            </div>
-            {{-- Grafico --}
+            {{-- Grafico --}}
             <div class="row col-md-12">
-                --}}
                 <div class="panel panel-secondary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Dash
+                            Monitoria
                             <p class="text-muted">Atualizado diariamente</p>
                         </h3>
                         <ul class="panel-controls pull-right">
                             <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
                         </ul>
-                        <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportar Analítico</button>
+                        @if($webMaster || $export)
+                            <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportar Analítico</button>
+                        @endif
                     </div>
                     <div class="panel-body text-center" style="overflow-x:scroll">
                         <div class="col-md-3" style="display: none">
@@ -171,6 +186,7 @@
                 </div>
             </div>
 @endif
+@if($webMaster || $isMonitor || $isSupervisor)
             <div class="row col-md-12">
                 {{-- Histórico --}}
                 <div class="panel panel-dark">
@@ -184,7 +200,7 @@
                         </ul>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-hover @if(!$qualCargo) datatable @endif">
+                        <table class="table table-hover @if(!$isMonitor) datatable @endif">
                             <thead>
                                 <tr>
                                     <th>Monitoria</th>
@@ -227,13 +243,22 @@
                                     <td class="btn-group btn-group-sm">
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-secondary"id="btnView{{$m->id}}" onclick="viewMonitoring({{$m->id}})">Ver</button>
-                                            @if ($qualCargo)
-                                            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li role="presentation" class="dropdown-header">Outras Ações</li>
-                                                <li><a href="{{route('GetMonitoriaEdit',['id' => $m->id])}}">Editar</a></li>
-                                                <li><a onclick="deleteMonitoria({{$m->id}})">Excluir</a></li>
-                                            </ul>
+                                            @if ($webMaster || $isMonitor)
+                                                @if($webMaster || $editarMonitoria || $excluirMonitoria)
+                                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li role="presentation" class="dropdown-header">Outras Ações</li>
+                                                        {{-- Editar Monitoria --}}
+                                                        @if($webMaster || $editarMonitoria)
+                                                            <li><a href="{{route('GetMonitoriaEdit',['id' => $m->id])}}">Editar</a></li>
+                                                        @endif
+
+                                                        {{-- Excluir Monitoria --}}
+                                                        @if($webMaster || $excluirMonitoria)
+                                                            <li><a onclick="deleteMonitoria({{$m->id}})">Excluir</a></li>
+                                                        @endif
+                                                    </ul>
+                                                @endif
                                             @endif
                                         </div>
                                     </td>
@@ -246,7 +271,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($qualCargo)
+                    @if($webMaster || $isMonitor)
                     <div class="panel-footer">
                         {{ $monitorias->links() }}
                     </div>
@@ -256,11 +281,10 @@
         </div>
     </div>
 </div>
-</div>
-</div>
+@endif
 @endsection
 @section('modal')
-@if($qualCargo)
+@if($webMaster || $isMonitor)
 {{-- Modal de relatório analítico --}}
 @include('monitoring.components.modais.analitico')
 
@@ -391,7 +415,7 @@
             }
         })
     }
-    @if($qualCargo)
+    @if($webMaster || $isMonitor)
     // exclui monitoria
     function deleteMonitoria(id) {
         $("#deleteMonitoria"+id).html('<span class="fa fa-spinner fa-spin  fa-xs"></span>')
@@ -537,7 +561,7 @@
                 }
             })
     }
-    @if($qualCargo)
+    @if($webMaster || $isMonitor)
     function searchByCpfCli() {
         $("#btnSBCPF").html('<span class="fa fa-spinner fa-spin"></span>')
         data = 'cpf='+$("#cpf_cliente").val()

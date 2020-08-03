@@ -13,10 +13,10 @@
 
             </div>
             <div class="modal-footer">
-            @if(Auth::user()->cargo_id == 4)
+            @if(in_array(1,session('permissionsIds')) || in_array(19, session('permissionsIds')))
                 <button type="button" id="closeModal" onclick="$('#modalMonitoring').hide()" class="btn btn-dark">Fechar</button>
                 <button type="button" id="GravarSupModal" onclick="saveFeedbackSupervisorMonitoring()" class="btn btn-success">Gravar FeedBack</button>
-            @elseif(Auth::user()->cargo_id == 5)
+            @elseif(in_array(1,session('permissionsIds')) || in_array(21, session('permissionsIds')))
                 @php
                 $hash2 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'2';
                 $hash1 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'1';

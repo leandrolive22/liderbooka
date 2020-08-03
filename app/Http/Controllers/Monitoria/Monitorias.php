@@ -13,6 +13,7 @@ use App\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Session;
 
 class Monitorias extends Controller
 {
@@ -30,8 +31,7 @@ class Monitorias extends Controller
             @$users->saveLogin($id);
 
             $title = 'Monitoria';
-
-            $qualCargo = in_array($cargo,[15,1]);
+            $qualCargo = 1;
 
             if($qualCargo) {
                 $dataArray = [];
@@ -69,7 +69,24 @@ class Monitorias extends Controller
                                         ->orderBy('supervisor_at') //ASC
                                         ->get();
             }
-            return view('monitoring.manager',compact('title','qualCargo','models','monitorias','media','lastMonth', 'usersFiltering'));
+
+            // Permissões
+            $permissions = Session::get('permissionsIds');
+            $webMaster = in_array(1, $permissions);
+            $criarLaudo = in_array(18, $permissions);
+            $excluirLaudo = in_array(22, $permissions);
+            $isMonitor = in_array(25, $permissions);
+            $dash = in_array(47,$permissions);
+            $aplicarLaudo = in_array(50, $permissions);
+            $export = in_array(51,$permissions);
+            $isSupervisor = in_array(52, $permissions);
+            $editarLaudo = in_array(53, $permissions);
+            $editarMonitoria = in_array(54, $permissions);
+            $excluirMonitoria = in_array(55, $permissions);
+
+            $compact = compact('title', 'qualCargo', 'models', 'monitorias', 'media', 'lastMonth', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor');
+
+            return view('monitoring.manager',$compact);
         } catch (Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
         }

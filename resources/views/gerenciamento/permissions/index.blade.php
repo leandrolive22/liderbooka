@@ -53,6 +53,7 @@
 						</div>
 						<div class="panel-body">
 							<div class="form-group">
+								@if($id === 0)
 								<select class="form-control select" name="users" data-live-search="true" id="users" onchange="carregarPermissoesDeUsuario(this)">
 									<option value="0">Selecione um usuário para alterar as permissões</option>
 									@forelse ($users as $item)
@@ -61,6 +62,11 @@
 									<option value="0">Nenhum usuário encontrado</option>
 									@endforelse
 								</select>
+								@else
+								<label class="check">
+									<input type="radio" readonly="true" checked="true" name="users" id="users" value="{{$users->id}}" class="iradio"> {{$users->name}}
+								</label>
+								@endif
 							</div>
 						</div>
 					</div>
@@ -89,7 +95,7 @@
 									<tr>
 										<td>
 											<label class="switch">
-												<input type="checkbox" class="permissions" disabled="true" name="permissions" value="{{$item->id}}"/>
+												<input type="checkbox" class="permissions" @if($id === 0) disabled="true" @elseif(in_array($item->id,$userPermissions)) checked="true" @endif name="permissions" value="{{$item->id}}"/>
 												<span></span>
 											</label>
 										</td>
@@ -108,7 +114,7 @@
 						<div class="panel-footer">
 							<div class="pull-right">
 
-								<button class="btn btn-default" type="button" onclick="sync()" disabled="true" id="syncBtn">
+								<button class="btn btn-default" type="button" onclick="sync(@if($id > 0) {{$id}} @endif)" @if($id === 0) disabled="true" @endif id="syncBtn">
 									<div id="loadedBtn">
 										<span id="sync" class="fa fa-cloud-upload">&nbsp;</span>
 										Sincronizar
@@ -184,12 +190,16 @@
 
 	function getPermissions() {
 		values = ''
-		$.each($(".permissions"),function(i,v){
-			if($(v).attr('checked',true)) {
+		$.each($(".permissions:checked"),function(i,v){
+			if(typeof $(v).val() !== 'undefined') {
 				values += v.value+','
+				console.log(v.value)
 			}
 		})
 		len = values.length
+		if(len === 0) {
+			return ''
+		}
 		return values.substr(0,(len-1))
 	}
 

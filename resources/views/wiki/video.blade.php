@@ -97,12 +97,16 @@
                                                     <button id="btnOpen{{$video->id}}" onclick="openMaterial({{$video->id}},'{{asset($video->file_path)}}','VIDEO')" class="btn btn-primary">Abrir</button>
 
                                                     {{-- Visivel apenas para treinamento e devs  --}}
-                                                    @if(!in_array(Auth::user()->cargo_id, [4,5]))
+                                                    @if(in_array(41, session('permissionsIds')))
                                                     {{-- Botão para gerar relatório  --}}
                                                     <button onclick='window.location.href="{{asset('manager/report/VIDEO/'.$video->id)}}"'  class="btn btn-default">Relatório</button>
+                                                    @endif
+                                                    @if(in_array(39, session('permissionsIds')))
                                                     {{-- Botão de edição  --}
                                                     <button class="btn btn-warning">Editar</button>
                                                     {{-- Botão de exclusão  --}}
+                                                    @endif
+                                                    @if(in_array(40, session('permissionsIds')))
                                                     <button class="btn btn-danger" id="deleteMaterial{{$video->id}}" onclick="deleteMaterial({{$video->id}})">Excluir</button>
                                                     @endif
 

@@ -27,6 +27,7 @@
 							</span> Medidas Disciplinares</h2>
 						</a>
 					</div>
+					@if($webMaster || in_array(15, $permissions) || $in_array(14, $permissions))
 					<div style="padding-left: 1%; padding-right: 1%;">
 						<div class="panel panel-colorful">
 							<div class="panel-heading ui-draggable-handle">
@@ -39,6 +40,7 @@
 											@php
 											$i = 0
 											@endphp
+											@if($webMaster || in_array(15, $permissions))
 											<td class="col-md-2">
 												<div class="col-md-12">
 													<a href="{{ route('GetMeasuresCreate', [0]) }}" class="tile tile-default tile-valign" class="col-md-12">
@@ -48,6 +50,9 @@
 													</a>
 												</div>
 											</td>
+											@endif
+
+											@if($webMaster || in_array(14,$permissions))
 											@forelse($models as $m)
 											<td class="col-md-2">
 												<div class="col-md-12">
@@ -80,12 +85,14 @@
 											@empty
 											<td class="col-md-10"></td>
 											@endforelse
+											@endif
 										</tr>
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
+					@endif
 				</div>
 				<!-- END CONTENT FRAME TOP-->
 

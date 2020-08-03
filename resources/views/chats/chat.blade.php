@@ -97,15 +97,19 @@
                                 <a role="button" href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a>
                             </ul>
                             <input type="text" class="form-control" id="filtroGroup" placeholder="Digite algum Titulo de grupo">
-@if( in_array(Auth::user()->cargo_id,[1,9,7,4,2])  )
-                            <a href="{{ route('GetNewChat', base64_encode(Auth::user()->id) ) }}" role="button"
-                                class="btn btn-default col-md-6">
-                                <span class="fa fa-users"></span> Novo Grupo
-                            </a>
-                            <a href="{{ route('GetDeleteChat', [ 'cargo' => base64_encode(Auth::user()->cargo_id), 'user' => base64_encode(Auth::user()->id) ] ) }}" role="button"
-                                class="btn btn-default col-md-6">
-                                <span class="fa fa-trash-o"></span> Excluir Grupo
-                            </a>
+@if($createGroup || $deleteGroup || $webMaster)
+                            @if($createGroup || $webMaster)
+                                <a href="{{ route('GetNewChat', base64_encode(Auth::user()->id) ) }}" role="button"
+                                    class="btn btn-default col-md-6">
+                                    <span class="fa fa-users"></span> Novo Grupo
+                                </a>
+                            @endif
+                            @if($deleteGroup || $webMaster)
+                                <a href="{{ route('GetDeleteChat', [ 'cargo' => base64_encode(Auth::user()->cargo_id), 'user' => base64_encode(Auth::user()->id) ] ) }}" role="button"
+                                    class="btn btn-default col-md-6">
+                                    <span class="fa fa-trash-o"></span> Excluir Grupo
+                                </a>
+                            @endif
 @endif
                         </div>
                     </div>

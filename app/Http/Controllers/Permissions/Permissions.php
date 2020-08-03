@@ -36,7 +36,7 @@ class Permissions extends Controller
                     ->get();
     }
 
-    public function index()
+    public function index(int $id = 0)
     {
         try {
             // Usuário
@@ -53,9 +53,15 @@ class Permissions extends Controller
             $title = 'Gestão de Permissões';
 
             // Pega todos usuário ativos
-            $users = User::orderBy('name')->get();
-
-            return view('gerenciamento.permissions.index',compact('allPermissions', 'quiz', 'title', 'users'));
+            if($id === 0) {
+                $users = User::orderBy('name')->get();
+                $userPermissions = [];
+            } else {
+                $users = User::find($id);
+                $userPermission = new UserPermissionController($users);
+                $userPermissions = $userPermission->getPermissionsIds();
+            }
+            return view('gerenciamento.permissions.index',compact('allPermissions', 'quiz', 'title', 'users', 'id', 'userPermissions'));
         } catch (Exception $e) {
             @$log = new Logs();
             @$log->logFileDay($e->getMessage());
@@ -93,7 +99,6 @@ class Permissions extends Controller
         // Valida dados de formulário
         $request->validate([
             'user' => 'required',
-            'permissions' => 'required'
         ],[
             'required' => 'Erro de Requisiçãom, recarregue e tente novamente!'
         ]);
@@ -118,11 +123,18 @@ class Permissions extends Controller
         $old = $userPermission->getUserPermissionsIds();
 
         try {
+            if(strlen($permissions[0]) === 0) {
+                @UserPermission::where('user_id',$user->id)
+                                ->where('permission_id','<>',1)
+                                ->delete();
+                return response()->json(['msg' => 'Permissões alteradas com sucesso!'],201);
+            }
+
             // marca permissões natigas como deletadas
             $oldDb = UserPermission::whereIn('id',$old)->get();
-            $countOldDb =$oldDb->count();
+            $countOldDb = $oldDb->count();
             if($countOldDb > 0) {
-                $oldDb->delete();
+                UserPermission::whereIn('id',$old)->delete();
             }
 
             // Atualiza permissões no banco

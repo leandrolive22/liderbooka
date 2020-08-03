@@ -29,16 +29,16 @@
                 </div> --}}
                 <div class="list-group border-bottom push-down-20" style="padding:1rem;">
                     <a href="{{  route('GetRoteirosIndex', ['ilha' => Auth::user()->ilha_id ]) }}"
-                        class="list-group-item">Roteiros <span id="RoteirosBtn"
+                        class="list-group-item py-1">Roteiros <span id="RoteirosBtn"
                             class="badge badge-danger"></span></a>
                     <a href="{{ route('CircularesWiki', [ 'ilha' => Auth::user()->ilha_id ]) }}"
-                        class="list-group-item">Circulares <span id="CircularesBtn"
+                        class="list-group-item py-1">Circulares <span id="CircularesBtn"
                             class="badge badge-danger"></span></a>
                      <a  href="{{ route('GetMateriaisIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}"
-                        class="list-group-item">Materiais <span id="MateriaisBtn"
+                        class="list-group-item py-1">Materiais <span id="MateriaisBtn"
                            class="badge badge-danger"></span></a>
                      <a href="{{ route('GetVideosIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}"
-                          class="list-group-item">Videos <span id="VideosBtn"
+                          class="list-group-item py-1">Videos <span id="VideosBtn"
                              class="badge badge-danger"></span></a>
                 </div>
         </form>

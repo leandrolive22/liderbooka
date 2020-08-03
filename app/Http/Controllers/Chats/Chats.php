@@ -12,6 +12,7 @@ use App\Http\Controllers\Users\Users;
 use App\Users\User; 
 use App\Users\Superior;
 use Illuminate\Support\Facades\Validator;
+use Session;
 
 class Chats extends Controller
 {
@@ -356,7 +357,14 @@ class Chats extends Controller
 
         $groups = $this->getGroupsByUser($id);
 
-        return view('chats.chat', compact('title', 'contacts','groups'));
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+        $createGroup = in_array(6, $permissions);
+        $deleteGroup = in_array(7, $permissions);
+        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
+
+        return view('chats.chat', $compact);
     }
 
     //msgMonitoria
@@ -386,6 +394,10 @@ class Chats extends Controller
         // Pega grupos
         $groups = $this->getGroupsByUser($id);
 
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+
         return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
@@ -409,6 +421,10 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+
         return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
@@ -432,6 +448,10 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
+
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
 
         return view('chats.chat', compact('title', 'contacts','groups'));
     }
@@ -457,6 +477,10 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+
         return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
@@ -482,6 +506,10 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
+        // Permissões
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+
         return view('chats.chat', compact('title', 'contacts','groups'));
     }
 

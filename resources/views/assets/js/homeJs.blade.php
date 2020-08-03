@@ -98,16 +98,21 @@
                                         '<div class="timeline-heading padding-bottom-0">'+
                                             '<img src="{{ asset("/") }}'+p.avatar+'" style="background-color:black"/> Publicado Por <b>'+logado+'<a  href="#post'+p.id_post+'" class="text-dark">'+p.userPost.split(' ')[0]+'</a></b>'+
 
-                                                '@if(in_array(Auth::user()->cargo_id,[1,2,3,6,7,9]))'+
+                                                @if(in_array(29,$permissions) || in_array(30,$permissions) || $webMaster)
                                                 '<ul class="panel-controls pull-right">'+
                                                     '<li class="dropdown">'+
                                                         '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-cog"></span></a>'+
                                                         '<ul class="dropdown-menu">'+
+                                                        @if(in_array(29,$permissions) || in_array(1,$permissions))
                                                             '<li><a onclick="deletePost('+p.id_post+')" class="panel-collapse"><span class="fa fa-trash-o"></span></span> Excluir</a></li>'+
+                                                        @endif
+                                                        @if(in_array(30,$permissions) || in_array(1,$permissions))
+                                                            '<li><a onclick="" class="panel-collapse"><span class="fa fa-bar-chart-o"></span></span> Relatório</a></li>'+
+                                                        @endif
                                                         '</ul>'+
                                                     '</li>'+
                                                 '</ul>'+
-                                                '@endif'+
+                                                @endif
 
                                             '</div>'+
                                         '<div class="timeline-body">'+
@@ -367,16 +372,21 @@
                                         '<div class="timeline-heading padding-bottom-0">'+
                                             '<img src="{{ asset("/".Auth::user()->avatar) }}" style="background-color:black"/> Publicado Por <b><a  href="#post'+p.id_post+'" class="text-dark">{{ explode(' ',Auth::user()->name)[0] }}</a></b>'+
 
-                                                '@if(Auth::user()->cargo_id <= 3 || Auth::user()->cargo_id == 6)'+
+                                                @if(in_array(29,$permissions) || in_array(30,$permissions) || $webMaster)
                                                 '<ul class="panel-controls pull-right">'+
                                                     '<li class="dropdown">'+
                                                         '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-cog"></span></a>'+
                                                         '<ul class="dropdown-menu">'+
-                                                            '<li><a onclick="deletePost('+p.id+')" class="panel-collapse"><span class="fa fa-trash-o"></span></span> Excluir</a></li>'+
+                                                        @if(in_array(29,$permissions) || in_array(1,$permissions))
+                                                            '<li><a onclick="deletePost('+p.id_post+')" class="panel-collapse"><span class="fa fa-trash-o"></span></span> Excluir</a></li>'+
+                                                        @endif
+                                                        @if(in_array(30,$permissions) || in_array(1,$permissions))
+                                                            '<li><a onclick="" class="panel-collapse"><span class="fa fa-bar-chart-o"></span></span> Relatório</a></li>'+
+                                                        @endif
                                                         '</ul>'+
                                                     '</li>'+
                                                 '</ul>'+
-                                                '@endif'+
+                                                @endif
 
                                             '</div>'+
                                         '<div class="timeline-body">'+

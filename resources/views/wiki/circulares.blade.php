@@ -101,11 +101,16 @@
                                                 <td>{{ $circular->status}}</td>
                                                 <td class="btn-group btn-group-xs">
                                                     <button id="btnOpen{{$circular->id}}" onclick="openMaterial({{$circular->id}},'{{asset($circular->file_path)}}','CIRCULAR');" class="btn btn-primary">Abrir </button>
-                                                    @if(!in_array(Auth::user()->cargo_id, [4,5]))
-                                                    <button onclick='window.location.href="{{asset('manager/report/CIRCULAR/'.$circular->id)}}"' class="btn btn-default">Relatório</button>
+                                                    @if(in_array(41, session('permissionsIds')))
+                                                    {{-- Botão para gerar relatório  --}}
+                                                    <button onclick='window.location.href="{{asset('manager/report/CIRCULAR/'.$circular->id)}}"'  class="btn btn-default">Relatório</button>
+                                                    @endif
+                                                    @if(in_array(39, session('permissionsIds')))
                                                     {{-- Botão de edição  --}
-                                                     <button class="btn btn-warning">Editar</button>
+                                                    <button class="btn btn-warning">Editar</button>
                                                     {{-- Botão de exclusão  --}}
+                                                    @endif
+                                                    @if(in_array(40, session('permissionsIds')))
                                                     <button class="btn btn-danger" id="deleteMaterial{{$circular->id}}" onclick="deleteMaterial({{$circular->id}})">Excluir</button>
                                                     @endif
 

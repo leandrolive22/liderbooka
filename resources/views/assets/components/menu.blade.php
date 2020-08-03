@@ -1,5 +1,5 @@
 @php
-// CHECA PERMISSÔES PARA MONTAR MENU
+// CHECA PERMISSÔES PARA MONTAR navBar
 $permissions = session('permissionsIds');
 $webMaster = in_array(1,$permissions);
 
@@ -47,9 +47,9 @@ foreach([6,7,8,9,10,11] AS $item) {
 $quiz = 0;
 foreach([31,32,33,46] AS $item) {
     if($webMaster) {
-        $wiki++;
+        $quiz++;
     } elseif(in_array($item,$permissions)) {
-        $wiki++;
+        $quiz++;
     }
 }
 
@@ -62,8 +62,6 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         $wiki++;
     }
 }
-
-
 @endphp
 <div  class="page-sidebar mCustomScrollbar _mCS_1 mCS-autoHide page-sidebar-fixed scroll">
     <!-- START X-NAVIGATION -->
@@ -88,17 +86,6 @@ foreach([38,39,40,41,42,43,44] AS $item) {
                 <div class="profile-data">
                     <div class="profile-data-name">{{ Auth::user()->name }}</div>
                     <div class="profile-data-title" id="cargoScript"></div>
-                    {{-- Edita Ilhas --}}
-                    @if (!in_array(Auth::user()->cargo_id,[4,5]))
-                    <div class="profile-data-title" id="editIsland" style="display:none">
-                        <form action="{{ route('PostEditIlha', ['id' => Auth::id()] ) }}" method="POST">
-                            @csrf
-                            <label for="form-label">Alterar Ilha</label>
-                            <select name="ilha_id" id="ilha_idEdit" class="form-control"></select>
-                            <button class="btn-xs btn btn-primary">Salvar</button>
-                        </form>
-                    </div>
-                    @endif
                 </div>
             </div>
         </li>
@@ -135,27 +122,6 @@ foreach([38,39,40,41,42,43,44] AS $item) {
             </a>
         </li>
         @endif
-        {{--  PROJETO CANCELADO
-        @if(in_array(Auth::user()->id,[37]))
-        <li @if($current == 'tabulador') class="active" @endif>
-            @php
-            if(in_array(Auth::user()->cargo_id,[1,15])) {
-
-                $link = 'GetTabsBackOffice';
-            }
-            elseif(in_array(Auth::user()->cargo_id,[4])) {
-                $link = 'GetTabsSupervisor';
-            }
-            elseif(in_array(Auth::user()->cargo_id,[5])) {
-                $link = 'GetTabsOperador';
-            }
-            @endphp
-            <a href="{{route($link)}}">
-                <span class="fa fa-dot-circle-o"></span>
-                <span class="xn-text">LiderTab (MD)</span>
-            </a>
-        </li>
-        @endif --}}
         {{-- Para todos  --}}
         <li @if($current == 'profile') class="active"@else @endif>
             <a href="{{route('GetUserProfile',['id' => base64_encode(Auth::user()->id)])}}">

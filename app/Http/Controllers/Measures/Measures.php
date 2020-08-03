@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Measures;
 use PDF;
+use Session;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Quizzes\Quizzes;
 use App\Measures\Measure;
 use App\Measures\MeasureModel as Model;
 use App\Users\User;
@@ -29,8 +31,15 @@ class Measures extends Controller
                         ->get();
 
         $title = 'Medidas Disciplinares';
+        // Pega quizzes não vistos
+        $q = new Quizzes();
 
-        return view('gerenciamento.measures.manager',compact('title','measures','models'));
+        $permissions = Session::get('permissionsIds');
+        $webMaster = in_array(1, $permissions);
+
+        $quiz = $q->getQuizFromUser(Auth::user()->ilha_id, Auth::id());
+
+        return view('gerenciamento.measures.manager',compact('title','measures','models','quiz','permissions','webMaster'));
     }
 
     // Cria view para salvar medida

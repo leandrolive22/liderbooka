@@ -106,13 +106,16 @@
                                                     <td>{{ $roteiro->subLocal->name }}</td> --}}
                                                     <td class="btn-group btn-group-xs">
                                                         <button id="btnOpen{{$roteiro->id}}" onclick="openMaterial({{$roteiro->id}},'{{asset($roteiro->file_path)}}','SCRIPT');" class="btn btn-primary">Abrir</button>
-                                                        @if(!in_array(Auth::user()->cargo_id, [4,5]))
+                                                        @if(in_array(41, session('permissionsIds')))
+                                                        {{-- Botão para gerar relatório  --}}
                                                         <button onclick='window.location.href="{{asset('manager/report/SCRIPT/'.$roteiro->id)}}"'  class="btn btn-default">Relatório</button>
+                                                        @endif
+                                                        @if(in_array(39, session('permissionsIds')))
                                                         {{-- Botão de edição  --}
                                                         <button class="btn btn-warning">Editar</button>
                                                         {{-- Botão de exclusão  --}}
                                                         @endif
-                                                        @if(in_array(Auth::user()->cargo_id,[1,3,21]))
+                                                        @if(in_array(40, session('permissionsIds')))
                                                         <button class="btn btn-danger" id="deleteMaterial{{$roteiro->id}}" onclick="deleteMaterial({{$roteiro->id}})">Excluir</button>
                                                         @endif
                                                     </td>

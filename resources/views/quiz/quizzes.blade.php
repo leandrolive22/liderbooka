@@ -20,7 +20,7 @@
             </div>
         </div>
         <!-- END CONTENT FRAME TOP -->
-        @if(in_array(Auth::user()->cargo_id,[1,2,3,9,7]))
+        @if($createQuiz || $webMaster)
         <div class="content-frame-top">
             <div class="panel panel-colorful">
                 <div class="panel-heading ui-draggable-handle">
@@ -72,11 +72,12 @@
                         <div class="timeline-heading padding-bottom-0">
                             <img src="{{ asset(@$quiz->avatar) }}" style="background-color:black"/> Publicado Por <a>{{@$quiz->name}}</a>
 
-                            @if(in_array(Auth::user()->cargo_id,[1,3,7,9,2,15]))
+                            @if($deleteQuiz || $exportQuiz || $webMaster)
                             <ul class="panel-controls">
                                 <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-cog"></span></a>
                                     <ul class="dropdown-menu">
+                                        @if($exportQuiz || $webMaster)
                                         <li class="dropdown-item text-success" onclick="$('form#exportExcelQuiz{{$quiz->id}}').submit()">
                                             {{-- form --}}
                                             <form action="{{route('GetReportQuizDataById', ['id' => base64_encode($quiz->id)])}}" method="POST" id="exportExcelQuiz{{$quiz->id}}">
@@ -91,12 +92,15 @@
                                                 Exportar
                                             </a>
                                         </li>
+                                        @endif
+                                        @if($deleteQuiz || $webMaster)
                                         <li class="dropdown-item text-danger">
                                             <a onclick="deleteQuiz({{$quiz->id}})" class="text-danger">
                                                 <span class="fa fa-trash-o"></span>
                                                 Excluir
                                             </a>
                                         </li>
+                                        @endif
                                     </ul>
                                 </li>
                             </ul>

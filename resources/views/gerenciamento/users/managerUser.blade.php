@@ -62,9 +62,20 @@
                                         </td>
                                         <td>
                                             <div class="input-group btn">
-                                                <button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser({{$user->id}});"><span id="btnPencil{{$user->id}}" class="fa fa-pencil"></span></button> 
-                                                <button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser({{$user->id}});"><span class="fa fa-times"></span></button>
-                                                <button type="button" onclick="resetPassword({{$user->id}})" title="Clique aqui para redefinir senha de usuário" class="btn btn-primary btn-sm"><span class="fa fa-lock"></span></button>
+                                                <button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser({{$user->id}});">
+                                                    <span id="btnPencil{{$user->id}}" class="fa fa-pencil"></span>
+                                                </button> 
+                                                <button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser({{$user->id}});">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                                <button type="button" onclick="resetPassword({{$user->id}})" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">
+                                                    <span class="fa fa-lock"></span>
+                                                </button>
+                                                @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                    <button type="button" onclick="window.location.href = '{{ route('GetPermissionsIndexUser', $user->id) }}'" class="btn btn-dark btn-sm">
+                                                        <span class="fa fa-sitemap"></span>
+                                                    </button>
+                                                @endif
                                             </div>
                                         </td>
                                     </form>
