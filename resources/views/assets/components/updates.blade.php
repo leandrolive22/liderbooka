@@ -125,7 +125,7 @@
 </div>
 
 @section('ChartsUpdates')
-@if( in_array(Auth::user()->cargo_id,[1,2,4,9,7]) )
+@if( in_array(12,session('permissionIds')) )
 <script type="text/javascript" src="{{ asset('js/plugins/morris/raphael-min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/plugins/morris/morris.min.js') }}"></script>
 
