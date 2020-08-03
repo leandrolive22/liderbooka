@@ -21,9 +21,12 @@ class Videos extends Controller
     {
         $title = 'Videos';
         $cargo = Auth::user()->cargo_id;
+        $titlePage = $title;
+        $type = 'VIDEO';
 
-        $videos = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")->get();
-        return view('wiki.video',compact('videos','title'));
+        $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")->get();
+        
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
 
 
@@ -41,11 +44,13 @@ class Videos extends Controller
     {
         $title = "Videos";
         $cargo = Auth::user()->cargo_id;
-        $videos = Video::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND sub_local_id LIKE '%$segment%') AND deleted_at IS NULL")
+        $result = Video::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND sub_local_id LIKE '%$segment%') AND deleted_at IS NULL")
                         ->orderBy('name')
                         ->get();
+        $titlePage = $title;
+        $type = 'VIDEO';
 
-        return view('wiki.video',compact('videos','title'));
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
     /**
      * Store a newly created resource in storage.

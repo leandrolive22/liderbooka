@@ -22,10 +22,12 @@ class Materiais extends Controller
     {
         $title = 'Materiais';
         $cargo = Auth::user()->cargo_id;
-        $materiais = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
                             ->get();
+        $titlePage = $title;
+        $type = 'MATERIAL';
 
-        return view('wiki.materiais',compact('materiais','title'));
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
 
     public function usuarios()
@@ -44,11 +46,14 @@ class Materiais extends Controller
     {
         $title = "Materiais $segment";
         $cargo = Auth::user()->cargo_id;
-        $materiais = Material::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') OR sub_local_id LIKE '%,$segment,%') AND deleted_at IS NULL")
+        $result = Material::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') OR sub_local_id LIKE '%,$segment,%') AND deleted_at IS NULL")
                             ->orderBy('name')
                             ->get();
 
-        return view('wiki.materiais',compact('materiais','title'));
+        $titlePage = $title;
+        $type = 'MATERIAL';
+
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
     /**
      * Store a newly created resource in storage.

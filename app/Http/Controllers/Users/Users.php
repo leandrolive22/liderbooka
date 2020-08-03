@@ -18,6 +18,7 @@ use App\Http\Controllers\Materials\Roteiros;
 use App\Http\Controllers\Materials\SubLocais;
 use App\Http\Controllers\Materials\Videos;
 use App\Http\Controllers\Monitoria\Monitorias;
+use App\Http\Controllers\Permissions\Permissions;
 use App\Http\Controllers\Quizzes\Quizzes;
 use App\Logs\Log;
 use App\Users\User;
@@ -265,8 +266,19 @@ class Users extends Controller
 
         // registra que usuário está online
         @$this->saveLogin(Auth::id());
+        $p = new Permissions();
+        $type = $p->wikiSearchType();
 
-        return view('wiki.wiki', compact('title','segmentos'));
+
+        if($type['tudo']) {
+            $i = new Ilhas();
+            $ilhas = json_decode($i->index());
+
+        } else {
+            $ilhas = NULL;
+        }
+
+        return view('wiki.wiki', compact('title','segmentos','ilhas'));
     }
 
     //conta quantos materias nãp foram lidos

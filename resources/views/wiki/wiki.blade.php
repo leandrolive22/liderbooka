@@ -74,7 +74,7 @@
                 <div class="col-md-12">
 
                     <!-- START WIKI BUSCA FILTER -->
-                    @component('assets.components.wikiSearch')
+                    @component('assets.components.wikiSearch', ['titlePage' => '', 'ilhas' => $ilhas])
                     @endcomponent
 
                     <div style="height: 100px;  width: 100%;" class="panel panel-success panel-hidden-controls">
@@ -107,7 +107,7 @@
 
 
                         <div id="card1" class="card text-black bg-black mb-3" style="max-width: 18rem; height: 115px;">
-                            <a href="{{ route('CircularesWiki', [ 'ilha' => Auth::user()->ilha_id ]) }}">
+                            <a href="{{ route('CircularesWiki', [ 'ilha' => Auth::user()->ilha_id ]) }}" class="selectIlha">
                                 <div style="color:white; font-size:19px; text-align: center " class="card-header">Circulares</div>
                             </a>
                             <div class="card-body">
@@ -121,7 +121,7 @@
 
                                 <div id="card2" class="card text-black bg-black mb-3" style="max-width: 18rem;">
                                     {{-- Roteiros  --}}
-                                    <a href="{{  route('GetRoteirosIndex', ['ilha' => Auth::user()->ilha_id ]) }}">
+                                    <a href="{{  route('GetRoteirosIndex', ['ilha' => Auth::user()->ilha_id ]) }}" class="selectIlha">
                                         <div style="color:white; font-size:19px; text-align: center" class="card-header text-white">
                                             Roteiros
                                         </div>
@@ -141,7 +141,7 @@
                                    </div>
                                    {{-- segmentos  --}}
                                    <div id="card3" class="card text-black bg-black mb-3" style="max-width: 18rem;">
-                                    <a href="{{ route('GetMateriaisIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}">
+                                    <a href="{{ route('GetMateriaisIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}" class="selectIlha">
                                         <div style="color:white; font-size:19px; text-align: center" class="card-header text-white">
                                             Materiais
                                         </div>
@@ -162,7 +162,7 @@
                                 </div>
                                 {{-- Videos  --}}
                                 <div id="card4" class="card text-black bg-black mb-3" style="max-width: 18rem;">
-                                    <a href="{{ route('GetVideosIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}">
+                                    <a href="{{ route('GetVideosIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}" class="selectIlha">
                                         <div style="color:white;font-size:19px; text-align: center" class="card-header">
                                             Videos
                                         </div>

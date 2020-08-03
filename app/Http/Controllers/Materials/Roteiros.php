@@ -20,10 +20,13 @@ class Roteiros extends Controller
     {
         $title = 'Roteiros';
         $cargo = Auth::user()->cargo_id;
-        $roteiros = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        $result = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
                             ->get();
 
-        return view('wiki.roteiros',compact('roteiros','title'));
+        $titlePage = $title;
+        $type = 'SCRIPT';
+
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
 
     //pega numero dos roteiros
@@ -37,11 +40,13 @@ class Roteiros extends Controller
     {
         $title = "Roteiros $segment";
         $cargo = Auth::user()->cargo_id;
-        $roteiros = Roteiro::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')  OR sub_local_id LIKE '%,$segment,%') AND deleted_at IS NULL")
+        $result = Roteiro::whereRaw("((ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')  OR sub_local_id LIKE '%,$segment,%') AND deleted_at IS NULL")
                             ->orderBy('name')
                             ->get();
+        $titlePage = $title;
+        $type = 'SCRIPT';
 
-        return view('wiki.roteiros',compact('roteiros','title'));
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
     /**
      * Store a newly created resource in storage.

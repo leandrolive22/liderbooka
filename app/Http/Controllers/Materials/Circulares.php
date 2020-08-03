@@ -4,30 +4,61 @@ namespace App\Http\Controllers\Materials;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-USE Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Permissions\Permissions;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Setores;
 use App\Materials\Circular;
 use App\Http\Controllers\Quizzes\Quizzes;
+use App\Users\Setor;
 use App\Users\Ilha;
 use App\Users\Cargo;
 
+
 class Circulares extends Controller
 {
-
     public function index($ilha)
     {
         $title = 'Circulares';
         //dados de configuração de usuário
         $conf = json_decode(Auth::user()->another_config, TRUE);
         $cargo = Auth::user()->cargo_id;
+        $titlePage = $title;
+        $type = 'CIRCULAR';
+        $p = new Permissions();
+        $type = $p->wikiSearchType();
+
+        if($type['tudo']) {
+            $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";
+        } else if($type['carteira']) {
+            $or = '';
+            $carteira = Auth::user()->carteira_id;
+            // Seleiona carteiras
+            $carteiras = Setor::select('id')
+                                    ->where('carteira_id',$carteira)
+                                    ->get();
+
+            // monta select
+            foreach($carteiras as $item) {
+                $or .= "OR setor_id LIKE '%,".$item->id.",%'";
+            }
+
+            $sql = "(ilha_id LIKE '%,1,%' $or) AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+        } else if($type['setor']) {
+            $setor = Auth::user()->setor_id;
+            $sql = "(ilha_id LIKE '%,1,%' OR setor_id LIKE '%,$setor,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+        } else if($type['ilha']) {
+            $sql = "(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+        } else {
+            $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";
+        }
 
         //query
-        $circulares = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        $result = Circular::whereRaw($sql)
                             ->get();
 
-        return view('wiki.circulares',compact('circulares','title'));
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
 
     public function year($year,$ilha)
@@ -36,20 +67,22 @@ class Circulares extends Controller
         //dados de configuração de usuário
         $conf = json_decode(Auth::user()->another_config, TRUE);
         $cargo = Auth::user()->cargo_id;
+        $titlePage = $title;
+        $type = 'CIRCULAR';
 
         //query
         if(in_array(Auth::user()->cargo_id, [4,5])) {
-            $circulares = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')  AND deleted_at IS NULL")
+            $result = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')  AND deleted_at IS NULL")
                                 ->where('year',$year)
                                 ->latest()
                                 ->get();
         } else {
-            $circulares = Circular::latest()
+            $result = Circular::latest()
                                     ->where('year',$year)
                                     ->get();
         }
 
-        return view('wiki.circulares',compact('circulares','title'));
+        return view('wiki.view',compact('result','title','titlePage','type'));
     }
 
 

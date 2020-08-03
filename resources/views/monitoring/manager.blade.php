@@ -271,7 +271,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($webMaster || $isMonitor)
+                    @if($isMonitor)
                     <div class="panel-footer">
                         {{ $monitorias->links() }}
                     </div>

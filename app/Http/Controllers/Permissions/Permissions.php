@@ -11,10 +11,22 @@ use App\Permission\UserPermission;
 use App\Permission\Permission;
 use Illuminate\Http\Request;
 use Auth;
+use Session;
 
 class Permissions extends Controller
 {
     protected $permissions;
+
+    public function wikiSearchType()
+    {
+        $permissions = Session::get('permissionsIds');
+        $tudo = in_array(44, $permissions);
+        $carteira = in_array(42, $permissions);
+        $ilha = in_array(56, $permissions);
+        $setor = in_array(57, $permissions);
+
+        return compact('tudo','carteira','ilha','setor');
+    }
 
     public function getPermissions() : array
     {
