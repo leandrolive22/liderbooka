@@ -135,6 +135,17 @@
 @section('Javascript')
 <script lang="javascript">
     function deleteMaterial(id) {
+
+        @if(strtoupper($type) === 'MATERIAL')
+            url = "{{asset('/manager/material/delete')}}/"
+        @elseif(strtoupper($type) === 'VIDEO')
+            url = "{{asset('/manager/video/delete')}}/"
+        @elseif(strtoupper($type) === 'SCRIPT')
+            url = "{{asset('/manager/script/delete')}}/"
+        @elseif(strtoupper($type) === 'CIRCULAR')
+            url = "{{asset('/manager/cirular/delete')}}/"
+        @endif
+
         $("#deleteMaterial"+id).prop('disabled',true)
         $("#deleteMaterial"+id).html('<span class="fa fa-spinner fa-spin"></span>');
         noty({
@@ -145,7 +156,7 @@
                         $noty.close();
                         $.ajax({
                             type: 'DELETE',
-                            url: "{{asset('/manager/material/delete')}}/"+id+"/{{ Auth::user()->id }}",
+                            url: url+id+"/{{ Auth::user()->id }}",
                             success: function(xhr) {
                                 $("#linhaWiki"+id).hide()
                                 $("#linhaWiki"+id).remove()

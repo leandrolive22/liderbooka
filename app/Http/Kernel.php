@@ -61,6 +61,25 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        // Medidas disciplinares
+        'Measures' => \App\Http\Middleware\Measures::class,
+        'CreateMeasures' => \App\Http\Middleware\CreateMeasures::class,
+        // Monitorias
+        'Monitoria' => \App\Http\Middleware\Monitoria::class,
+        'CreateApplyLaudo' => \App\Http\Middleware\CreateApplyLaudo::class,
+        // Quizzes
+        'Quizzes' => \App\Http\Middleware\Quizzes::class,
+        'CreateQuizzes' => \App\Http\Middleware\CreateQuizzes::class,
+        // Chat
+        'Chat' => \App\Http\Middleware\Chat::class,
+        'CreateDeleteChat' => \App\Http\Middleware\CreateDeleteChat::class,
+        // Wiki
+        'Wiki' => \App\Http\Middleware\Wiki::class,
+        'ManagerWiki' => \App\Http\Middleware\ManagerWiki::class,
+        // Usuários e Permissões
+        'AddUser' => \App\Http\Middleware\AddUser::class,
+        'ManagerUsers' => \App\Http\Middleware\ManagerUsers::class,
+        'SetPermissions' => \App\Http\Middleware\SetPermissions::class,
     ];
 
     /**

@@ -25,7 +25,7 @@ foreach([34,35,36,37,45] AS $item) {
 
 // Monitoria
 $monitoria = 0;
-foreach([18,19,20,21,22,23,24,25] AS $item) {
+foreach([18,19,20,21,22,23,24,25,47,50,51,52,53,54,55] AS $item) {
     if($webMaster) {
         $monitoria++;
     } elseif(in_array($item,$permissions)) {
@@ -116,9 +116,9 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         @if($monitoria > 0)
         <li @if($current == 'monitor') class="active" @else @endif>
             <div class="informer informer-danger text-danger" id="monitoriaMenuBtn"></div>
-            <a href="{{asset('monitoring/manager')}}">
+            <a href="{{asset('monitoring/manager')}}" title="Monitoria">
                 <span class="fa fa-check-square-o"></span>
-                <span class="xn-text">Monitoria</span>
+                <span class="xn-text">Qualidade</span>
             </a>
         </li>
         @endif
@@ -157,7 +157,7 @@ foreach([38,39,40,41,42,43,44] AS $item) {
                 {{-- MSG ELSE  --}}
                 @endif
                 <span class="fa fa-comments"></span>
-                <span class="xn-text">Chat<strong>Book</strong></span>
+                <span class="xn-text">Chat</span>
             </a>
         </li>
         @endif
@@ -165,7 +165,7 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         <li @if($current == 'quiz') class="active" @else @endif>
             <a href="{{ route('GetQuizIndex',[ 'ilha' => Auth::user()->ilha_id, 'id' => Auth::id(), 'skip' => 0, 'take' => 20 ]) }}">
                 <span class="fa fa-gamepad"></span>
-                <span class="xn-text">Quizzes</span>
+                <span class="xn-text">Quiz</span>
             </a>
         </li>
         @endif

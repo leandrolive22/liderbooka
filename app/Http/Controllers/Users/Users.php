@@ -20,6 +20,7 @@ use App\Http\Controllers\Materials\Videos;
 use App\Http\Controllers\Monitoria\Monitorias;
 use App\Http\Controllers\Permissions\Permissions;
 use App\Http\Controllers\Quizzes\Quizzes;
+use App\Http\Controllers\Tools\Tools;
 use App\Logs\Log;
 use App\Users\User;
 use App\Users\DeletedUser;
@@ -32,6 +33,8 @@ use App\Materials\Material;
 use App\Materials\Roteiro;
 use App\Materials\Video;
 use App\Users\Superior;
+use Cache;
+use DB;
 
 class Users extends Controller
 {
@@ -176,28 +179,90 @@ class Users extends Controller
             return back()->with(['errorAlert','Erro! Atualize a página e tente novamente.']);
         }
 
+        // grava usuários em Cache
         $users = User::select('id','name','username','cpf','ilha_id')
         ->when(!in_array($carteira,[1,2,9]),function($q,$carteira) {
             return $q->where('carteira_id',$carteira);
         })
         ->orderBy('name')
-        ->get();
+        ->paginate(15);
 
         $cargo = new Cargos();
         $cargos = $cargo->selectCustom('id, description');
 
-        $superintendentes = $this->getSuperintendentes();
-        $gerentes = $this->getGerentes();
-        $coordenadores = $this->getCoordenadores(0);
-        $supervisores = $this->getSupervisores(0);
+        // grava superintendentes em cache
+        if(Cache::has('getSuperintendentes'))
+        {
+            $superintendentes = Cache::get('getSuperintendentes');
+        } else {
+            $superintendentes = $this->getSuperintendentes();
+            Cache::put('getSuperintendentes',$superintendentes,720);
+        }
+
+        // grava gerentes em cache
+        if(Cache::has('getGerentes'))
+        {
+            $gerentes = Cache::get('getGerentes');
+        } else {
+            $gerentes = $this->getGerentes();
+            Cache::put('getGerentes',$gerentes,720);
+        }
+
+        // grava coordenadores em cache
+        if(Cache::has('getCoordenadores'))
+        {
+            $coordenadores = Cache::get('getCoordenadores');
+        } else {
+            $coordenadores = $this->getSuperintendentes();
+            Cache::put('getCoordenadores',$coordenadores,720);
+        }
+
+        // grava getSupervisores em cache
+        if(Cache::has('getSupervisores'))
+        {
+            $supervisores = Cache::get('getSupervisores');
+        } else {
+            $supervisores = $this->getSupervisores(0);
+            Cache::put('getSupervisores',$supervisores,720);
+        }             
 
         $filiais  = Filial::select('id','name')->get();
-
         $carteira = new Carteiras();
         $carteiras = json_decode($carteira->index());
 
         $title = 'Gerenciar Usuário';
         return view('gerenciamento.users.managerUser', compact('title', 'users','cargos','gerentes','superintendentes','coordenadores','supervisores','filiais','carteiras'));
+    }
+
+    public function searchInTable(Request $request)
+    {
+        $str = $request->str;
+        $searchData = Tools::ajustarBusca($str);
+
+        DB::statement('SET @contador := 0;');
+        $data = User::when(true,function($q) use ($searchData) {
+                        $orderBy = ' case ';
+                        foreach(explode('.+',$searchData) as $item) {
+                            $q->orWhereRaw('name REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('username REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('matricula REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('cpf REGEXP  "'.$item.'"');
+
+
+                            $orderBy .= 'when name REGEXP "'.$item.'" then 1 ';
+                            $orderBy .= 'when username REGEXP "'.$item.'" then 2 ';
+                            $orderBy .= 'when matricula REGEXP "'.$item.'" then 3 ';
+                            $orderBy .= 'when cpf REGEXP "'.$item.'" then 4 ';
+                        }
+
+                        $orderBy .= 'else 0 end DESC';
+
+                        $q->orderByRaw($orderBy);
+
+                        return $q;
+                    })->get();
+
+        return $data;
     }
 
     //retorna gerenciamento de materiais
@@ -602,6 +667,11 @@ class Users extends Controller
             $log->user_id = $id;
             $log->ilha_id = $insert->ilha_id;
 
+            // GRava permissões padrão de acordo com cargo
+            $permission = new Permissions();
+            if(!$permission->savePermissionsByCargo($cargo, $insert->id)) {
+                return response()->json(['success' => TRUE, 'msg' => 'permissões não configuradas']);
+            }
 
             return response()->json(['success' => TRUE]);
         }
@@ -710,26 +780,30 @@ class Users extends Controller
 
         // pega usuario para ser deletado
         $user = User::find($id);
-        $ilha = $user['ilha_id'];
+        if(!is_null($user)) {
+            $ilha = $user->ilha_id;
 
-        $deleted = new DeletedUser();
-        $deleted->user_id = $id;
-        $deleted->deletor_id = $userLog;
-        $deleted->name = $user->name;
-        $deleted->username = $user->username;
-        $deleted->cpf = $user->cpf;
-        $deleted->save();
+            $deleted = new DeletedUser();
+            $deleted->user_id = $id;
+            $deleted->deletor_id = $userLog;
+            $deleted->name = $user->name;
+            $deleted->username = $user->username;
+            $deleted->cpf = $user->cpf;
+            $deleted->save();
 
-        if ($user->delete()) {
-            //Registra log
-            $log = new Logs();
-            $log->log('DELETE_USER_ID->', $id, route('PostUsersDeleteUser'), $userLog, $ilha);
+            if ($user->delete()) {
+                //Registra log
+                $log = new Logs();
+                $log->log('DELETE_USER_ID->', $id, route('PostUsersDeleteUser'), $userLog, $ilha);
 
-            return response()->json(['success' => TRUE]);
-        } else {
+                return response()->json(['success' => TRUE]);
+            } else {
 
-            return response()->json(['success' => FALSE]);
+                return response()->json(['success' => FALSE]);
+            }
         }
+
+        return response()->json(['success' => TRUE]);
     }
 
     public function getSupervisores($ilha, $json = 0)

@@ -28,19 +28,30 @@
                             <span class="sr-only">Loading...</span>
                         </div>
                     </h3>
-                    <a class="btn btn-primary pull-right" href="{{ route('GetUsersRegisterUser') }}">Registrar</a>
+                    {{-- Excluir --}}
+                    @if(in_array(34, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                        <a class="btn btn-primary pull-right" href="{{ route('GetUsersRegisterUser') }}">Registrar</a>
+                    @endif
                 </div>
 
                 <div class="panel panel-body">
 
                     <div class="table-responsive panel-body-table">
-                        <table class="table table-bordered table-striped table-actions datatable" id="usersTable">
+                        <div class="row form-group col-md-12">
+                            <div class="col-md-7 input-group">
+                                <input class="form-control col-md-4" name="searchInTable" id="searchInTable" placeholder="Pesquise um usuário aqui">
+                                <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
+                            </div>
+                        </div>
+                        <table class="table table-bordered table-striped table-actions" id="usersTable">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
                                     <th>Usuário</th>
                                     <th>CPF</th>
+                                    @if(in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                     <th>Ações</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,17 +71,25 @@
                                             <!-- Formata CPF  -->
                                             {{ preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", str_pad($user->cpf,'11','0',STR_PAD_LEFT)) }}
                                         </td>
+                                        @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                         <td>
                                             <div class="input-group btn">
+                                                {{-- Editar --}}
+                                                @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                                 <button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser({{$user->id}});">
                                                     <span id="btnPencil{{$user->id}}" class="fa fa-pencil"></span>
                                                 </button> 
-                                                <button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser({{$user->id}});">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
+                                                {{-- editar senha --}}
                                                 <button type="button" onclick="resetPassword({{$user->id}})" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">
                                                     <span class="fa fa-lock"></span>
                                                 </button>
+                                                @endif
+                                                {{-- Excluir --}}
+                                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                <button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser({{$user->id}});">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                                @endif
                                                 @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                                     <button type="button" onclick="window.location.href = '{{ route('GetPermissionsIndexUser', $user->id) }}'" class="btn btn-dark btn-sm">
                                                         <span class="fa fa-sitemap"></span>
@@ -78,6 +97,7 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        @endif
                                     </form>
                                 </tr>
                                 @empty
@@ -86,7 +106,7 @@
                             </tbody>
 
                         </table>
-                        {{-- {{ $users->links() }} --}}
+                        {{ $users->links() }}
                     </div>
 
                 </div>
@@ -103,21 +123,23 @@
 <script type="text/javascript">
         //deleta usuário
         function deleteUser(id) {
-            name = $("#name"+id).val();
+            data = "id="+id+"&user={{Auth::id()}}"
+                    console.log(data)
             noty({
-                text: 'Deseja excluir o usuário '+name+'?',
+                text: 'Deseja excluir o usuário?',
                 layout: 'topRight',
                 buttons: [
                 {addClass: 'btn btn-success', text: 'Excluir', onClick: function($noty) {
                     $("#changescript"+id).attr('value','1');
-                    data = $("#formEditDelete"+id).serialize();
-
+                    
+                try {
                     $.ajax({
                         type: "POST",
                         url: "{{ route('PostUsersDeleteUser') }}",
                         data: data,
                         success: function( xhr,status )
                         {
+                            console.log(xhr)
                             $noty.close();
                             noty({
                                 text: "Usuário Excluído com sucesso!",
@@ -140,6 +162,9 @@
                             console.log(xhr);
                         }
                     });
+                } catch(e) {
+                    console.log(e)
+                }
 
                 }},
                 {addClass: 'btn btn-danger btn-clean', text: 'Cancelar', onClick: function($noty) {
@@ -518,12 +543,81 @@
             $("#preloadModal"+id).hide()
         }
 
+        function searchInTable() {
+            $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
+            val = $("#searchInTable").val()
+            if(val.length > 3) {
+                $.ajax({
+                    url: '{{route("searchInTable")}}',
+                    data: 'str='+val,
+                    success: function(data) {
+                    console.log(data)
+                    if(data.length > 0) {
+                        $("#usersTable > tbody tr").hide()
+                        linhas = ''
+                        for(i=0;i<data.length;i++) {
+                            linhas += '<tr id="usersTr'+data[i].id+'">'+
+                                '<form id="formEditDelete'+data[i].id+'" method="POST">'+
+                                    '@csrf'+
+                                    '<input type="hidden" name="user" value="{{ Auth::id() }}">'+
+                                    '<input type="hidden" name="id" value="'+data[i].id+'">'+
+                                '</form>'+
+                                    '<td>'+
+                                        data[i].name+
+                                    '</td>'+
+                                    '<td>'+
+                                        data[i].username+
+                                    '</td>'+
+                                    '<td>'+
+                                        '<!-- Formata CPF  -->'+
+                                        data[i].cpf+
+                                    '</td>'+
+                                    @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
+                                    '<td>'+
+                                        '<div class="input-group btn">'+
+                                            {{-- Editar --}}
+                                            @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                            '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
+                                                '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
+                                            '</button>'+ 
+                                            {{-- editar senha --}}
+                                            '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
+                                                '<span class="fa fa-lock"></span>'+
+                                            '</button>'+
+                                            @endif
+                                            {{-- Excluir --}}
+                                            @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                            '<button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser('+data[i].id+');">'+
+                                                '<span class="fa fa-times"></span>'+
+                                            '</button>'+
+                                            @endif
+                                            @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                            '<button type="button" onclick="window.location.href = '+"'{{ asset('manager/permissions') }}/"+data[i].id+"'"+'" class="btn btn-dark btn-sm">'+
+                                                '<span class="fa fa-sitemap"></span>'+
+                                            '</button>'+
+                                            @endif
+                                        '</div>'+
+                                    '</td>'+
+                                    @endif
+                            '</tr>';
+                        }
+
+                        $("#usersTable >tbody").append(linhas)
+                    } else {
+                        $("#usersTable > tbody tr").show()
+                    }
+                        $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+                    }
+                });// end Ajax
+            } else {
+                $("#usersTable > tbody tr").show()
+                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+            }
+        }
+
         $(function(){
             $("#loadingPreLoader").hide();
             $("#managerUsers").show();
-
-            // $('#usersTable_paginate').remove()
-            // $('#usersTable_info').remove()
         })
 
     </script>

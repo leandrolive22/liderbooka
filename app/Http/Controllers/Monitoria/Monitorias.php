@@ -54,7 +54,7 @@ class Monitorias extends Controller
                 $lastMonth = date('Y-m-1 00:00:00');
 
                 // Laudos
-                if($aplicarLaudo || $editarLaudo) {
+                if($aplicarLaudo || $editarLaudo || $webMaster) {
                     $models = Laudo::select('titulo','id')
                                     ->orderBy('utilizacoes','DESC')
                                     ->orderBy('id','DESC')

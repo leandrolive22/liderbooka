@@ -60,27 +60,28 @@
             @endphp
 
             <!-- Quizzes Alerts -->
-            @forelse($quiz as $item)
-            @php
+            @if(isset($quiz) && !is_null($quiz))
+                @forelse($quiz as $item)
+                @php
 
-            $i++;
+                $i++;
 
-            @endphp
-            
-            <a class="widget @if(($i % 2) === 0) widget-success @else widget-danger @endif widget-item-icon" href="{{ route('GetQuizzesView',[ 'id' => base64_encode($item->id) ]) }}">
-                <div class="widget-item-left">
-                    <img src="{{$item->avatar}}">
-                </div>
-                <div class="widget-data">
-                    <div class="widget-title">Quiz #{{$item->id}}</div>
-                    <div class="widget-subtitle">{{$item->title}}</div>
-                    <div class="widget-subtitle">{{substr($item->description,0,30)}}</div>
-                    <div class="widget-subtitle">Clique Aqui para responder</div>
-                </div>
-            </a>
-            @empty
+                @endphp
+                <a class="widget @if($i % 2 === 0) widget-success @else widget-danger @endif widget-item-icon" href="{{ route('GetQuizzesView',[ 'id' => base64_encode($item->id) ]) }}">
+                    <div class="widget-item-left">
+                        <img src="{{$item->avatar}}">
+                    </div>
+                    <div class="widget-data">
+                        <div class="widget-title">Quiz #{{$item->id}}</div>
+                        <div class="widget-subtitle">{{$item->title}}</div>
+                        <div class="widget-subtitle">{{substr($item->description,0,30)}}</div>
+                        <div class="widget-subtitle">Clique Aqui para responder</div>
+                    </div>
+                </a>
+                @empty
 
-            @endforelse
+                @endforelse
+            @endif
 
 
             {{-- ./Div Relógio e Clima --}}
@@ -125,7 +126,7 @@
 </div>
 
 @section('ChartsUpdates')
-@if( in_array(12,session('permissionIds')) )
+@if( in_array(12,session('permissionsIds')) )
 <script type="text/javascript" src="{{ asset('js/plugins/morris/raphael-min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/plugins/morris/morris.min.js') }}"></script>
 

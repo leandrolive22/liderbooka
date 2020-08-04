@@ -27,11 +27,11 @@ class Circulares extends Controller
         $titlePage = $title;
         $type = 'CIRCULAR';
         $p = new Permissions();
-        $type = $p->wikiSearchType();
+        $types = $p->wikiSearchType();
 
-        if($type['tudo']) {
+        if($types['tudo']) {
             $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";
-        } else if($type['carteira']) {
+        } else if($types['carteira']) {
             $or = '';
             $carteira = Auth::user()->carteira_id;
             // Seleiona carteiras
@@ -45,10 +45,10 @@ class Circulares extends Controller
             }
 
             $sql = "(ilha_id LIKE '%,1,%' $or) AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
-        } else if($type['setor']) {
+        } else if($types['setor']) {
             $setor = Auth::user()->setor_id;
             $sql = "(ilha_id LIKE '%,1,%' OR setor_id LIKE '%,$setor,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
-        } else if($type['ilha']) {
+        } else if($types['ilha']) {
             $sql = "(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
         } else {
             $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";

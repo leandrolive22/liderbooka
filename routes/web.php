@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/home', 'HomeController@index')->name('homeN');
     /*********** rotas do menu de navegação ***********/
-    Route::group(['prefix' => 'messages'], function () {
+    Route::group(['prefix' => 'messages', 'middleware' => 'Chat'], function () {
         Route::get('/adm', 'Chats\Chats@msgAdm')->name('GetUsersMsgAdm');
         Route::get('/coordenator', 'Chats\Chats@msgCoordenador')->name('GetUsersMsgCoord');
         Route::get('/training', 'Chats\Chats@msgMonitor')->name('GetUsersMsgTraining');
@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/profile/{id}', 'Users\Users@profile')->name('GetUserProfile');
     Route::get('/gerenciamento', 'Users\Users@manager')->name('GetUsersManager');
-    Route::get('/wiki/{ilha}', 'Users\Users@wiki')->name('GetUsersWiki');
+    Route::get('/wiki/{ilha}', 'Users\Users@wiki')->name('GetUsersWiki')->middleware('Wiki');
 
     //pega quantidade de materiais
     Route::group(['prefix' => 'count'], function () {
@@ -59,15 +59,16 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('teste/{id}/{user}', 'Users\Superiors@register')->where('id', '[0-9]+')->where('user', '[0-9]+');
 
     /*********** Rotas de Monitoria ***********/
-    Route::group(['prefix' => 'monitoring'], function () {
+    Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
         Route::get('manager','Monitoria\Monitorias@index')
             ->name('GetMonitoriasIndex');
 
         Route::get('create','Monitoria\Monitorias@create')
-            ->name('GetMonitoriasCreate');
+            ->name('GetMonitoriasCreate')
+            ->middleware('CreateApplyLaudo');
 
-        Route::post('toApply/{model}/','Monitoria\Laudos@toApply')->name('PostLaudoToApply');
-        Route::get('toApply/{model}/','Monitoria\Laudos@toApply')->name('GetLaudoToApply');
+        Route::post('toApply/{model}/','Monitoria\Laudos@toApply')->name('PostLaudoToApply')->middleware('CreateApplyLaudo');
+        Route::get('toApply/{model}/','Monitoria\Laudos@toApply')->name('GetLaudoToApply')->middleware('CreateApplyLaudo');
     /**Supervisão */
         Route::get('/supervision', 'Relatorios\Monitorias@supervision');
 
@@ -86,8 +87,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'manager'], function () {
 
         /**/
-        Route::group(['prefix' => 'permissions'], function () {
+        Route::group(['prefix' => 'permissions', 'middleware' => 'SetPermissions'], function () {
+
             Route::get('/','Permissions\Permissions@index')->name('GetPermissionsIndex');
+            
             Route::get('/{id}','Permissions\Permissions@index')
                 ->where('id',"[0-9]+")
                 ->name('GetPermissionsIndexUser');
@@ -96,23 +99,24 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/materials', 'Users\Users@manageMaterials')
         ->name('GetMaterialsManage');
 
-        Route::group(['prefix' => 'user'], function () {
+        Route::group(['prefix' => 'user', 'middleware' => 'ManagerUsers'], function () {
 
             Route::get('/', 'Users\Users@managerUserView')
                 ->name('GetUsersManagerUser');
 
             Route::get('/register', 'Users\Users@registerUserView')
-                ->name('GetUsersRegisterUser');
+                ->name('GetUsersRegisterUser')->middleware('AddUser');
         });
 
         /*********** rotas de edição e Gerenciamento de Medidas Disciplinares ***********/
-        Route::group(['prefix' => 'measures'], function () {
+        Route::group(['prefix' => 'measures', 'middleware' => 'Measures'], function () {
 
             Route::get('/manager', 'Measures\Measures@index')
                 ->name('GetMeasuresIndex');
 
             Route::get('/create/{model}', 'Measures\Measures@create')
-                ->name('GetMeasuresCreate');
+                ->name('GetMeasuresCreate')
+                ->middleware('CreateMeasures');
 
 
             Route::get('export/{id}', 'Measures\Measures@export')
@@ -135,14 +139,16 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/links_tags', 'Relatorios\Relatorios@linkTag')
                 ->name('GetRelatorioLinkTag');
 
+            // Relatório de Materiais
             Route::get('/{type}/{id}','Relatorios\Materiais@getReportMaterials')
-                ->name('GetMaterialsReport');
+                ->name('GetMaterialsReport')
+                ->middleware('ManagerWiki');
 
             Route::post('/chartview','Relatorios\Materiais@getViewsCharts')
                 ->name('GetMaterialsChart');
 
             // monitorias
-            Route::group(['prefix' => 'monitoring'], function () {
+            Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
 
                 Route::get('/byCpfCli','Relatorios\Monitorias@ByCpfCli')->name('GetMonitoriasByCpfCli');
 
@@ -237,7 +243,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'circular'], function () {
 
             Route::get('/', 'Materials\Circulares@create')
-            ->name('GetCircularesCreate');
+                ->name('GetCircularesCreate')
+                ->middleware('ManagerWiki');
 
             Route::post('/edit/{id}/{user}', 'Materials\Circulares@edit')
             ->where('id', '[0-9]+')
@@ -245,8 +252,9 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('PostCircularesEdit');
 
             Route::get('/edit/{id}', 'Materials\Circulares@editGet')
-            ->where('id', '[0-9]+')
-            ->name('GetCircularesEdit');
+                ->where('id', '[0-9]+')
+                ->name('GetCircularesEdit')
+                ->middleware('ManagerWiki');
 
             Route::post('/save/{user}', 'Materials\Circulares@store')
             ->where('user', '[0-9]+')
@@ -257,13 +265,14 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('saveFileCirc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Circulares@destroy')
-            ->name('DeleteCircular');
+                ->name('DeleteCircular');
         });
 
         Route::group(['prefix' => 'script'], function () {
 
             Route::get('/', 'Materials\Roteiros@create')
-            ->name('GetRoteirosCreate');
+                ->name('GetRoteirosCreate')
+                ->middleware('ManagerWiki');
 
             Route::post('/edit/{id}/{user}', 'Materials\Roteiros@edit')
             ->where('id', '[0-9]+')
@@ -275,9 +284,9 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('GetRoteirosEdit');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Roteiros@destroy')
-            ->where('id', '[0-9]+')
-            ->where('user', '[0-9]+')
-            ->name('DeleteCircular');
+                ->where('id', '[0-9]+')
+                ->where('user', '[0-9]+')
+                ->name('DeleteScript');
 
             Route::post('/save/{user}', 'Materials\Roteiros@store')
             ->where('user', '[0-9]+')
@@ -291,21 +300,23 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'material'], function () {
 
             Route::get('/', 'Materials\Materiais@create')
-            ->name('GetMateriaisCreate');
+                ->name('GetMateriaisCreate')
+                ->middleware('ManagerWiki');
 
             Route::post('/edit/{id}/{user}', 'Materials\Roteiros@edit')
-            ->where('id', '[0-9]+')
-            ->where('user', '[0-9]+')
-            ->name('GetMateriaisEdit');
+                ->where('id', '[0-9]+')
+                ->where('user', '[0-9]+')
+                ->name('GetMateriaisEdit');
 
             Route::get('/edit/{id}', 'Materials\Materiais@editGet')
-            ->where('id', '[0-9]+')
-            ->name('GetMateriaisEdit');
+                ->where('id', '[0-9]+')
+                ->name('GetMateriaisEdit')
+                ->middleware('ManagerWiki');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Materiais@destroy')
-            ->where('id', '[0-9]+')
-            ->where('user', '[0-9]+')
-            ->name('DeleteCircular');
+                ->where('id', '[0-9]+')
+                ->where('user', '[0-9]+')
+                ->name('DeleteMaterial');
 
             Route::post('/save/{user}', 'Materials\Materiais@store')
             ->where('user', '[0-9]+')
@@ -319,21 +330,23 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'video'], function () {
 
             Route::get('/', 'Materials\Videos@create')
-            ->name('GetVideosCreate');
+                ->name('GetVideosCreate')
+                ->middleware('ManagerWiki');
 
             Route::post('/edit/{id}/{user}', 'Materials\Videos@edit')
-            ->where('id', '[0-9]+')
-            ->where('user', '[0-9]+')
-            ->name('GetVideosEdit');
+                ->where('id', '[0-9]+')
+                ->where('user', '[0-9]+')
+                ->name('GetVideosEdit')
+                ->middleware('ManagerWiki');
 
             Route::get('/edit/{id}', 'Materials\Videos@editGet')
             ->where('id', '[0-9]+')
             ->name('GetVideosEdit');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Videos@destroy')
-            ->where('id', '[0-9]+')
-            ->where('user', '[0-9]+')
-            ->name('DeleteCircular');
+                ->where('id', '[0-9]+')
+                ->where('user', '[0-9]+')
+                ->name('DeleteVideo');
 
             Route::post('saveFile/{user}', 'Materials\Videos@file')
             ->where('user', '[0-9]+')
@@ -366,21 +379,116 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('saveFileCalc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Calculadoras@destroy')
-            ->name('DeleteCalc');
+                ->name('DeleteCalc');
         });
 
         Route::group(['prefix' => 'phone'], function () {
-            Route::get('/', 'Materials\Telefones@create')->name('GetTelefonesCreate');
-            Route::post('save', 'Materials\Telefones@store')->name('PostTelefonesStore');
+            Route::get('/', 'Materials\Telefones@create')
+                ->name('GetTelefonesCreate')
+                ->middleware('ManagerWiki');
+
+            Route::post('save', 'Materials\Telefones@store')
+                ->name('PostTelefonesStore');
         });
 
     });
 
-    /*********** Calculadoras ***********/
-    Route::group(['prefix' => 'Calculadoras'], function () {
+    Route::middleware('Wiki')->group(function () {
+        /*********** Calculadoras ***********/
+        Route::group(['prefix' => 'Calculadoras'], function () {
+
+            Route::get('/adicional', 'Materials\Calculadoras@Adicional')
+            ->name('Calculadoraadicional');
+
+            Route::get('/simuladorlimites', 'Materials\Calculadoras@Simulador')
+            ->name('CalculadoraLimites');
+
+            Route::get('/simuladorimobiliario', 'Materials\Calculadoras@Imobiliario')
+            ->name('CalculadoraImobiliario');
+
+            Route::get('/painel', 'Materials\Calculadoras@Painel')
+            ->name('CalculadoraPainel');
+
+            Route::get('/painel/getBase/{id}/{ilha}/{cpf}','Materials\Calculadoras@getPainelCPF');
+
+            Route::get('/siape', 'Materials\Calculadoras@Siape')
+            ->name('CalculadoraSiape');
+
+            Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
+            ->name('CalculadoraDilatacao');
+
+            Route::get("/baseConsultaSR","Materials\Calculadoras@indexBase");
+
+            Route::post("/baseConsultaSearch","Materials\Calculadoras@searchContract")
+                ->name("GetCalculadorasBaseConsultaContrato");
+        });
+
+        /*********** WIKI ***********/
+        Route::get('/wikicirculares', 'Materials\Circulares@selecionarCircular')
+        ->name('Circulares Wiki');
+
+        Route::get('/circulares/{ilha}', 'Materials\Circulares@index')
+        ->where('ilha', '[0-9]+')
+        ->name('CircularesWiki');
+
+        Route::get('/circulares/{year}/{ilha}', 'Materials\Circulares@year')
+        ->name('CircularesYearWiki');
+
+
+        Route::get('/calculadoras/{ilha}', 'Materials\Calculadoras@indexView')
+        ->where('ilha', '[0-9]+')
+        ->name('CalculadorasWiki');
+
+        Route::get('/pdf', 'Materials\SubLocais@pdf')
+        ->name('Calculadoras Wiki');
+
+        Route::get('circulars/{ilha}', 'Materials\Circulares@index')
+        ->name('GetCircularesIndex');
+
+        Route::get('scripts/{ilha}', 'Materials\Roteiros@index')
+        ->name('GetRoteirosIndex');
+
+        Route::get('/scripts/{segment}/{ilha}', 'Materials\Roteiros@segment')
+        ->name('RoteirosSegmentWiki');
+
+
+        Route::get('materials/{ilha}', 'Materials\Materiais@index')
+        ->name('GetMateriaisIndex');
+
+        Route::get('/materials/{segment}/{ilha}', 'Materials\Materiais@segment')
+        ->name('MateriaisSegmentWiki');
+
+        Route::get('videos/{ilha}', 'Materials\Videos@index')
+        ->name('GetVideosIndex');
+
+        Route::get('videos/{segment}/{ilha}', 'Materials\Videos@segment')
+        ->name('GetVideosSegment');
+
+        Route::get('lidos/{ilha}', 'Users\Users@lidos')
+        ->name('GetLidosIndex');
+
+        /*********** WIKI Relatorios Avançados***********/
+
+        Route::get('videosrelatorios/{ilha}', 'Materials\Videos@relatorio')
+        ->name('GetVideosRelatorioIndex');
+
+
+        /*********** WIKI Calculadoras***********/
 
         Route::get('/adicional', 'Materials\Calculadoras@Adicional')
-        ->name('Calculadoraadicional');
+        ->name('Calcualdoraadicional');
+
+        Route::get('/painel', 'Materials\Calculadoras@Painel')
+        ->name('CalculadoraPainel');
+
+        Route::get('/painelteste', 'Materials\Calculadoras@Painelteste')
+        ->name('CalculadoraPainel');
+
+        Route::get('/siape', 'Materials\Calculadoras@Siape')
+        ->name('CalculadoraSiape');
+
+        Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
+            ->name('CalculadoraDilatacao');
 
         Route::get('/simuladorlimites', 'Materials\Calculadoras@Simulador')
         ->name('CalculadoraLimites');
@@ -388,113 +496,25 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/simuladorimobiliario', 'Materials\Calculadoras@Imobiliario')
         ->name('CalculadoraImobiliario');
 
-        Route::get('/painel', 'Materials\Calculadoras@Painel')
-        ->name('CalculadoraPainel');
-
-        Route::get('/painel/getBase/{id}/{ilha}/{cpf}','Materials\Calculadoras@getPainelCPF')->name('');
-
-        Route::get('/siape', 'Materials\Calculadoras@Siape')
-        ->name('CalculadoraSiape');
-
-        Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
-        ->name('CalculadoraDilatacao');
-
-        Route::get("/baseConsultaSR","Materials\Calculadoras@indexBase");
-
-        Route::post("/baseConsultaSearch","Materials\Calculadoras@searchContract")
-            ->name("GetCalculadorasBaseConsultaContrato");
+        Route::get('calculators/{ilha}', 'Materials\calculadoras@index')
+        ->name('GetCalculadorasIndex');
     });
-
-    /*********** WIKI ***********/
-    Route::get('/wikicirculares', 'Materials\Circulares@selecionarCircular')
-    ->name('Circulares Wiki');
-
-    Route::get('/circulares/{ilha}', 'Materials\Circulares@index')
-    ->where('ilha', '[0-9]+')
-    ->name('CircularesWiki');
-
-    Route::get('/circulares/{year}/{ilha}', 'Materials\Circulares@year')
-    ->name('CircularesYearWiki');
-
-
-    Route::get('/calculadoras/{ilha}', 'Materials\Calculadoras@indexView')
-    ->where('ilha', '[0-9]+')
-    ->name('CalculadorasWiki');
-
-    Route::get('/pdf', 'Materials\SubLocais@pdf')
-    ->name('Calculadoras Wiki');
-
-    Route::get('circulars/{ilha}', 'Materials\Circulares@index')
-    ->name('GetCircularesIndex');
-
-    Route::get('scripts/{ilha}', 'Materials\Roteiros@index')
-    ->name('GetRoteirosIndex');
-
-    Route::get('/scripts/{segment}/{ilha}', 'Materials\Roteiros@segment')
-    ->name('RoteirosSegmentWiki');
-
-
-    Route::get('materials/{ilha}', 'Materials\Materiais@index')
-    ->name('GetMateriaisIndex');
-
-    Route::get('/materials/{segment}/{ilha}', 'Materials\Materiais@segment')
-    ->name('MateriaisSegmentWiki');
-
-    Route::get('videos/{ilha}', 'Materials\Videos@index')
-    ->name('GetVideosIndex');
-
-    Route::get('videos/{segment}/{ilha}', 'Materials\Videos@segment')
-    ->name('GetVideosSegment');
-
-    Route::get('lidos/{ilha}', 'Users\Users@lidos')
-    ->name('GetLidosIndex');
-
-    /*********** WIKI Relatorios Avançados***********/
-
-    Route::get('videosrelatorios/{ilha}', 'Materials\Videos@relatorio')
-    ->name('GetVideosRelatorioIndex');
-
-
-    /*********** WIKI Calculadoras***********/
-
-    Route::get('/adicional', 'Materials\Calculadoras@Adicional')
-    ->name('Calcualdoraadicional');
-
-    Route::get('/painel', 'Materials\Calculadoras@Painel')
-    ->name('CalculadoraPainel');
-
-    Route::get('/painelteste', 'Materials\Calculadoras@Painelteste')
-    ->name('CalculadoraPainel');
-
-    Route::get('/siape', 'Materials\Calculadoras@Siape')
-    ->name('CalculadoraSiape');
-
-    Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
-        ->name('CalculadoraDilatacao');
-
-    Route::get('/simuladorlimites', 'Materials\Calculadoras@Simulador')
-    ->name('CalculadoraLimites');
-
-    Route::get('/simuladorimobiliario', 'Materials\Calculadoras@Imobiliario')
-    ->name('CalculadoraImobiliario');
-
-    Route::get('calculators/{ilha}', 'Materials\calculadoras@index')
-    ->name('GetCalculadorasIndex');
 
     Route::get('cpf','Materials\Calculadoras@CpfPending')->name('cpf');
 
 
 
     /*********** Quizz ***********/
-    Route::group(['prefix' => 'quiz'], function () {
+    Route::group(['prefix' => 'quiz', 'middleware' => 'Quizzes'], function () {
 
         Route::get('/get/index/{ilha}/{id}/{skip}/{take}', 'Quizzes\Quizzes@index')
         ->name('GetQuizIndex');
 
         Route::get('/create', 'Quizzes\Quizzes@create')
-        ->name('GetQuizCreate');
+            ->name('GetQuizCreate')
+            ->middleware('CreateQuizzes');
 
-        Route::get('view/{id}', 'Quizzes\Quizzes@view')->name('GetQuizzesView');
+        Route::get('view/{id}', 'Quizzes\Quizzes@view')->name('GetQuizzesView'); //responder
 
         Route::get('view/correct/{id}', 'Quizzes\Quizzes@correct')->name('GetQuizzesCorrect');
     });
@@ -536,8 +556,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('pic/{id}/{pic}', 'Users\Users@setAvatar')->where('id', '[0-9]+')->name('GetUsersAvatar');
     });
 
-        //registrar usuario
-    Route::group(['prefix' => '/register'], function () {
+    //registrar usuarios
+    Route::group(['prefix' => '/register', 'middleware' => 'AddUser'], function () {
         Route::get('/', 'Users\Users@register')->name('GetRegisterUser');
 
         Route::post('/save', 'Users\Users@store')->name('PostRegisterUser');
@@ -553,8 +573,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post("/video/{user}", "Materials\Videos@store")->name('PostVideosStore'); //Inserir Materiais
         });
 
-    /*********** Materiais ***********/
-    Route::group(['prefix' => 'chats'], function () {
+    /*********** Chat ADMIN ***********/
+    Route::group(['prefix' => 'chats', 'middleware' => 'CreateDeleteChat'], function () {
         Route::get('new/groups/{id}', 'Chats\Chats@groupCreate')
         ->name('GetNewChat');
 
@@ -587,9 +607,9 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 //ADMINS ROUTES
-Route::group(['prefix' => 'admin'], function(){
+Route::group(['prefix' => 'admin', 'middleware' => 'SetPermissions'], function(){
     Route::get('permissions/by/user/','Permissions\Permissions@getUserPermissions')
         ->name('GetPermissionsByUser');
     Route::post('permissions/sync','Permissions\Permissions@store')
         ->name('PostPermissionsStore');
-});//->middleware('Admin');
+});

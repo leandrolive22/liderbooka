@@ -42,10 +42,10 @@ class Permissions extends Controller
     public function allPermissions($webMaster = FALSE)
     {
         return Permission::when(!$webMaster, function($q) {
-                        return $q->where('id','<>',1);
-                    })
-                    ->orderBy('name')
-                    ->get();
+            return $q->where('id','<>',1);
+        })
+        ->orderBy('name')
+        ->get();
     }
 
     public function index(int $id = 0)
@@ -137,8 +137,8 @@ class Permissions extends Controller
         try {
             if(strlen($permissions[0]) === 0) {
                 @UserPermission::where('user_id',$user->id)
-                                ->where('permission_id','<>',1)
-                                ->delete();
+                ->where('permission_id','<>',1)
+                ->delete();
                 return response()->json(['msg' => 'Permissões alteradas com sucesso!'],201);
             }
 
@@ -182,5 +182,108 @@ class Permissions extends Controller
         }
 
         return $arr;
+    }
+
+    public function savePermissionsByCargo($cargo, $id) : bool
+    {
+        switch ($cargo) {
+            case 1:
+            $defaultPermission = [1];
+            break;
+
+            case 2:
+            $defaultPermission = [12,16,17,8,9,26,27,29,30,31,32,33,46,34,35,36,45,37,40,41,56];
+            break;
+
+            case 3:
+            $defaultPermission = [3,6,7,26,27,29,30,31,32,33,46,34,35,36,45,38,39,40,41,56];
+            break;
+
+            case 4:
+            $defaultPermission = [3,6,7,26,27,29,30,31,32,33];
+            break;
+
+            case 5:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            case 7:
+            $defaultPermission = [12,16,17,6,7,8,27,33,46,34,35,36,45,37,41,43,56];
+            break;
+
+            case 8:
+            $defaultPermission = [6,8,27,31,33,46,41,43];
+            break;
+
+            case 9:
+            $defaultPermission = [6,7,8,9,12,16,17,26,27,29,30,31,32,33,34,35,36,37,40,41,45,46,56];
+            break;
+
+            case 10:
+            $defaultPermission = [41,27];
+            break;
+
+            case 11:
+            $defaultPermission = [41,27];
+            break;
+
+            case 12:
+            $defaultPermission = [41,27];
+            break;
+
+            case 13:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            case 14:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            case 15:
+            $defaultPermission = [19,50,53,54,22,55,51,23,25,21,6,7,27,34,35,36,41];
+            break;
+
+            case 16:
+            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,45,41];
+            break;
+
+            case 17:
+            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,45,41];
+            break;
+
+            case 18:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            case 19:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            case 20:
+            $defaultPermission = [2,10,28,41,42];
+            break;
+
+            default:
+            throw new Exception("Cargo Inválido", 1);
+            
+        }
+
+        $data = [];
+        $date = date('Y-m-d H:i:s');
+
+        foreach($defaultPermission as $item) {
+            $data[] = [
+                'user_id' => $id,
+                'permission_id' => $item,
+                'created_at' => $date,
+                'updated_at' => $date
+            ];
+        }
+
+        if(UserPermission::insert($data)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
 }

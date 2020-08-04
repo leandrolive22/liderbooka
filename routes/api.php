@@ -31,6 +31,7 @@ Route::group(['prefix' => 'data'],function(){
     Route::get('ilha/get','Users\Ilhas@getIlhas')->name('getIlhasEdit');
     Route::get('ilha/getBy/{setor}','Users\Ilhas@getIlhas')->name('getIlhasEditBySetor');
     Route::post('ilha/edit/{id}','Users\Users@editIlha')->name('PostEditIlha');
+    Route::get('searchInTable/user','Users\Users@searchInTable')->name('searchInTable');
 });
 
 //download materials
