@@ -61,26 +61,26 @@
 
             <!-- Quizzes Alerts -->
             @if(isset($quiz) && !is_null($quiz))
-                @forelse($quiz as $item)
-                @php
+            @forelse($quiz as $item)
+            @php
 
-                $i++;
+            $i++;
 
-                @endphp
-                <a class="widget @if($i % 2 === 0) widget-success @else widget-danger @endif widget-item-icon" href="{{ route('GetQuizzesView',[ 'id' => base64_encode($item->id) ]) }}">
-                    <div class="widget-item-left">
-                        <img src="{{$item->avatar}}">
-                    </div>
-                    <div class="widget-data">
-                        <div class="widget-title">Quiz #{{$item->id}}</div>
-                        <div class="widget-subtitle">{{$item->title}}</div>
-                        <div class="widget-subtitle">{{substr($item->description,0,30)}}</div>
-                        <div class="widget-subtitle">Clique Aqui para responder</div>
-                    </div>
-                </a>
-                @empty
+            @endphp
+            <a class="widget @if($i % 2 === 0) widget-success @else widget-danger @endif widget-item-icon" href="{{ route('GetQuizzesView',[ 'id' => base64_encode($item->id) ]) }}">
+                <div class="widget-item-left">
+                    <img src="{{$item->avatar}}">
+                </div>
+                <div class="widget-data">
+                    <div class="widget-title">Quiz #{{$item->id}}</div>
+                    <div class="widget-subtitle">{{$item->title}}</div>
+                    <div class="widget-subtitle">{{substr($item->description,0,30)}}</div>
+                    <div class="widget-subtitle">Clique Aqui para responder</div>
+                </div>
+            </a>
+            @empty
 
-                @endforelse
+            @endforelse
             @endif
 
 
@@ -130,7 +130,34 @@
 <script type="text/javascript" src="{{ asset('js/plugins/morris/raphael-min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/plugins/morris/morris.min.js') }}"></script>
 
-<script language="javascript">
+<script type="text/javascript">
+    //chama a função ao carergar a page
+    $(window).on('load',function () {
+        @if(in_array(Auth::user()->cargo_id,[1,2,4,9,7]))
+        getEnvironment();
+        @endif
+
+        //chama as funções à cada 5 minutos
+        setInterval(function(){
+
+            //buscas
+            @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
+            nonReadMaterials()
+            @endif
+
+          //tempo de busca
+      },5*60*1000);
+
+        //if Laravel
+        @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
+        setTimeout(function(){
+
+            nonReadMaterials()
+
+        }, (30*1000))
+        @endif
+
+    })
     //Pega dados de clima de equipe e converte em gráficos para os superiores
     function getEnvironment() {
         $.getJSON('{{ route("GetUsersHumourChart", [
@@ -203,95 +230,5 @@
         })
     }
     @endif
-
-    @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
-    // pega materiais não lideos
-    function nonReadMaterials() {
-        // $.getJSON('{{ route('GetLogsCountRead', [ 'user' => Auth::id(), 'ilha' => Auth::user()->ilha_id ]) }}',function(data) {
-
-        //     num = $("#NonReadedIpt").val()
-        //     if(num > 0){
-        //         checkNew(data,num)
-        //     }
-
-        //     widget = '<a href="{{ route('GetUsersWiki', ['ilha' => Auth::user()->ilha_id ]) }}" class="tile tile-danger">'+
-        //                 '<p>Você tem</p>'+
-        //                 '<b>'+data[0]+'</b>'+
-        //                 '<p>Materiais não lidos</p>'+
-        //             '</a>';
-        //     //Coloca dados no html para consulta futura
-        //     $("#NonReadedIpt").val(data[0])
-        //     $("#material").val(data[1][0])
-        //     $("#script").val(data[1][1])
-        //     $("#video").val(data[1][2])
-        //     $("#circular").val(data[1][3])
-        //     return $("#NonReaded").html(widget)
-        // })
-    }
-
-    /*
-    * @params data = Retorno da requisição getJSON
-    *
-    * @return redirecionamento para a página
-    */
-    function checkNew(data,num) {
-        //correto
-        // if( parseInt( {{ json_encode(session('countMaterials')) }} ) > num) {
-        //     if($("#material").val() < data[1][0]) {
-        //         alert('Você tem ' + data[1][0] + ' MATERIAI(S) não lidos')
-        //         return window.location.href = "{{ asset('/materials/' . Auth::user()->ilha_id ) }}"
-        //     }
-        //     if($("#script").val() < data[1][1]) {
-        //         alert('Você tem ' + data[1][1] + ' ROTEIRO(S) não lidos')
-        //         return window.location.href = "{{ asset('/scripts/' . Auth::user()->ilha_id ) }}"
-        //     }
-        //     if($("#video").val() < data[1][2]) {
-        //         alert('Você tem ' + data[1][2] + ' VIDEO(S) não lidos')
-        //         return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"
-        //     }
-        //     if($("#circular").val() < data[1][3]) {
-        //         alert('Você tem ' + data[1][3] + ' CIRCULA(ES) não lidas')
-        //         return window.location.href = "{{ asset('/circulars/' . Auth::user()->ilha_id ) }}"
-        //     }
-        // }
-    }
-    @endif
-    //chama a função ao carergar a page
-    $(window).on('load',function () {
-        @if (session('countVideo') && in_array(Auth::user()->cargo_id, [4,5]))
-        try {
-            pushNoty('Wiki - LiderBook','Você tem vídeos não visualizados',"{{ asset('/videos/' . Auth::user()->ilha_id ) }}");
-            setTimeout(function() {return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"}, 2000);
-        } catch (e) {
-            alert('Você tem ' + data[1][2] + ' VIDEO(S) não vistos')
-            return window.location.href = "{{ asset('/videos/' . Auth::user()->ilha_id ) }}"
-        }
-        @endif
-
-        @if(in_array(Auth::user()->cargo_id,[1,2,4,9,7]))
-        getEnvironment();
-        @endif
-
-        //chama as funções à cada 5 minutos
-        setInterval(function(){
-
-            //buscas
-            @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
-            nonReadMaterials()
-            @endif
-
-          //tempo de busca
-      },5*60*1000);
-
-        //if Laravel
-        @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
-        setTimeout(function(){
-
-            nonReadMaterials()
-
-        }, (30*1000))
-        @endif
-
-    })
 </script>
 @endsection

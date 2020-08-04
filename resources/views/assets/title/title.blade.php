@@ -1,5 +1,5 @@
 @if(isset($title))
-    <title>Lider Book 2.0 - {{$title}}</title>
+    <title>{{ str_replace('_', ' ',env("APP_NAME","Lider_Book")) }} - {{$title}}</title>
     @else
-    <title>Lider Book 2.0 - Login</title>
+    <title>{{ str_replace('_', ' ',env("APP_NAME","Lider_Book")) }} - Login</title>
 @endif

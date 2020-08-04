@@ -30,18 +30,21 @@
                     </h3>
                     {{-- Excluir --}}
                     @if(in_array(34, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                        <a class="btn btn-primary pull-right" href="{{ route('GetUsersRegisterUser') }}">Registrar</a>
+                    <a class="btn btn-primary pull-right" href="{{ route('GetUsersRegisterUser') }}">Registrar</a>
                     @endif
                 </div>
 
                 <div class="panel panel-body">
 
                     <div class="table-responsive panel-body-table">
-                        <div class="row form-group col-md-12">
-                            <div class="col-md-7 input-group">
-                                <input class="form-control col-md-4" name="searchInTable" id="searchInTable" placeholder="Pesquise um usuário aqui">
-                                <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
-                            </div>
+                        @if(in_array(1, session('permissionsIds')) || in_array(45, session('permissionsIds')))
+                        <a href="{{ route('GetPermissionsIndex') }}" class="btn btn-primary pull-right">
+                            Permissionamento
+                        </a>
+                        @endif
+                        <div class="col-md-5 input-group">
+                            <input class="form-control col-md-4" name="searchInTable" id="searchInTable" placeholder="Pesquise um usuário aqui">
+                            <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
                         </div>
                         <table class="table table-bordered table-striped table-actions" id="usersTable">
                             <thead>
@@ -91,9 +94,9 @@
                                                 </button>
                                                 @endif
                                                 @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                    <button type="button" onclick="window.location.href = '{{ route('GetPermissionsIndexUser', $user->id) }}'" class="btn btn-dark btn-sm">
-                                                        <span class="fa fa-sitemap"></span>
-                                                    </button>
+                                                <button type="button" onclick="window.location.href = '{{ route('GetPermissionsIndexUser', $user->id) }}'" class="btn btn-dark btn-sm">
+                                                    <span class="fa fa-sitemap"></span>
+                                                </button>
                                                 @endif
                                             </div>
                                         </td>
@@ -124,7 +127,7 @@
         //deleta usuário
         function deleteUser(id) {
             data = "id="+id+"&user={{Auth::id()}}"
-                    console.log(data)
+            console.log(data)
             noty({
                 text: 'Deseja excluir o usuário?',
                 layout: 'topRight',
@@ -132,39 +135,39 @@
                 {addClass: 'btn btn-success', text: 'Excluir', onClick: function($noty) {
                     $("#changescript"+id).attr('value','1');
                     
-                try {
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('PostUsersDeleteUser') }}",
-                        data: data,
-                        success: function( xhr,status )
-                        {
-                            console.log(xhr)
-                            $noty.close();
-                            noty({
-                                text: "Usuário Excluído com sucesso!",
-                                layout: 'topRight',
-                                type: 'success',
-                                timeout: '3000'
-                            })
-                            $("#usersTr"+id).remove();
-                        },
-                        error: function(xhr,error,status) {
-                            $noty.close();
-                            noty({
-                                text: "Erro ao excluir usuário, tente novamente mais tarde <br>"+
-                                "se o erro persistir, <a href='mailto:leandro.freitas@liderancacobrancas.com.br'>contate o suporte</a>"+
-                                "("+status+")",
-                                layout: 'topRight',
-                                type: 'error',
-                                timeout: '3000'
-                            })
-                            console.log(xhr);
-                        }
-                    });
-                } catch(e) {
-                    console.log(e)
-                }
+                    try {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('PostUsersDeleteUser') }}",
+                            data: data,
+                            success: function( xhr,status )
+                            {
+                                console.log(xhr)
+                                $noty.close();
+                                noty({
+                                    text: "Usuário Excluído com sucesso!",
+                                    layout: 'topRight',
+                                    type: 'success',
+                                    timeout: '3000'
+                                })
+                                $("#usersTr"+id).remove();
+                            },
+                            error: function(xhr,error,status) {
+                                $noty.close();
+                                noty({
+                                    text: "Erro ao excluir usuário, tente novamente mais tarde <br>"+
+                                    "se o erro persistir, <a href='mailto:leandro.freitas@liderancacobrancas.com.br'>contate o suporte</a>"+
+                                    "("+status+")",
+                                    layout: 'topRight',
+                                    type: 'error',
+                                    timeout: '3000'
+                                })
+                                console.log(xhr);
+                            }
+                        });
+                    } catch(e) {
+                        console.log(e)
+                    }
 
                 }},
                 {addClass: 'btn btn-danger btn-clean', text: 'Cancelar', onClick: function($noty) {
@@ -388,9 +391,9 @@
                         $("#loadingDataPreLoader").hide()
                     }
                 })
-            }           
+}           
 
-        }
+}
 
         //salva alterações de usuário
         function saveChanges(element,id) {
@@ -551,74 +554,74 @@
                     url: '{{route("searchInTable")}}',
                     data: 'str='+val,
                     success: function(data) {
-                    console.log(data)
-                    if(data.length > 0) {
-                        $("#usersTable > tbody tr").hide()
-                        linhas = ''
-                        for(i=0;i<data.length;i++) {
-                            linhas += '<tr id="usersTr'+data[i].id+'">'+
+                        console.log(data)
+                        if(data.length > 0) {
+                            $("#usersTable > tbody tr").hide()
+                            linhas = ''
+                            for(i=0;i<data.length;i++) {
+                                linhas += '<tr id="usersTr'+data[i].id+'">'+
                                 '<form id="formEditDelete'+data[i].id+'" method="POST">'+
-                                    '@csrf'+
-                                    '<input type="hidden" name="user" value="{{ Auth::id() }}">'+
-                                    '<input type="hidden" name="id" value="'+data[i].id+'">'+
+                                '@csrf'+
+                                '<input type="hidden" name="user" value="{{ Auth::id() }}">'+
+                                '<input type="hidden" name="id" value="'+data[i].id+'">'+
                                 '</form>'+
-                                    '<td>'+
-                                        data[i].name+
-                                    '</td>'+
-                                    '<td>'+
-                                        data[i].username+
-                                    '</td>'+
-                                    '<td>'+
-                                        '<!-- Formata CPF  -->'+
-                                        data[i].cpf+
-                                    '</td>'+
-                                    @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
-                                    '<td>'+
-                                        '<div class="input-group btn">'+
-                                            {{-- Editar --}}
-                                            @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                            '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
-                                                '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
-                                            '</button>'+ 
-                                            {{-- editar senha --}}
-                                            '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
-                                                '<span class="fa fa-lock"></span>'+
-                                            '</button>'+
-                                            @endif
-                                            {{-- Excluir --}}
-                                            @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                            '<button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser('+data[i].id+');">'+
-                                                '<span class="fa fa-times"></span>'+
-                                            '</button>'+
-                                            @endif
-                                            @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                            '<button type="button" onclick="window.location.href = '+"'{{ asset('manager/permissions') }}/"+data[i].id+"'"+'" class="btn btn-dark btn-sm">'+
-                                                '<span class="fa fa-sitemap"></span>'+
-                                            '</button>'+
-                                            @endif
-                                        '</div>'+
-                                    '</td>'+
-                                    @endif
-                            '</tr>';
-                        }
+                                '<td>'+
+                                data[i].name+
+                                '</td>'+
+                                '<td>'+
+                                data[i].username+
+                                '</td>'+
+                                '<td>'+
+                                '<!-- Formata CPF  -->'+
+                                data[i].cpf+
+                                '</td>'+
+                                @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
+                                '<td>'+
+                                '<div class="input-group btn">'+
+                                {{-- Editar --}}
+                                @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
+                                '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
+                                '</button>'+ 
+                                {{-- editar senha --}}
+                                '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
+                                '<span class="fa fa-lock"></span>'+
+                                '</button>'+
+                                @endif
+                                {{-- Excluir --}}
+                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                '<button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser('+data[i].id+');">'+
+                                '<span class="fa fa-times"></span>'+
+                                '</button>'+
+                                @endif
+                                @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                '<button type="button" onclick="window.location.href = '+"'{{ asset('manager/permissions') }}/"+data[i].id+"'"+'" class="btn btn-dark btn-sm">'+
+                                '<span class="fa fa-sitemap"></span>'+
+                                '</button>'+
+                                @endif
+                                '</div>'+
+                                '</td>'+
+                                @endif
+                                '</tr>';
+                            }
 
-                        $("#usersTable >tbody").append(linhas)
-                    } else {
-                        $("#usersTable > tbody tr").show()
-                    }
+                            $("#usersTable >tbody").append(linhas)
+                        } else {
+                            $("#usersTable > tbody tr").show()
+                        }
                         $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
                     }
                 });// end Ajax
-            } else {
-                $("#usersTable > tbody tr").show()
-                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-            }
-        }
+} else {
+    $("#usersTable > tbody tr").show()
+    $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+}
+}
 
-        $(function(){
-            $("#loadingPreLoader").hide();
-            $("#managerUsers").show();
-        })
+$(function(){
+    $("#loadingPreLoader").hide();
+    $("#managerUsers").show();
+})
 
-    </script>
-    @endsection
+</script>
+@endsection
