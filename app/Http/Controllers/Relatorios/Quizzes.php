@@ -33,7 +33,7 @@ class Quizzes extends Controller {
             //$ids = 'a.id As answer_id, q.id AS quiz_id, questions.id AS question_id, o.id As option_id, a.user_id, a.option_id AS multiple_answer';
             $result = DB::select('
                 SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
-                questions.question, o.text AS question_text, a.text AS text_answer, 
+                questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
                 u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
 
                 FROM book_quizzes.quizzes AS q
@@ -222,7 +222,7 @@ class Quizzes extends Controller {
         $selectResp = $request->input('selectResp');
         $selectPartic = $request->input('selectPartic');
 
-        $result = Question::select('questions.question','o.text as alternativa','o.question_id', 'a.option_id as multResp', 'a.text as resp', 'a.user_id', 'sup.superior_id')
+        $result = Question::select('questions.question titulo_questao','o.text as alternativa','o.question_id alternativa_id', 'a.option_id as alternativa_escolhida', 'a.text as resposta_dissertativa', 'o.is_correct 1_correta_0_incorreta','a.user_id', 'sup.superior_id')
                 ->leftJoin('options as o','questions.id','o.question_id')
                 ->leftJoin('answers as a','a.option_id','o.id')
                 ->leftJoin('book_usuarios.superiors as sup','sup.superior_id','a.user_id')

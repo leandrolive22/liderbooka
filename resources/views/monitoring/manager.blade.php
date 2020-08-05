@@ -72,7 +72,7 @@
                                                 </div>
                                                 <div class="btn-group btn-group-xs">
                                                     {{-- Aplicar Laudo --}}
-                                                    @if($webMaster || $aplicarAplicar)
+                                                    @if($webMaster || $aplicarLaudo) 
                                                     <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
                                                         Aplicar
                                                     </a>

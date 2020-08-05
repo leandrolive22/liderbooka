@@ -69,8 +69,8 @@
                                                 @endphp
 
                                                 {{-- Percorre laço que contem logs  --}}
-                                                @forelse ($item->materialLog as $item)
-                                                    @if($item->user_id === Auth::id())
+                                                @forelse ($item->materialLog as $log)
+                                                    @if($log->user_id === Auth::id())
                                                         @php
                                                             $count++;
                                                         @endphp

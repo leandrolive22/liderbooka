@@ -111,8 +111,9 @@ class Quizzes extends Controller
             return back()->with(['errorAlert','Sessão expirada ou inválida, faça login novamente!']);
         }
 
-        $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered')
+        $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered , users.name, users.avatar')
                 ->leftJoin('book_relatorios.logs','quizzes.id','logs.value')
+                ->leftJoin('book_usuarios.users','users.id','quizzes.creator_id')
                 ->whereRaw('isnull(quizzes.deleted_at)')
                 ->where('quizzes.validity', '>=',now())
                 ->whereRaw('quizzes.ilhas LIKE "%,' . $ilha . ',%"')
