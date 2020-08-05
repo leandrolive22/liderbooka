@@ -8,6 +8,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Permissions\UserPermission;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Session;
+use Hash;
 
 class LoginController extends Controller
 {
@@ -62,9 +63,10 @@ class LoginController extends Controller
         $firstLogin = $log->firstLogin($user->id);
         $log->login($user->id, $ilha, $request->ip());
 
-        if($firstLogin === 0) {
-            return redirect('profile/'.base64_encode($user))->with('errorAlert','Altere sua senha');
-        }
+        // Pega permissões e grava em sessão
+        $up = new UserPermission($user);
+        $permissions = $up->getPermissionsIds();
+        Session::put('permissionsIds',$permissions);
 
         // retorna view de registro aceite de LGPD
         if(is_null($lgpd)) {
@@ -82,9 +84,9 @@ class LoginController extends Controller
             }
         }
 
-        // Pega permissões e grava em sessão
-        $up = new UserPermission($user);
-        $permissions = $up->getPermissionsIds();
-        Session::put('permissionsIds',$permissions);
+        if($firstLogin === 0 || Hash::check(env("DEFAULT_PASSWORD"),$user->password)) {
+            Session::put('pwIsDf',1);
+            return redirect('profile/'.base64_encode($user))->with('errorAlert','Altere sua senha');
+        }
     }
 }

@@ -20,6 +20,10 @@ class Monitorias extends Controller
     public function index()
     {
         try {
+            if(Session::get('pwIsDf') == 1) {
+                return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+            }
+
             $cargo = Auth::user()->cargo_id;
             $id = Auth::id();
             if(is_null($cargo) || is_null($id)) {

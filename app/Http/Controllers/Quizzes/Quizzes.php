@@ -101,6 +101,10 @@ class Quizzes extends Controller
 
     //retorna view com quizzes - index
     public function index($ilha, $id, $skip = 0, $take = 20) {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+        
         $title = 'Quizzes';
 
         if(is_null($ilha)) {

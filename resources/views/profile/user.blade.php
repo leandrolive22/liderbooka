@@ -170,7 +170,8 @@
                     url: "{{ route('PostUsersPass', ['id' =>Auth::user()->id]) }}",
                     type: 'POST',
                     data: data,
-                    success: function() {
+                    success: function(data) {
+                        console.log(data)
                         noty({
                             text: 'Senha alterada com Sucesso!',
                             timeout: '3000',

@@ -22,6 +22,8 @@ Route::group(['prefix' => 'forgot'], function () {
 Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 
 Route::group(['middleware' => ['auth']], function () {
+    //change pass
+    Route::post('changePass/{id}','Users\Users@changePass')->name('PostUsersPass');
 
     //Controller de redirecionamento - login backend
     Route::get('/home/{page}','HomeController@index')->name('home');

@@ -39,6 +39,10 @@ class HomeController extends Controller
             return redirect('/')->withErrors(['username' => 'Usuário não encontrado ou desativado.']);
         }
 
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+
         //define variáveis à serem utilizadas na função
         $ilha = Auth::user()->ilha_id;
         $user = Auth::id();

@@ -364,6 +364,10 @@ class Chats extends Controller
         $deleteGroup = in_array(7, $permissions);
         $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+
         return view('chats.chat', $compact);
     }
 

@@ -109,7 +109,6 @@ class Users extends Controller
         $title = 'Profile';
         $user = User::find(base64_decode($id));
 
-
         return view('profile.user', compact('title', 'user'));
     }
 
@@ -174,6 +173,10 @@ class Users extends Controller
     //retorna gerenciamento de usuarios
     public function managerUserView()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+        
         $carteira = Auth::user()->carteira_id;
         if($carteira == NULL) {
             return back()->with(['errorAlert','Erro! Atualize a página e tente novamente.']);
@@ -323,6 +326,10 @@ class Users extends Controller
     //retorna wiki
     public function wiki($ilha)
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+
         $title = 'Wiki';
         $videos = Video::whereIn('ilha_id',[1,$ilha])->get();
 
@@ -455,7 +462,7 @@ class Users extends Controller
             $insert = User::find($id);
             $insert->password = Hash::make($pass);
             if ($insert->save()) {
-
+                Session::put('pwIsDf',0);
                 return response()->json(['successAlert', 'Senha Alterada com Sucesso!']);
             } else {
 

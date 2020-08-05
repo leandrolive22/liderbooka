@@ -87,9 +87,6 @@ Route::group(['prefix' => 'user'], function () {
     Route::post('delete/','Users\Users@deleteUser')
         ->name('PostUsersDeleteUser');
 
-    //change pass
-    Route::post('changePass/{id}','Users\Users@changePass')->name('PostUsersPass');
-
     //reset user pass
     Route::post('resetPass/{id}/{user}/{ilha}','Users\Users@resetPass')
         ->where('id', '[0-9]+')
