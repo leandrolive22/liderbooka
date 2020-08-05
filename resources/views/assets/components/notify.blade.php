@@ -19,7 +19,7 @@
     noty({
         text: "{{ session('errorAlert') }}", 
         layout: 'topRight', 
-        type: 'success', 
+        type: 'error', 
         timeout: '5000'
     })
 @endif
