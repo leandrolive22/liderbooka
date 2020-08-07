@@ -197,13 +197,20 @@ class Logs extends Controller
             $check = [];
         }
 
+        // Checa se não existe log
         if($check->count() == 0) {
-            if($this->signature($hash,$user,$ilha,$id,$type)) {
+
+            // Grava log de visualização
+            $log = $this->signature($hash,$user,$ilha,$id,$type);
+            if($log) {
                 return json_encode([0 => ["hash" => $hash, "action" => "undefined", "id" => 0]]);
             }
+
+            // erro
             return 0;
         }
 
+        // Caso exista log, retorna ele 
         return $check->toJSON();
     }
 

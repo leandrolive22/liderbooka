@@ -7,6 +7,7 @@ use App\Monitoria\Laudo;
 use App\Monitoria\Monitoria;
 use App\Monitoria\MonitoriaItem;
 use App\Http\Controllers\Logs\Logs;
+use App\Http\Controllers\Tools\Tools;
 use App\Http\Controllers\Users\Users;
 use App\Users\Ilha;
 use App\Users\User;
@@ -69,7 +70,7 @@ class Monitorias extends Controller
                 }
 
                 //Tabela
-                $monitorias = Monitoria::selectRaw('monitorias.*, users.name AS filtro')
+                $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
                                         ->when($carteira, function($q) use($all){
@@ -78,7 +79,7 @@ class Monitorias extends Controller
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
-                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-20 Days')))// Pega monitorias dos ultimos 2 mese
+                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-30 Days')))// Pega monitorias dos ultimos 2 mese
                                         ->orderBy('monitorias.created_at','DESC')
                                         ->orderBy('users.name') //ASC
                                         ->paginate(10);
@@ -92,17 +93,57 @@ class Monitorias extends Controller
                 $usersFiltering = 0;
                 $monitorias = Monitoria::where('supervisor_id',$id)
                                         ->orWhere('supervisor_at','IS','NULL')
-                                        ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-1 Months')))
+                                        ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-3 Months')))
                                         ->orderBy('supervisor_at') //ASC
                                         ->get();
             }
 
             $compact = compact('title', 'models', 'monitorias', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor');
-
+            if(Auth::id() === 37) {
+                return view('monitoring.monitoriaComfiltro',$compact);
+            }
             return view('monitoring.manager',$compact);
         } catch (Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
         }
+    }
+
+    public function searchInTable(Request $request)
+    {
+        $str = $request->str;
+        $searchData = Tools::ajustarBusca($str);
+
+        $data = Monitoria::select('monitorias.*','op.name AS operador','sp.name AS supervisor','mo.name AS monitor')
+                        ->leftJoin('book_usuarios.users AS op','op.id','monitorias.operador_id')
+                        ->leftJoin('book_usuarios.users AS mo','mo.id','monitorias.monitor_id')
+                        ->leftJoin('book_usuarios.users AS sp','sp.id','monitorias.supervisor_id')
+                        ->when(true,function($q) use ($searchData) {
+                        $orderBy = ' case (';
+                        foreach(explode('.+',$searchData) as $item) {
+                            $q->orWhereRaw('op.name REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('mo.name  REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('sp.name REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('monitorias.id_audio REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('monitorias.usuario_cliente REGEXP  "'.$item.'"');
+                            $q->orWhereRaw('monitorias.cpf_cliente REGEXP  "'.$item.'"');
+
+
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" then 1';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" then 2';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" then 3';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" then 4';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" then 4';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" AND monitorias.cpf_cliente REGEXP  "'.$item.'" then 6';
+                        }
+
+                        $orderBy .= 'else 0) end DESC';
+
+                        $q->orderByRaw($orderBy);
+
+                        return $q;
+                    })->get();
+
+        return $data;
     }
 
     public function create()

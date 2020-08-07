@@ -1,27 +1,35 @@
 <script type="text/javascript">
     function openMaterial(id,path,type) {
         $("#btnOpen"+id).prop('disabled',true)
-        $.getJSON('{{asset("api/sign/".Auth::id()."/".Auth::user()->ilha_id)}}/'+id+'/'+type,function(data){
-            if(data === 0) {
-                return noty({
-                    text: 'Erro Desconhecido!',
-                    type: 'error',
-                    layout: 'topRight',
-                    timeout: 3000,
-                });
-            } else {
-                atv = 1;
-                if(data[0].action === 'undefined' && type === 'CIRCULAR' && atv === 0) {
-                    check = 1
+        if($("tr#linhaWiki89").attr("class") === 'trGreen') {
+            let addModal = modal(id, path, type, '', 0)
+            $('body').append(addModal)
+            return $("#btnOpen"+id).prop('disabled',false)
+
+        } else {
+            $.getJSON('{{asset("api/sign/".Auth::id()."/".Auth::user()->ilha_id)}}/'+id+'/'+type,function(data){
+                console.log(data)
+                if(data === 0) {
+                    return noty({
+                        text: 'Erro Desconhecido!',
+                        type: 'error',
+                        layout: 'topRight',
+                        timeout: 3000,
+                    });
                 } else {
-                    check = 0
+                    atv = 1; 
+                    if(data[0].action === 'undefined' && type === 'CIRCULAR' && atv === 0) {
+                        check = 1
+                    } else {
+                        check = 0
+                    }
+                    $("#linhaWiki"+id).attr('class','trGreen')
+                    let addModal = modal(id, path, type, data[0].hash, check)
+                    $('body').append(addModal)
                 }
-                $("#linhaWiki"+id).attr('class','trGreen')
-                let addModal = modal(id, path, type, data[0].hash, check)
-                $('body').append(addModal)
-            }
-        });
-        return $("#btnOpen"+id).prop('disabled',false)
+            });
+            return $("#btnOpen"+id).prop('disabled',false)
+        }
     }
 
     //salva log de eu li e concordo com material

@@ -103,7 +103,7 @@
                 @endif
             </div>
 @if($webMaster || $dash || $export)
-                
+
                 {{-- <div class="panel panel-secondary">
                     <div class="panel-heading ui-dragable-handle">
                         <h3 class="panel-title">
@@ -157,7 +157,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div> --}
             {{-- Grafico --}}
             <div class="row col-md-12">
@@ -204,7 +204,7 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-hover @if(!$isMonitor && !$webMaster) datatable @endif">
+                        <table class="table table-hover @if(!$isMonitor && !$webMaster) datatable @endif" id="searchInTable">
                             <thead>
                                 <tr>
                                     <th>Monitoria</th>
@@ -674,5 +674,74 @@
 
         });
     });
+
+    function searchInTable() {
+            $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
+            val = $("input#searchInTable").val()
+            if(val.length > 3) {
+                $.ajax({
+                    url: '{{route("searchInTableMonitoring")}}',
+                    data: 'str='+val,
+                    success: function(m) {
+                        console.log(m)
+                        if(m.length > 0) {
+                            $("table#searchInTable > tbody tr").hide()
+                            linhas = ''
+                            for(i=0;i<m.length;i++) {
+                                classB = ''
+                                if($.inArray(m[i].supervisor_at,[null,undefined,'',' '])) {
+                                    classB += 'class="bg-danger"'
+                                }
+                                linhas += '<tr id="monitoriaLinha'+m[i].id+'" '+classB+'>'+
+                                            '<td>#'+m[i].id+' </td>'+
+                                                // Operador
+                                                '<td>'+m[i].operador+'[i].name </td>'+
+
+                                                // Supervisor
+                                                '<td>'+m[i].supervisor+'[i].name </td>'+
+
+                                                // Monitor
+                                                '<td>'+m[i].monitor+'</td>'+
+
+                                                '<td>'+m[i].created_at+'</td>'+
+                                                '<td>'+m[i].id_audio+' </td>'+
+                                                '<td>'+m[i].media+' %</td>'+
+                                                '<td class="btn-group btn-group-sm">'+
+                                                    '<div class="btn-group">'+
+                                                        '<button type="button" class="btn btn-secondary"id="btnView'+m[i].id+'" onclick="viewMonitoring('+m[i].id+')">Ver</button>'+
+                                                        @if($webMaster || $isMonitor)
+                                                            @if($webMaster || $editarMonitoria || $excluirMonitoria)
+                                                                '<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>'+
+                                                                '<ul class="dropdown-menu" role="menu">'+
+                                                                    '<li role="presentation" class="dropdown-header">Outras Ações</li>'+
+                                                                    // Editar Monitoria
+                                                                    @if($webMaster || $editarMonitoria)
+                                                                    ' <li><a href="{{asset("monitoring/edit/")}}/'+m[i].id+'">Editar</a></li>'+
+                                                                    @endif
+
+                                                                    // Excluir Monitoria
+                                                                    @if($webMaster || $excluirMonitoria)
+                                                                        '<li><a onclick="deleteMonitoria('+m[i].id+')">Excluir</a></li>'+
+                                                                    @endif
+                                                                '</ul>'+
+                                                            @endif
+                                                        @endif
+                                                ' </div>'+
+                                            ' </td>'+
+                                        '</tr>';
+                            }
+
+                            $("table#searchInTable >tbody").append(linhas)
+                        } else {
+                            $("table#searchInTable > tbody tr").show()
+                        }
+                        $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+                    }
+                });// end Ajax
+            } else {
+                $("table#searchInTable > tbody tr").show()
+                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+            }
+        }
 </script>
 @endsection

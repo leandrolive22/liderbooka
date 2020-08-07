@@ -242,7 +242,6 @@ class Users extends Controller
         $str = $request->str;
         $searchData = Tools::ajustarBusca($str);
 
-        DB::statement('SET @contador := 0;');
         $data = User::when(true,function($q) use ($searchData) {
                         $orderBy = ' case ';
                         foreach(explode('.+',$searchData) as $item) {
@@ -253,9 +252,9 @@ class Users extends Controller
 
 
                             $orderBy .= 'when name REGEXP "'.$item.'" then 1 ';
-                            $orderBy .= 'when username REGEXP "'.$item.'" then 2 ';
-                            $orderBy .= 'when matricula REGEXP "'.$item.'" then 3 ';
-                            $orderBy .= 'when cpf REGEXP "'.$item.'" then 4 ';
+                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" then 2 ';
+                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" AND matricula REGEXP "'.$item.'" then 3 ';
+                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" AND matricula REGEXP "'.$item.'" AND cpf REGEXP "'.$item.'" then 4 ';
                         }
 
                         $orderBy .= 'else 0 end DESC';

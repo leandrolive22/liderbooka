@@ -72,7 +72,7 @@
                                                 </div>
                                                 <div class="btn-group btn-group-xs">
                                                     {{-- Aplicar Laudo --}}
-                                                    @if($webMaster || $aplicarLaudo) 
+                                                    @if($webMaster || $aplicarLaudo)
                                                     <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
                                                         Aplicar
                                                     </a>
@@ -103,7 +103,7 @@
                 @endif
             </div>
 @if($webMaster || $dash || $export)
-                
+
                 {{-- <div class="panel panel-secondary">
                     <div class="panel-heading ui-dragable-handle">
                         <h3 class="panel-title">
@@ -157,7 +157,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div> --}
             {{-- Grafico --}}
             <div class="row col-md-12">
@@ -271,7 +271,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($isMonitor)
+                    @if($isMonitor || $webMaster)
                     <div class="panel-footer">
                         {{ $monitorias->links() }}
                     </div>

@@ -92,7 +92,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'permissions', 'middleware' => 'SetPermissions'], function () {
 
             Route::get('/','Permissions\Permissions@index')->name('GetPermissionsIndex');
-            
+
             Route::get('/{id}','Permissions\Permissions@index')
                 ->where('id',"[0-9]+")
                 ->name('GetPermissionsIndexUser');

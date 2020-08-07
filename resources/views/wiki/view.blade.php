@@ -91,7 +91,7 @@
                                                 </td>
                                                 {{-- <td>{{ $item->subLocal->name }}</td> --}}
                                                 <td class="btn-group btn-group-xs">
-                                                    <button id="btnOpen{{$item->id}}" onclick="openMaterial({{$item->id}},'{{asset($item->file_path)}}','MATERIAL')" class="btn btn-primary">Abrir</button>
+                                                    <button id="btnOpen{{$item->id}}" onclick="openMaterial({{$item->id}},'{{asset($item->file_path)}}','{{$type}}')" class="btn btn-primary">Abrir</button>
                                                     @if(in_array(1,session('permissionsIds')) || in_array(41, session('permissionsIds')))
                                                     {{-- Botão para gerar relatório  --}}
                                                     <button onclick='window.location.href="{{asset('manager/report/'.$type.'/'.$item->id)}}"'  class="btn btn-default">Relatório</button>

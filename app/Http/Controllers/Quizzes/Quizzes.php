@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Quizzes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use App\Quiz\Answer;
 use App\Quiz\Correct;
 use App\Quiz\Option;
@@ -15,9 +14,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Logs\Logs;
 use Session;
- 
 
-class Quizzes extends Controller 
+
+class Quizzes extends Controller
 {
     public function getQuizFromUser($ilha,$user)
     {
@@ -75,7 +74,7 @@ class Quizzes extends Controller
         if(count($data) > 0) {
 
             try {
-                $insert = Answer::insert($data);    
+                $insert = Answer::insert($data);
                 if($insert) {
                     $quiz = Quiz::find($quiz_id);
                     $quiz->num_responses++;
@@ -84,15 +83,15 @@ class Quizzes extends Controller
                     $log = new Logs();
                     @$log->awnswerQuiz($user,$quiz_id);
 
-                    return response()->json(['success' => TRUE], 201);    
+                    return response()->json(['success' => TRUE], 201);
                 }
 
-                return response()->json(['success' => FALSE], 422);     
+                return response()->json(['success' => FALSE], 422);
             } catch (Exception $e) {
-                return response()->json(['success' => FALSE, 'msg' => $e->getMessage()], 422);   
+                return response()->json(['success' => FALSE, 'msg' => $e->getMessage()], 422);
             }
         }
-        
+
 
         return response()->json(['success' => FALSE], 422);
     }
@@ -104,26 +103,24 @@ class Quizzes extends Controller
         if(Session::get('pwIsDf') == 1) {
             return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
         }
-        
+
         $title = 'Quizzes';
 
         if(is_null($ilha)) {
             return back()->with(['errorAlert','Sessão expirada ou inválida, faça login novamente!']);
         }
 
-        $quizzes = Quiz::selectRaw('quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses, logs.user_id as answered , users.name, users.avatar')
-                ->leftJoin('book_relatorios.logs','quizzes.id','logs.value')
-                ->leftJoin('book_usuarios.users','users.id','quizzes.creator_id')
-                ->whereRaw('isnull(quizzes.deleted_at)')
-                ->where('quizzes.validity', '>=',now())
-                ->whereRaw('quizzes.ilhas LIKE "%,' . $ilha . ',%"')
-                ->orWhereRaw('(IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.')')
-                ->orWhere('quizzes.creator_id',$id)
-                ->orderBy('logs.user_id')
-                ->orderBy('quizzes.id','DESC')
-                ->skip($skip)
-                ->take($take)
-                ->get();
+        $quizzes =  DB::select('SELECT quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses,
+                        (SELECT COUNT(1) FROM book_relatorios.logs WHERE user_id = '.$id.' AND action = "ANSWER_QUIZ" AND value = quizzes.id) as answered , users.name, users.avatar
+                    FROM book_quizzes.quizzes
+                    LEFT JOIN book_usuarios.users ON users.id = quizzes.creator_id
+                    LEFT JOIN book_relatorios.logs ON quizzes.id = logs.value AND users.id = logs.user_id
+                    WHERE  quizzes.deleted_at is null AND (quizzes.validity >= NOW()
+                    and quizzes.ilhas LIKE "%,'.$ilha.',%"
+                    or (IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.') or quizzes.creator_id = '.$id.')
+                    order by logs.user_id desc, quizzes.id desc
+                    limit '.$take.'
+                    offset '.$skip);
 
         // Permissões
         $permissions = Session::get('permissionsIds');
@@ -145,7 +142,7 @@ class Quizzes extends Controller
         $log->page($request->fullUrl(),Auth::user()->id,Auth::user()->ilha_id,$request->ip());
 
         //pega ilhas
-        $i = new Ilhas(); 
+        $i = new Ilhas();
         $ilhas = ($i->indexPost('*',null,FALSE));
 
         $title = 'Criar Quiz';
@@ -255,7 +252,7 @@ class Quizzes extends Controller
 
                 // verifica se a questão é objetiva*(title_Multiple)* ou dissertativa *(title_dissert)*
                 if($type !== 'title_dissert ') {
-                    
+
                     // Separa alternativas das questões
                     for($n = 0; $n < count($options); $n++) {
                         $alternativa = explode('_=_=_=_',$options[$n]);

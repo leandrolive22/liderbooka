@@ -1,7 +1,7 @@
 @extends('layouts.app', ["current"=>"adm"])
 @section('style')
 <style type="text/css">
-	
+
 </style>
 @endsection
 @section('content')
@@ -24,7 +24,7 @@
 					<div class="page-title">
 						<a href="{{ url()->previous() }}">
 							<h2>
-								<span class="fa fa-arrow-circle-o-left"></span> 
+								<span class="fa fa-arrow-circle-o-left"></span>
 								Permissões
 							</h2>
 						</a>
@@ -79,7 +79,7 @@
 							</h3>
 						</div>
 						<div class="panel-body">
-							<table class="table datatable" id="permissionTable">
+							<table class="table table-bordered" id="permissionTable">
 								<thead>
 									<tr>
 										<th>
@@ -238,7 +238,7 @@
 					  	layout: 'topRight',
 					  	type: 'info'
 					  });
-					}, 
+					},
 					error: function(xhr) {
 						console.log(xhr)
 						noty({
@@ -259,7 +259,7 @@
 	$(() => {
 		$("#preloaderDefault").hide().remove()
 		$("#content").show()
-		
+
 	})
 </script>
 @endsection

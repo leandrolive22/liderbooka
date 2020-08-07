@@ -81,7 +81,7 @@
                                                 @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                                 <button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser({{$user->id}});">
                                                     <span id="btnPencil{{$user->id}}" class="fa fa-pencil"></span>
-                                                </button> 
+                                                </button>
                                                 {{-- editar senha --}}
                                                 <button type="button" onclick="resetPassword({{$user->id}})" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">
                                                     <span class="fa fa-lock"></span>
@@ -134,7 +134,7 @@
                 buttons: [
                 {addClass: 'btn btn-success', text: 'Excluir', onClick: function($noty) {
                     $("#changescript"+id).attr('value','1');
-                    
+
                     try {
                         $.ajax({
                             type: "POST",
@@ -391,7 +391,7 @@
                         $("#loadingDataPreLoader").hide()
                     }
                 })
-}           
+}
 
 }
 
@@ -551,7 +551,7 @@
             val = $("#searchInTable").val()
             if(val.length > 3) {
                 $.ajax({
-                    url: '{{route("searchInTable")}}',
+                    url: '{{route("searchInTableUser")}}',
                     data: 'str='+val,
                     success: function(data) {
                         console.log(data)
@@ -582,7 +582,7 @@
                                 @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                 '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
                                 '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
-                                '</button>'+ 
+                                '</button>'+
                                 {{-- editar senha --}}
                                 '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
                                 '<span class="fa fa-lock"></span>'+
@@ -612,11 +612,11 @@
                         $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
                     }
                 });// end Ajax
-} else {
-    $("#usersTable > tbody tr").show()
-    $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-}
-}
+            } else {
+                $("#usersTable > tbody tr").show()
+                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+            }
+        }
 
 $(function(){
     $("#loadingPreLoader").hide();
