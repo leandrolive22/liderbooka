@@ -26,7 +26,7 @@
 						<div class="kt-grid__item">
 							<div class="kt-login__info">
 								<div class="kt-login__copyright">
-									&copy {{ date('Y') }} Lider Book 2.0
+									&copy {{ date('Y') }} {{str_replace('_',' ',env("APP_NAME"))}}
 								</div>
 
 							</div>
@@ -89,12 +89,12 @@
 									<div class="form-group">
 
 											<div class="kt-login__actions">
-												<a href="https://suporte.ativy.com" class="kt-link kt-login__link-forgot">
-													Esqueceu sua senha?
-												</a>
 												<button type="submit" id="kt_login_signin_submit" class="btn btn-primary btn-elevate kt-login__btn-primary">
 													{{ __('Login') }}
                                                 </button>
+                                                <a href="https://suporte.ativy.com" type="button" role="button" class="kt-link kt-login__link-forgot">
+													Esqueceu sua senha?
+												</a>
                                             </div>
                                             <div class="kt-login__actions">
                                                 <a target="_blank" href="{{asset('storage/posts/9bkP14PYUe99M9Awyud8rrWZZ7kiuu1epR4NoHh7.pdf')}}" type="submit" class="btn btn-dark btn-elevate kt-login__btn-dark col-md-12">

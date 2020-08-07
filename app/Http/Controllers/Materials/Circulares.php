@@ -30,7 +30,7 @@ class Circulares extends Controller
         $types = $p->wikiSearchType();
 
         if($types['tudo']) {
-            $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";
+            $sql = "deleted_at IS NULL";
         } else if($types['carteira']) {
             $or = '';
             $carteira = Auth::user()->carteira_id;

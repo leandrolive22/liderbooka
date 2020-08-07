@@ -65,9 +65,24 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('manager','Monitoria\Monitorias@index')
             ->name('GetMonitoriasIndex');
 
-        Route::get('create','Monitoria\Monitorias@create')
+        Route::get('create','Monitoria\Laudos@create')
             ->name('GetMonitoriasCreate')
             ->middleware('CreateApplyLaudo');
+
+        Route::get('editLaudo/{id}','Monitoria\Laudos@edit')
+            ->name('GetMonitoriasEdit')
+            ->middleware('CreateApplyLaudo');
+
+        Route::group(['prefix' => 'save'],function() {
+            Route::post('makeLaudo/{user}', 'Monitoria\Laudos@store')
+            ->name('PostLaudosStore');
+
+            Route::put('editLaudo/{user}', 'Monitoria\Laudos@update')
+            ->name('PutLaudosEdit');
+
+            Route::post('storeMonitoria/{user}', 'Monitoria\Monitorias@store')
+                    ->name('PostMonitoriaStore');
+        });
 
         Route::post('toApply/{model}/','Monitoria\Laudos@toApply')->name('PostLaudoToApply')->middleware('CreateApplyLaudo');
         Route::get('toApply/{model}/','Monitoria\Laudos@toApply')->name('GetLaudoToApply')->middleware('CreateApplyLaudo');

@@ -225,12 +225,6 @@ Route::group(['prefix' => 'msg'], function () {
 
 // Monitoria
 Route::group(['prefix' => 'monitoring'], function () {
-    Route::post('makeLaudo/{user}', 'Monitoria\Laudos@store')
-            ->name('PostLaudosStore');
-
-    Route::post('storeMonitoria/{user}', 'Monitoria\Monitorias@store')
-            ->name('PostMonitoriaStore');
-
     Route::get('view/{id}','Monitoria\Monitorias@view');
 
     Route::group(['prefix' => 'delete'], function () {

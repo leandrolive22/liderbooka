@@ -35,11 +35,13 @@
 			<!-- START CONTENT FRAME TOP -->
 			<div class="page-content-wrap panel-body">
 				<div class="page-title">
-					<a href="{{ url()->previous() }}">
+					<a>
 						<h2 class="page-title">
-							<span class="fa fa-arrow-circle-o-left">
-                            </span>
-                            Criar Modelo de Monitoria
+                            <a href="{{ url()->previous() }}">
+    							<span class="fa fa-arrow-circle-o-left">
+                                </span>
+                            </a>
+                            {{ $title }}
                         </h2>
                     </a>
                 </div>
@@ -55,15 +57,31 @@
                         <div class="form-group col-md-12">
                             <div class="input-group col-md-12">
                                 <span class="input-group-addon">Título</span>
-                                <input type="text" id="title" name="title" class="form-control" placeholder="Escreva o titulo da monitoria">
+                                <input type="text" id="title" name="title" class="form-control" placeholder="Escreva o titulo da monitoria" value="{{$laudo->titulo ?? ''}}">
                             </div>
                             <div class="input-group col-md-12">
                                 <span class="input-group-addon">Tipo de Laudo</span>
-                                <input type="text" id="type" name="type" class="form-control" placeholder="Escreva o tipo da monitoria">
+                                <select type="text" id="type" name="type" class="form-control select">
+                                    <option disabled="true">Selecione um tipo de laudo, caso não encontre, contate o suporte</option>
+                                    <option @if(isset($laudo) && $laudo->tipo_monitoria === $laudo->tipo_monitoria) selected="true" @endif>Sucesso</option>
+                                    <option @if(isset($laudo) && $laudo->tipo_monitoria === $laudo->tipo_monitoria) selected="true" @endif>Insucesso</option>
+                                    <option @if(isset($laudo) && $laudo->tipo_monitoria === $laudo->tipo_monitoria) selected="true" @endif>Sucesso e insucesso</option >
+                                </select>
+                            </div>
+                            <div class="input-group col-md-12">
+                                <span class="input-group-addon">Carteira</span>
+                                <select id="carteira_id" data-live-search="true" name="carteira_id" class="form-control select">
+                                    <option disabled="true">Selecione a Carteira que pertence esse laudo</option>
+                                    @forelse($carteiras as $item)
+                                    <option value="{{$item->id}}" @if((isset($laudo) && $laudo->carteira_id == $item->id) || (!isset($laudo) && Auth::user()->carteira_id == $item->id)) selected="true"  @endif>{{$item->name}}</option>
+                                    @empty
+                                    <option value="">Nenhuma carteira encontrada</option>
+                                    @endif
+                                </select>
                             </div>
                         </div>
 
-                        <input type="hidden" id="lines" value="0">
+                        <input type="hidden" id="lines" value="{{$count ?? 0}}">
                         {{-- Tabela de itens  --}}
                         <table class="table col-md-12">
                             <thead>
@@ -71,11 +89,21 @@
                                     <th>Nº</th>
                                     <th>Pergunta</th>
                                     <th>Sinalização</th>
+                                    {{-- <th>NCG</th> --}}
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="laudosCreate">
                             {{-- o name nos TR é para tratamentos em javascript --}}
+                            {{-- Se é editar --}}
+                            @if(isset($laudo))
+                            @forelse($laudo->itens as $item)
+                                @component('monitoring.components.editLaudo',['item' => $item])
+                                @endcomponent
+                            @empty
+                            {{-- Caso não existam itens ativos --}}
+                            @endforelse
+                            @endif
                             </tbody>
                             <tfoot>
                                 <td colspan="5">
@@ -112,14 +140,8 @@
                 <div class="row">
                     <div class="alert alert-success" id="response"></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="#" id="applyBtn" class="btn btn-block btn-primary">
-                            <span class="fa fa-flag"></span>
-                            Aplicar Monitoria?
-                        </a>
-                    </div>
-                    <div class="col-md-6">
+                <div class="row text-center">
+                    <div class="col-md-12">
                         <a href="{{ asset('monitoring/manager') }}" class="btn btn-block btn-dark">
                             <span class="fa fa-home"></span>
                             Voltar ao Menu Monitoria
@@ -146,6 +168,9 @@
                         '<td id="myTd">'+
                             '<input class="tdInput" name="tdInput" id="sinal_'+n+'" placeholder="Tipo de sinalização" type="text">'+
                         '</td>'+
+                        // '<td class="text-center">'+
+                        //     '<input class="form-check col-md-12" name="tdInput" id="ncg_'+n+'" placeholder="Tipo de sinalização" type="checkbox" value="1">'+
+                        // '</td>'+
                         '<td id="myTd">'+
                             '<button id="myBtn" class="btn btn-danger btn-block" onclick="deleteLine('+n+')">'+
                                 '<span class="fa fa-trash-o"></span>'+
@@ -181,7 +206,7 @@
             vrfBtn()
         }
 
-        // registra modelos
+        // registra modelo de monitoria
         function saveMonitoring() {
             $("#btnSave").html('<span class="fa fa-spinner fa-spin"></span>')
             // Variavel de controles de errors
@@ -193,7 +218,12 @@
             //pega linhas
             $.each($("tr[name=linhas]"),function(i,v){
                 // id da linha
-                id = v.id
+                ii = v.id.split('_')
+                if(ii.length === 2) {
+                    id = ii[1]
+                } else {
+                    id = v.id
+                }
 
                 // dados dos inputs
                 number = $("input#number_"+id+".tdInput").val()
@@ -202,10 +232,21 @@
 
                 sinal = $("input#sinal_"+id+".tdInput").val()
 
+                // // NCG
+                // ncg = ''
+                // check = $("input#ncg_"+id+".form-check:checked").val()
+
                 // Verifica campos vazios
                 if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1) {
                     error += Number(1)
                 }
+
+                // // Verifica NCG
+                // if($("input#ncg_"+id+".form-check:checked").val() === '1') {
+                //     ncg = '1'
+                // } else {
+                //     ncg = '0'
+                // }
 
                 // Instancia array
                 linha = new Array()
@@ -219,13 +260,42 @@
                 // Sinalização
                 linha.push(sinal)
 
+                // // NCG
+                // linha.push(ncg)
+
+                //id
+                linha.push(v.id)
+
                 // Laudos de monitoria
                 laudos += linha+'_______________'
             })
 
-            if($.inArray($("input#type").val(),[null,'',' ','undefined']) > -1) {
+            // titulo
+            if($.inArray($("input#titulo").val(),[null,'',' ','undefined']) > -1) {
                 noty({
-                    text: 'Preecha o campo Tipo de Laudo corretamente',
+                    text: 'Preencha o campo Título corretamente',
+                    layout: 'topRight',
+                    type: 'warning',
+                    timeout: 3000,
+                    timeOut: 3000
+                });
+            }
+
+            // tipo de laudo
+            if($.inArray($("select#type").val(),[null,'',' ','undefined']) > -1) {
+                noty({
+                    text: 'Preencha o campo Tipo de Laudo corretamente',
+                    layout: 'topRight',
+                    type: 'warning',
+                    timeout: 3000,
+                    timeOut: 3000
+                });
+            }
+
+            // cartira
+            if($.inArray($("select#carteira_id").val(),[null,'',' ','undefined']) > -1) {
+                noty({
+                    text: 'Selecione uma carteira válida',
                     layout: 'topRight',
                     type: 'warning',
                     timeout: 3000,
@@ -243,12 +313,11 @@
                     timeOut: 3000
                 });
             } else {
-                dados = 'laudos='+laudos+'&title='+$("#title").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))
-                console.log(dados)
+                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))
                 $.ajax({
-                    url: "{{ route('PostLaudosStore',['user' => Auth::id()]) }}",
+                    url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
                     data: dados,
-                    method: "POST",
+                    method: "{{ isset($laudo) ? "PUT" : "POST"}}",
                     success: function (response) {
                         console.log(response)
                         $("div#response").html(response.msg)
@@ -289,5 +358,11 @@
                 })
             }
         }
+
+        @if(isset($laudo))
+        $(() => {
+            vrfBtn()
+        })
+        @endif
     </script>
 @endsection

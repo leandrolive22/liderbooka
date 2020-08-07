@@ -63,7 +63,7 @@ class Monitorias extends Controller
                     $models = Laudo::select('titulo','id')
                                     ->orderBy('utilizacoes','DESC')
                                     ->orderBy('id','DESC')
-                                    // ->where('carteira_id',Auth::user()->carteira_id)
+                                    ->where('carteira_id',Auth::user()->carteira_id)
                                     ->get();
                 } else {
                     $models = [];
@@ -99,9 +99,6 @@ class Monitorias extends Controller
             }
 
             $compact = compact('title', 'models', 'monitorias', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor');
-            if(Auth::id() === 37) {
-                return view('monitoring.monitoriaComfiltro',$compact);
-            }
             return view('monitoring.manager',$compact);
         } catch (Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
@@ -118,7 +115,7 @@ class Monitorias extends Controller
                         ->leftJoin('book_usuarios.users AS mo','mo.id','monitorias.monitor_id')
                         ->leftJoin('book_usuarios.users AS sp','sp.id','monitorias.supervisor_id')
                         ->when(true,function($q) use ($searchData) {
-                        $orderBy = ' case (';
+                        $orderBy = ' case ';
                         foreach(explode('.+',$searchData) as $item) {
                             $q->orWhereRaw('op.name REGEXP  "'.$item.'"');
                             $q->orWhereRaw('mo.name  REGEXP  "'.$item.'"');
@@ -128,15 +125,15 @@ class Monitorias extends Controller
                             $q->orWhereRaw('monitorias.cpf_cliente REGEXP  "'.$item.'"');
 
 
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" then 1';
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" then 2';
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" then 3';
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" then 4';
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" then 4';
-                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" AND monitorias.cpf_cliente REGEXP  "'.$item.'" then 6';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" then 1  ';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" then 2  ';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" then 3  ';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" then 4  ';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" then 4  ';
+                            $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" AND monitorias.id_audio REGEXP  "'.$item.'" AND monitorias.usuario_cliente REGEXP  "'.$item.'" AND monitorias.cpf_cliente REGEXP  "'.$item.'" then 6  ';
                         }
 
-                        $orderBy .= 'else 0) end DESC';
+                        $orderBy .= ' else 0 end DESC';
 
                         $q->orderByRaw($orderBy);
 
@@ -144,15 +141,6 @@ class Monitorias extends Controller
                     })->get();
 
         return $data;
-    }
-
-    public function create()
-    {
-        $title = 'Criar Modelo/Laudo';
-        $users = User::select('id','name')
-                    ->get();
-
-        return view('monitoring.makeModels',compact('title','users'));
     }
 
     public function store(Request $request, $user)

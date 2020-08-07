@@ -42,49 +42,52 @@
                 </div>
             </div>
             {{-- Content --}}
-            <div class="row col-md-12">
+            <div class="row col-sm-12 col-md-12 col-lg-12">
                 @if($webMaster || $isMonitor)
-                <div style="padding-left: 1%; padding-right: 1%;" class="col-md-12">
+                <div style="padding-left: 1%; padding-right: 1%;" class="col-sm-12 col-md-12 col-lg-12">
                     <div class="panel panel-colorful">
                         <div class="panel-heading ui-draggable-handle">
                             <h3 class="panel-title">Modelos/Laudos</h3>
                         </div>
                         <div class="panel-body" style="overflow-x: auto;">
-                            <table class="col-md-10">
+                            <table class="col-sm-10 col-md-10 col-lg-10">
                                 <tbody>
                                     <tr style="max-height: 50%">
                                         @if($webMaster || $criarLaudo)
                                         {{-- botao padrão  --}}
-                                        <td class="col-md-4">
-                                            <a href="{{ route('GetMonitoriasCreate') }}" class="tile tile-default col-md-12" class="col-md-12">
+                                        <td class="col-sm-4 col-md-4 col-lg-4">
+                                            <a href="{{ route('GetMonitoriasCreate') }}" class="tile tile-default col-sm-12 col-md-12 col-lg-12" class="col-sm-12 col-md-12 col-lg-12">
                                                 <span class="fa fa-plus fa-sm">
                                                 </span>
-                                                <p class="col-md-12">Criar Modelo/Laudo</p>
+                                                <p class="col-sm-12 col-md-12 col-lg-12">Criar Modelo/Laudo</p>
                                             </a>
                                         </td>
                                         @endif
                                         {{-- laços com modelos pré-registrados   --}}
                                         @forelse ($models as $item)
-                                        <td class="col-md-4" style="min-width: 20rem" id="laudoModel{{$item->id}}">
-                                            <div class="tile tile-default col-md-12">
-                                                <div class="form-group form-row col-md-12" style="height: 5rem">
-                                                    <p>{{ $item->titulo }}</p>
+                                        <td class="col-sm-4 col-md-4 col-lg-4" style="min-width: 20rem" id="laudoModel{{$item->id}}">
+                                            <div class="tile tile-default col-sm-12 col-md-12 col-lg-12">
+                                                <div class="form-group form-row col-sm-12 col-md-12 col-lg-12 text-center" style="height: 5rem">
+                                                    <p class="col-sm-12 col-md-12 col-lg-12 ">{{ $item->titulo }}</p>
                                                 </div>
-                                                <div class="btn-group btn-group-xs">
+                                                <div class="btn-group btn-group-sm">
                                                     {{-- Aplicar Laudo --}}
-                                                    @if($webMaster || $aplicarLaudo)
-                                                    <a role="button" class="btn btn-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
+                                                    @if($webMaster || $aplicarAplicar)
+                                                    <a role="button" class="btn btn-outline-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
                                                         Aplicar
                                                     </a>
                                                     @endif
 
                                                     {{-- Editar Laudo --}}
                                                     @if($webMaster || $editarLaudo)
+                                                    <a role="button" class="btn btn-outline-warning" href="{{ route('GetMonitoriasEdit',base64_encode($item->id)) }}">
+                                                        Editar
+                                                    </a>
                                                     @endif
 
                                                     {{-- <button role="button" class="btn btn-secondary">Editar</button> --}}
                                                     @if($webMaster || $excluirLaudo)
-                                                    <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-danger">
+                                                    <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-outline-danger">
                                                         Excluir
                                                     </button>
                                                     @endif
@@ -92,7 +95,7 @@
                                             </div>
                                         </td>
                                         @empty
-                                        <td class="col-md-8"></td>
+                                        <td class="col-sm-8 col-md-8 col-lg-8"></td>
                                         @endforelse
                                     </tr>
                                 </tbody>
@@ -116,7 +119,7 @@
                     </div>
                     <div class="panel-body">
                         {{-- Relatórios em Cards --}
-                        <div class="col-md-3">
+                        <div class="col-sm-3 col-md-3 col-lg-3">
                             <div class="widget @if($webMaster || $media > 94 ) widget-success @elseif($media > 89) widget-primary @else widget-danger @endif widget-padding-sm">
                                 <a href="javascript:" class="text-light">
                                     <div class="widget-item-left">
@@ -129,7 +132,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-sm-3 col-md-3 col-lg-3">
                             <div class="widget bg-dark widget-padding-sm">
                                 <a href="#" class="text-light">
                                     <div class="widget-subtitle">NCG neste Mês</div>
@@ -137,7 +140,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-sm-3 col-md-3 col-lg-3">
                             <div class="widget widget-primary widget-padding-sm">
                                 <a href="#" class="text-light">
                                     <div class="widget-subtitle">Avaliações neste Mês</div>
@@ -145,7 +148,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-sm-3 col-md-3 col-lg-3">
                             <div class="widget widget-info">
                                 <div class="widget-subtitle">Relatório por</div>
                                 <div class="widget-title">Cliente</div>
@@ -160,7 +163,7 @@
                     </div>
                 </div> --}
             {{-- Grafico --}}
-            <div class="row col-md-12">
+            <div class="row col-sm-12 col-md-12 col-lg-12">
                 <div class="panel panel-secondary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -175,8 +178,8 @@
                         @endif
                     </div>
                     <div class="panel-body text-center" style="overflow-x:scroll">
-                        <div class="col-md-3" style="display: none">
-                            <label for="quartisChart" class="col-md-12">Quartis</label>
+                        <div class="col-sm-3 col-md-3 col-lg-3" style="display: none">
+                            <label for="quartisChart" class="col-sm-12 col-md-12 col-lg-12">Quartis</label>
                             <div id="quartisChart" style="width: 250px; height: 250px"></div>
                         </div>
                         <div class="col" style="border: solid 0.5px gray">
@@ -187,7 +190,7 @@
             </div>
 @endif
 @if($webMaster || $isMonitor || $isSupervisor)
-            <div class="row col-md-12">
+            <div class="row col-sm-12 col-md-12 col-lg-12">
                 {{-- Histórico --}}
                 <div class="panel panel-dark">
                     <div class="panel-heading">
@@ -198,9 +201,13 @@
                         <ul class="panel-controls">
                             <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
                         </ul>
+                        <div class="input-group pull-right">
+                            <input class="form-control col-sm-4 col-md-4 col-lg-4" name="searchInTable" id="searchInTable" placeholder="Pesquise por Monitoria Aqui">
+                            <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
+                        </div>
                     </div>
                     <div class="panel-body">
-                        <table class="table table-hover @if(!$isMonitor) datatable @endif">
+                        <table class="table table-hover @if(!$isMonitor && !$webMaster) datatable @endif" id="searchInTable">
                             <thead>
                                 <tr>
                                     <th>Monitoria</th>
@@ -271,7 +278,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($isMonitor || $webMaster)
+                    @if($isMonitor  || $webMaster)
                     <div class="panel-footer">
                         {{ $monitorias->links() }}
                     </div>
@@ -670,5 +677,80 @@
 
         });
     });
+    function transformDataDb(date) {
+        arr = date.split(' ')
+        data = arr[0].split('-')
+        date = date[2]+'/'+date[1]+'/'+date[0]
+        return date
+    }
+
+    function searchInTable() {
+            $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
+            val = $("input#searchInTable").val()
+            if(val.length > 3) {
+                $.ajax({
+                    url: '{{route("searchInTableMonitoring")}}',
+                    data: 'str='+val,
+                    success: function(m) {
+                        console.log(m)
+                        if(m.length > 0) {
+                            $("table#searchInTable > tbody tr").hide()
+                            linhas = ''
+                            for(i=0;i<m.length;i++) {
+                                classB = ''
+                                if($.inArray(m[i].supervisor_at,[null,undefined,'',' '])) {
+                                    classB += 'class="bg-danger"'
+                                }
+                                linhas += '<tr id="monitoriaLinha'+m[i].id+'" '+classB+'>'+
+                                            '<td>#'+m[i].id+' </td>'+
+                                                // Operador
+                                                '<td>'+m[i].operador+'</td>'+
+
+                                                // Supervisor
+                                                '<td>'+m[i].supervisor+'</td>'+
+
+                                                // Monitor
+                                                '<td>'+m[i].monitor+'</td>'+
+
+                                                '<td>'+transformDataDb(m[i].created_at)+'</td>'+
+                                                '<td>'+m[i].id_audio+' </td>'+
+                                                '<td>'+m[i].media+' %</td>'+
+                                                '<td class="btn-group btn-group-sm">'+
+                                                    '<div class="btn-group">'+
+                                                        '<button type="button" class="btn btn-secondary"id="btnView'+m[i].id+'" onclick="viewMonitoring('+m[i].id+')">Ver</button>'+
+                                                        @if($webMaster || $isMonitor)
+                                                            @if($webMaster || $editarMonitoria || $excluirMonitoria)
+                                                                '<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>'+
+                                                                '<ul class="dropdown-menu" role="menu">'+
+                                                                    '<li role="presentation" class="dropdown-header">Outras Ações</li>'+
+                                                                    // Editar Monitoria
+                                                                    @if($webMaster || $editarMonitoria)
+                                                                    ' <li><a href="{{asset("monitoring/edit/")}}/'+m[i].id+'">Editar</a></li>'+
+                                                                    @endif
+
+                                                                    // Excluir Monitoria
+                                                                    @if($webMaster || $excluirMonitoria)
+                                                                        '<li><a onclick="deleteMonitoria('+m[i].id+')">Excluir</a></li>'+
+                                                                    @endif
+                                                                '</ul>'+
+                                                            @endif
+                                                        @endif
+                                                ' </div>'+
+                                            ' </td>'+
+                                        '</tr>';
+                            }
+
+                            $("table#searchInTable >tbody").append(linhas)
+                        } else {
+                            $("table#searchInTable > tbody tr").show()
+                        }
+                        $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+                    }
+                });// end Ajax
+            } else {
+                $("table#searchInTable > tbody tr").show()
+                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+            }
+        }
 </script>
 @endsection

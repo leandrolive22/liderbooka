@@ -456,8 +456,10 @@ class Users extends Controller
         $pass = $request->input('password');
         $word = $request->input('confirmPass');
         $id = $request->input('id');
-
-        if ($pass === $word) {
+        
+        if($pass == env("DEFAULT_PASSWORD")) {
+            return response()->json(['errorAlert', 'Senha Padrão ('.env("DEFAULT_PASSWORD").') não permitida, altere a senha!']);
+        } else if ($pass === $word) {
             $insert = User::find($id);
             $insert->password = Hash::make($pass);
             if ($insert->save()) {
