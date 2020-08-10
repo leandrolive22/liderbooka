@@ -268,6 +268,14 @@
         });
     }
 
+    function in_array(val, arr = ['',' ',null,undefined,'undefined']) {
+        if($.inArray(val,arr) > -1) {
+            return true
+        }
+
+        return false
+    }
+
     @include('assets.components.notify');
 
     </script>

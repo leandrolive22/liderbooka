@@ -124,7 +124,6 @@ class Monitorias extends Controller
                             $q->orWhereRaw('monitorias.usuario_cliente REGEXP  "'.$item.'"');
                             $q->orWhereRaw('monitorias.cpf_cliente REGEXP  "'.$item.'"');
 
-
                             $orderBy .= 'when operador REGEXP  "'.$item.'" then 1  ';
                             $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" then 2  ';
                             $orderBy .= 'when operador REGEXP  "'.$item.'" AND monitor  REGEXP  "'.$item.'" AND supervisor REGEXP  "'.$item.'" then 3  ';
@@ -264,6 +263,7 @@ class Monitorias extends Controller
                         'value' => $i[1],
                         'id_laudo_item' => $i[0],
                         'monitoria_id' => $monitoria_id,
+                        'ncg' => $i[2],
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ];

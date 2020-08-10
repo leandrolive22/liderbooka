@@ -409,7 +409,7 @@ class Chats extends Controller
     public function msgOperador()
     {
         $id = Auth::id();
-        $sups = [Auth::user()->supervisor_id,1];
+        $sups = [1,Auth::user()->coordenador_id, Auth::user()->supervisor_id,Auth::user()->gerente_id, Auth::user()->superintendente_id];
 
         $title = 'ChatBook';
 

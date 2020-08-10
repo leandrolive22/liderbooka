@@ -227,7 +227,7 @@
                                 {{-- Se não é edição --}}
                                 @if(!isset($itens))
                                     @forelse ($laudo->itens as $item)
-                                        @if(is_null($item->deleted_at))
+                                        @if(!is_null($item->deleted_at))
                                             <tr id="trAplicarLaudos">
                                                 <td>
                                                     <p>
@@ -552,9 +552,10 @@
 
             // dados laudos
             $.each($("td.procedimentos"),function(i,v){
+                isNcg = 0
                 id = v.id
                 value = $("input#procedimento_"+id+":checked").val()
-                procedimentos += id+'|||||'+value+'_____'
+                
 
                 // conta conformes
                 if(value == 'Conforme') {
@@ -571,15 +572,21 @@
                     nAv += Number(1)
                 }
 
+                // Conta se existe NCG
                 if($("input.NCG_"+id+":checked").val() === 'NCG') {
                     ncg++
+                    isNcg++
                 }
+
+                procedimentos += id+'|||||'+value+'|||||'+isNcg+'_____'
 
             });
             if(ncg > 0) {
                 media = 0
+                ncg = '&ncg=1'
             } else {
                 media = ((conf/(conf+nConf))*100).toFixed(2)
+                ncg = ''
             }
 
             $("#resultConf").html(conf)
@@ -588,7 +595,7 @@
             $("#resultncg").html(ncg)
             $("#resultMedia").html(media+'%')
 
-            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv //ncg esta no form, veja $().serialize() acima
+            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+ncg
 
             $("#btnConfirmModal").attr('onclick','storeMonitoring('+'"'+data+'"'+',@if($id > 0) 0 @else 1 @endif)')
             $("#modalConfirm").show()

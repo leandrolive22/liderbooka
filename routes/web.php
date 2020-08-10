@@ -282,7 +282,7 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('saveFileCirc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Circulares@destroy')
-                ->name('DeleteCircular');
+                ->name('DeleteCircular'); 
         });
 
         Route::group(['prefix' => 'script'], function () {
@@ -367,7 +367,7 @@ Route::group(['middleware' => ['auth']], function () {
 
             Route::post('saveFile/{user}', 'Materials\Videos@file')
             ->where('user', '[0-9]+')
-            ->name('saveFileScript');
+            ->name('saveFileSVideo');
         });
 
         Route::group(['prefix' => 'calculator'], function () {
@@ -411,6 +411,13 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::middleware('Wiki')->group(function () {
+        /*********** UPDATE ***********/
+        Route::group(['prefix' => 'update'], function () {
+            Route::put('circular/{user}','Materials\Circulares@update')->where('user','[0-9]+')->name('PutCircularesUpdate');
+            Route::put('material/{user}','Materials\Materiais@update')->where('user','[0-9]+')->name('PutMaterialUpdate');
+            Route::put('roteiros/{user}','Materials\Roteiros@update')->where('user','[0-9]+')->name('PutRoteirosUpdate');
+            Route::put('video/{user}','Materials\Videos@update')->where('user','[0-9]+')->name('PutVideosUpdate');
+        });
         /*********** Calculadoras ***********/
         Route::group(['prefix' => 'Calculadoras'], function () {
 
@@ -581,7 +588,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 
-        //Inserts
+        //Inserts Wiki
     Route::group(['prefix' => 'insert'], function () {
             Route::post("/calculator", "Materials\Calculadoras@store")->name('PostMaterialsCalculadora'); //Inserir Calculadoras
             Route::post("/circular", "Materials\Circulares@store")->name('PostMaterialsCircular'); //Inserir Circulares

@@ -1,10 +1,12 @@
 <script type="text/javascript">
     function openMaterial(id,path,type) {
         $("#btnOpen"+id).prop('disabled',true)
+        $("#btnOpen"+id).html('<span class="fa fa-spin fa-spinner fa-xs"></span>')
         if($("tr#linhaWiki89").attr("class") === 'trGreen') {
             let addModal = modal(id, path, type, '', 0)
             $('body').append(addModal)
-            return $("#btnOpen"+id).prop('disabled',false)
+            $("#btnOpen"+id).prop('disabled',false)
+            return $("#btnOpen"+id).html('Abrir')
 
         } else {
             $.getJSON('{{asset("api/sign/".Auth::id()."/".Auth::user()->ilha_id)}}/'+id+'/'+type,function(data){
@@ -28,6 +30,7 @@
                     $('body').append(addModal)
                 }
             });
+            $("#btnOpen"+id).html('Abrir')
             return $("#btnOpen"+id).prop('disabled',false)
         }
     }

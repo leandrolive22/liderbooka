@@ -27,7 +27,13 @@ class Materiais extends Controller
         $titlePage = $title;
         $type = 'MATERIAL';
 
-        return view('wiki.view',compact('result','title','titlePage','type'));
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+
+        return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
 
     public function usuarios()
@@ -53,7 +59,13 @@ class Materiais extends Controller
         $titlePage = $title;
         $type = 'MATERIAL';
 
-        return view('wiki.view',compact('result','title','titlePage','type'));
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+
+        return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
     /**
      * Store a newly created resource in storage.
@@ -116,11 +128,11 @@ class Materiais extends Controller
     }
 
     public function editGet($id) {
-        $material = Material::find($id);
-        $nome = $material['name'];
-        $title = "Editar material - $nome";
-
-        return view('gerenciamento.materials.edit.editMaterial',compact('title','material'));
+        try {
+            return Material::find($id);
+        } catch (Exception $e) {
+            return ['errorAlert' => $e->getMessage()];
+        }
     }
 
     public function show()
@@ -161,6 +173,98 @@ class Materiais extends Controller
         $title = 'Incluir material';
         return view('gerenciamento.materials.insert.materiais',compact('title','setores','ilhas','cargos', 'quiz'));
 
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $user)
+    {
+        try {
+            $rules = [
+                'idEdit' => 'required',
+                'nameEdit' => 'required',
+                'islandEdit' => 'required',
+                'cargo_idEdit' => 'required',
+                'fileEdit' => 'required'
+            ];
+            $msgs = [
+                'required' => 'Preencha todos os campos corretamentes'
+            ];
+
+            $id = $request->idEdit;
+            $name = $request->nameEdit;
+            $ilhas = $request->islandEdit;
+            $cargos = $request->cargo_idEdit;
+            $tags = str_replace(',', '#', $request->tagsEdit);
+            $path = $request->file('fileEdit');
+
+            // caso cargo seja tdoso
+            if($cargos === ',all') {
+                unset($cargos);
+                $cargos = NULL;
+            }
+
+            // Ilha e setor
+            $ilha = ',';
+            $setor = ',';
+
+            // separa ilha e setor
+            foreach(explode(',',$ilhas) as $data) {
+                $ilhaSetor = (explode('|',$data));
+                if(isset($ilhaSetor[1])) {
+                    $ilha .= $ilhaSetor[1].',';
+                    $setor .= $ilhaSetor[0].',';
+                }
+            }
+
+            // Busca objeto para alterar dados
+            $update = Material::find($id);
+
+            // Caso não ache o objeto
+            if(is_null($update)) {
+                return back()->with(['errorAlert' => 'O Material pode ter sido apagado ou editado, recarregue a página e tente novamente.']);
+            }
+
+            // Altera nome
+            if($name !== $update->name) {
+                $update->$name;
+            }
+
+            // Altera arquivo
+            if(!is_null($path)) {
+                $update->file_path = 'storage/' . $path->store('materials/scripts','public');;
+            }
+
+            // trata tags
+            if(!is_null($tags)) {
+                $update->tags = '#'.$tags;
+            }
+
+            // Altera ilhas
+            if($ilhas !== 'N_A') {
+                $update->ilha_id = str_replace('N_A','',$ilha);
+                $update->sector = str_replace('N_A','',$setor);
+            }
+
+            if($cargos !== 'N_A') {
+                $update->cargo_id = ','.str_replace('N_A','',$cargos);
+            }
+
+            $update->user_id = $user;
+
+            if($update->save()) {
+                return redirect(url()->previous())->with(['successAlert' => 'Material Alterado com sucesso'],['newOnClick' => ['id' => $id, 'data' => $update->file_path]]);
+            }
+
+            return back()->json(['errorAlert' => 'Não foi possível alterar, contate o suporte']);
+        } catch (Exception $e) {
+            return back()->json(['errorAlert' => $e->getMessage()]);
+        }
     }
 
     public function file(Request $request,$user) {
