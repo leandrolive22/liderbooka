@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Users\Ilha;
 use App\Users\Setor;
 
 class Setores extends Controller
@@ -41,5 +43,14 @@ class Setores extends Controller
         $setores = Setor::where('carteira_id',$carteira)->get();
 
         return ($setores);
+    }
+
+    public function areas(int$type, User $user)
+    {
+        $title = 'Áreas';
+        $setores = Setor::all();
+        $ilhas = Ilha::all();
+
+        return view('gerenciamento.areas.index',compact('type','title','setores','ilha'));
     }
 }

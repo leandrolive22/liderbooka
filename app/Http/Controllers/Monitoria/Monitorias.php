@@ -92,7 +92,7 @@ class Monitorias extends Controller
                 $models = [];
                 $usersFiltering = 0;
                 $monitorias = Monitoria::where('supervisor_id',$id)
-                                        ->orWhere('supervisor_at','IS','NULL')
+                                        ->orWhere('feedback_supervisor','IS','NULL')
                                         ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-3 Months')))
                                         ->orderBy('supervisor_at') //ASC
                                         ->get();
@@ -525,7 +525,7 @@ class Monitorias extends Controller
         $monitorias = Monitoria::select('monitorias.id', 'monitorias.created_at', 'u.name')
                                 ->leftJoin('book_usuarios.users AS u','monitorias.operador_id','u.id')
                                 ->where('monitorias.supervisor_id',$id)
-                                ->whereRaw('monitorias.supervisor_at IS NULL AND monitorias.deleted_at IS NULL')
+                                ->whereRaw('monitorias.feedback_supervisor IS NULL AND monitorias.deleted_at IS NULL')
                                 ->count();
         return $monitorias;
     }
@@ -546,7 +546,7 @@ class Monitorias extends Controller
                     ON mi.id_laudo_item = i.id AND mi.monitoria_id = m.id
                     WHERE m.operador_id = ?
                     AND m.hash_operator IS NULL
-                    AND NOT m.supervisor_at IS NULL
+                    AND NOT m.feedback_supervisor IS NULL
                     AND m.deleted_at IS NULL;',[$id]);
 
         return $monitoria;

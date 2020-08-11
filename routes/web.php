@@ -103,7 +103,7 @@ Route::group(['middleware' => ['auth']], function () {
     /*********** rotas de edição de Gerenciamento ***********/
     Route::group(['prefix' => 'manager'], function () {
 
-        /**/
+        /* Permissões */
         Route::group(['prefix' => 'permissions', 'middleware' => 'SetPermissions'], function () {
 
             Route::get('/','Permissions\Permissions@index')->name('GetPermissionsIndex');
@@ -113,9 +113,19 @@ Route::group(['middleware' => ['auth']], function () {
                 ->name('GetPermissionsIndexUser');
         });
 
+        Route::group(['prefix' => 'areas', 'middleware' => 'web'], function () {
+
+            Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
+
+        });
+
+        /**/
+
+        /* Gerenciar materiais - desativada */
         Route::get('/materials', 'Users\Users@manageMaterials')
         ->name('GetMaterialsManage');
 
+        /* gerenciamento de usuários */
         Route::group(['prefix' => 'user', 'middleware' => 'ManagerUsers'], function () {
 
             Route::get('/', 'Users\Users@managerUserView')

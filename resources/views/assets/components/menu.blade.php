@@ -62,6 +62,20 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         $wiki++;
     }
 }
+
+// áreas
+$area = 0;
+$area_type = 0;
+foreach([57,58] AS $item) {
+    if($webMaster) {
+        $area++;
+    } elseif(in_array($item,$permissions)) {
+        if($item === 58) {
+            $area_type++;
+        }
+        $area++;
+    }
+}
 @endphp
 <div  class="page-sidebar mCustomScrollbar _mCS_1 mCS-autoHide page-sidebar-fixed scroll">
     <!-- START X-NAVIGATION -->
@@ -100,7 +114,16 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         <li @if($current == 'measures') class="active"@else @endif>
             <a href="{{ route('GetMeasuresIndex')}}">
                 <span class="fa fa-exclamation"></span>
-                <span class="xn-text">Medidas Disciplinares </span>
+                <span class="xn-text">Medidas Disciplinares</span>
+            </a>
+        </li>
+        @endif
+
+        @if($area > 0)
+        <li @if($current == 'adm') class="active"@else @endif>
+            <a href="{{ route('GetAreasIndex', ['area_type' => $area_type])}}">
+                <span class="fa fa-sitemap"></span>
+                <span class="xn-text">Áreas</span>
             </a>
         </li>
         @endif
@@ -109,7 +132,7 @@ foreach([38,39,40,41,42,43,44] AS $item) {
         <li @if($current == 'adm') class="active"@else @endif>
             <a href="{{ route('GetUsersManagerUser')}}">
                 <span class="fa fa-users"></span>
-                <span class="xn-text">Usuários </span>
+                <span class="xn-text">Usuários</span>
             </a>
         </li>
         @endif

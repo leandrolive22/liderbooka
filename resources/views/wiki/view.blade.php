@@ -180,8 +180,8 @@ elseif(strtoupper($type) === 'CIRCULAR'){
                                                         @if(in_array(1,session('permissionsIds')) || in_array(39, session('permissionsIds')))
                                                         {{-- Botão de edição  --}}
                                                         <button class="btn btn-warning" id="editBtn{{$item->id}}" onclick="loadEdit({{$item->id}})">Editar</button>
-                                                        {{-- Botão de exclusão  --}}
                                                         @endif
+                                                        {{-- Botão de exclusão  --}}
                                                         @if(in_array(1,session('permissionsIds')) || in_array(40, session('permissionsIds')))
                                                         <button class="btn btn-danger" id="deleteMaterial{{$item->id}}" onclick="deleteMaterial({{$item->id}})">Excluir</button>
                                                         @endif

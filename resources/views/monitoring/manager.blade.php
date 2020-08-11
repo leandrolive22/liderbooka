@@ -222,7 +222,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($monitorias as $m)
-                                <tr id="monitoriaLinha{{$m->id}}" @if(is_null($m->supervisor_at)) class="bg-danger" @endif>
+                                <tr id="monitoriaLinha{{$m->id}}" @if(is_null($m->feedback_supervisor)) class="bg-danger" @endif>
                                     <td>#{{ $m->id }}</td>
                                     {{-- Operador  --}}
                                     @if (isset($m->operador->name))
@@ -518,13 +518,22 @@
         });
     }
     @endif
-    // Gravar feedback de monitoria
+    // Gravar feedback do supervisor
     function saveFeedbackSupervisorMonitoring() {
         id = $("#idModal").val()
+        feed = $("#feedback_supervisor").val()
+        if(in_array(feed)) {
+            return noty({
+                text: 'Preencha o campo <strong>FEEDBACK SUPERVISOR!</strong>',
+                type: 'error',
+                layout: 'topRight',
+                timeout: '3000'
+            })
+        }
         $("#GravarSupModal"+id).html('<span class="fa fa-spinner fa-spin"></span>')
         $.ajax({
             url: "{{asset('api/monitoring/supervisor/feedback')}}/"+id,
-            data: "&feedback="+$("#feedback_supervisor").val(),
+            data: "feedback="+feed,
             method: "PUT",
             success: function (response) {
                 noty({
@@ -698,7 +707,7 @@
                             linhas = ''
                             for(i=0;i<m.length;i++) {
                                 classB = ''
-                                if($.inArray(m[i].supervisor_at,[null,undefined,'',' '])) {
+                                if($.inArray(m[i].feedback_supervisor,[null,undefined,'',' '])) {
                                     classB += 'class="bg-danger"'
                                 }
                                 linhas += '<tr id="monitoriaLinha'+m[i].id+'" '+classB+'>'+
