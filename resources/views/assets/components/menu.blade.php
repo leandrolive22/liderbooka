@@ -120,7 +120,7 @@ foreach([57,58] AS $item) {
         @endif
 
         @if($area > 0)
-        <li @if($current == 'adm') class="active"@else @endif>
+        <li @if($current == 'area') class="active"@else @endif>
             <a href="{{ route('GetAreasIndex', ['area_type' => $area_type])}}">
                 <span class="fa fa-sitemap"></span>
                 <span class="xn-text">Áreas</span>

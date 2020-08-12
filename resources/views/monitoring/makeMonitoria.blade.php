@@ -92,7 +92,7 @@
                                         @endif
                                     @elseif(isset($monitoria))
                                         <input type="text" name="supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-sm-11 col-md-11 col-lg-11" readonly>
-                                        
+
                                         <button class="btn btn-secondary col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
                                             <span class="fa fa-pencil"></span>
                                         </button>
@@ -185,14 +185,16 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
-                                    {{-- <br>
-                                    <h3 for="ncg" class="icheck">
-                                        <input type="checkbox" class="icheck" id="ncg" value="ncg" name="ncg" @if(isset($monitoria) && $monitoria->ncg === 1) checked="true" @endif>
-                                        NCG
-                                    </h3> --}}
-                                    <br>
-                                    <br>
-                                    <label>Procurando as NCGs? Agora estão nos itens!</label>
+                                    @if(Auth::user()->carteira_id === 1)
+                                        {{-- <br>
+                                        <h3 for="ncg" class="icheck">
+                                            <input type="checkbox" class="icheck" id="ncg" value="ncg" name="ncg" @if(isset($monitoria) && $monitoria->ncg === 1) checked="true" @endif>
+                                            NCG
+                                        </h3> --}}
+                                        <br>
+                                        <br>
+                                        <label>Procurando as NCGs? Agora estão nos itens!</label>
+                                    @endif
                                     @php
                                        $hash = md5(base64_encode('MONITORIA_MONITOR'.Auth::id().date('D')).microtime()).date('ymd');
                                     @endphp
@@ -227,7 +229,7 @@
                                 {{-- Se não é edição --}}
                                 @if(!isset($itens))
                                     @forelse ($laudo->itens as $item)
-                                        @if(!is_null($item->deleted_at))
+                                        @if(is_null($item->deleted_at))
                                             <tr id="trAplicarLaudos">
                                                 <td>
                                                     <p>
@@ -555,7 +557,7 @@
                 isNcg = 0
                 id = v.id
                 value = $("input#procedimento_"+id+":checked").val()
-                
+
 
                 // conta conformes
                 if(value == 'Conforme') {

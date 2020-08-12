@@ -22,19 +22,14 @@ class Carteiras extends Controller
 
     public function areas(int $type = 0)
     {
-    	if($type === 0) {
-    		$setores = new Setores();
-    		return $setores->areas($type, Auth::user());
-    	} else if($type === 1) {
-    		$title = 'Áreas';
-    		$carteiras = Carteira::all();
-    		$setores = Setor::all();
-    		$ilhas = Ilha::all();
 
-    		return view('gerenciamento.areas.index',compact('type','title','carteiras','setores','ilhas'));
-    	}
+        $title = 'Áreas';
+        $carteiras = Carteira::all();
+        $setores = Setor::all();
+        $ilhas = Ilha::all();
+        $compact = compact('type','title','carteiras','setores','ilhas');
 
-    	return back()->with('warningAlert','Requisição inválida');
+        return view('gerenciamento.areas.index',$compact);
     }
 
 }

@@ -82,7 +82,7 @@ class Monitorias extends Controller
                                         ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-30 Days')))// Pega monitorias dos ultimos 2 mese
                                         ->orderBy('monitorias.created_at','DESC')
                                         ->orderBy('users.name') //ASC
-                                        ->paginate(10);
+                                        ->paginate(env('PAGINATE_NUMBER'));
 
                 // dados do Cards
                 $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');

@@ -58,11 +58,10 @@ $webMaster = in_array(1,$permissions);
             <!-- START CONTENT FRAME BODY -->
 
             <div class="content-frame-body content-frame-body-left">
-                <div class="panel panel-default">
+                <div class="panel panel-default @if(Auth::user()->css === 'black')  bg-dark @endif">
 
                     <!-- START TIMELINE -->
-                        {{-- Altere o cargo_id para 1 para ver novo modelo de timeline  --}}
-                    <div class="page-content-wrap bg-light">
+                    <div class="page-content-wrap">
                         <!-- START TIMELINE -->
                         <div class="timeline timeline-right">
                             <ul type='none' style="padding:0px;">

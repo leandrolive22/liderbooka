@@ -70,8 +70,8 @@ class Laudos extends Controller
         // não é update
         $id = 0;
 
-        if(is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
-            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers', 'id', 'operador'));
+        if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
+            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador'));
         }
 
         return redirect()->route('GetMonitoriasIndex')->with('errorAlert','Erro ao carregar informações do laudo, contato o suporte.');
@@ -193,7 +193,7 @@ class Laudos extends Controller
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
                     $idArray = $array[3];
-                    
+
 
                     if(count(explode('_',$idArray)) == 2) {
                         $newId = explode('_',$idArray)[1];
@@ -216,8 +216,6 @@ class Laudos extends Controller
                         $up->procedimento =  'Conforme;Não Conforme; Não Avaliado';
                         $up->valor = $valor;
                         $up->creator_id = $user;
-                        $up->created_at = date('Y-m-d H:i:s');
-                        $up->updated_at = date('Y-m-d H:i:s');
                         $up->save();
 
                         $ids .= $up->id.',';
@@ -229,7 +227,7 @@ class Laudos extends Controller
             }
 
             if($error === 0) {
-                Item::whereNotIn('id',explode(',',$ids))->delete();
+                Item::whereNotIn('id',explode(',',$ids))->where('modelo_id',$id)->delete();
                 return response()->json(['success' => TRUE, 'msg' => 'Laudo alterado com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();

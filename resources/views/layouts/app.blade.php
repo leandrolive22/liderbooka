@@ -11,7 +11,7 @@
         @include('assets.css.app')
     @endif
     @if(Auth::check())
-        @include("assets.css.".Auth::user()->css) 
+        @include("assets.css.".Auth::user()->css)
     @else
         @include("assets.css.default")
     @endif
@@ -24,6 +24,11 @@
     @include('assets.css.scroll')
 
     <style type="text/css">
+     @if(Auth::user()->css === 'black')
+     body {
+         text-color: #ffffff;
+     }
+      @endif
         .myParagraph{
             min-height: 20px;
             padding: 2px;
