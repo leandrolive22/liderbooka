@@ -33,7 +33,7 @@ class Posts extends Controller
                     ->orWhere('book_posts.posts.user_id',$user)
                     ->orWhereRaw('book_posts.posts.cargo_id LIKE "%,'.$cargo.',"')
                     ->skip($skip)
-                    ->take(10)
+                    ->take(5)
                     ->orderBy('mesAno','DESC')
                     ->orderBy('priority','ASC')
                     ->orderBy('date','DESC')
