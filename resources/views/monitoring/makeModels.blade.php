@@ -89,7 +89,9 @@
                                     <th>Nº</th>
                                     <th>Pergunta</th>
                                     <th>Sinalização</th>
-                                    {{-- <th>NCG</th> --}}
+                                    @if(Auth::id() === 37)
+                                    <th>Valor em % (0 para calculo automático)</th>
+                                    @endif
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -168,9 +170,11 @@
                         '<td id="myTd">'+
                             '<input class="tdInput" name="tdInput" id="sinal_'+n+'" placeholder="Tipo de sinalização" type="text">'+
                         '</td>'+
-                        // '<td class="text-center">'+
-                        //     '<input class="form-check col-md-12" name="tdInput" id="ncg_'+n+'" placeholder="Tipo de sinalização" type="checkbox" value="1">'+
-                        // '</td>'+
+                        @if(Auth::id() === 37)
+                        '<td id="myTd">'+
+                            '<input class="tdInput" name="tdInput" id="value_'+n+'" placeholder="0 Para igual" type="number" value="0">'+
+                        '</td>'+
+                        @endif
                         '<td id="myTd">'+
                             '<button id="myBtn" class="btn btn-danger btn-block" onclick="deleteLine('+n+')">'+
                                 '<span class="fa fa-trash-o"></span>'+
@@ -214,6 +218,7 @@
 
             // Instancia array
             laudos = ''
+            valores = 1;
 
             //pega linhas
             $.each($("tr[name=linhas]"),function(i,v){
@@ -232,21 +237,12 @@
 
                 sinal = $("input#sinal_"+id+".tdInput").val()
 
-                // // NCG
-                // ncg = ''
-                // check = $("input#ncg_"+id+".form-check:checked").val()
+                value = $("input#value_"+id+".tdInput").val()
 
                 // Verifica campos vazios
-                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1) {
+                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1 || $.inArray(value,[null,'',' ']) > -1) {
                     error += Number(1)
                 }
-
-                // // Verifica NCG
-                // if($("input#ncg_"+id+".form-check:checked").val() === '1') {
-                //     ncg = '1'
-                // } else {
-                //     ncg = '0'
-                // }
 
                 // Instancia array
                 linha = new Array()
@@ -260,11 +256,16 @@
                 // Sinalização
                 linha.push(sinal)
 
-                // // NCG
-                // linha.push(ncg)
-
                 //id
                 linha.push(v.id)
+
+                // Valor em porcentagem
+                linha.push(value)
+
+                if(value > 0) {
+                    valores -= valores
+                }
+
 
                 // Laudos de monitoria
                 laudos += linha+'_______________'
@@ -292,7 +293,7 @@
                 });
             }
 
-            // cartira
+            // carteira
             if($.inArray($("select#carteira_id").val(),[null,'',' ','undefined']) > -1) {
                 noty({
                     text: 'Selecione uma carteira válida',
@@ -313,7 +314,11 @@
                     timeOut: 3000
                 });
             } else {
-                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))
+                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+
+                    '&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+
+                    '&tipo_monitoria='+$("#type").val()+
+                    '&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))+'&valores='+valores
+
                 $.ajax({
                     url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
                     data: dados,

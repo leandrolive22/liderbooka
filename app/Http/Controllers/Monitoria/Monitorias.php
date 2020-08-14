@@ -94,7 +94,7 @@ class Monitorias extends Controller
                 $monitorias = Monitoria::where('supervisor_id',$id)
                                         ->orWhere('feedback_supervisor','IS','NULL')
                                         ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-3 Months')))
-                                        ->orderByRaw('case(WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end)') //ASC
+                                        // ->orderByRaw('case(WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end)') //ASC
                                         ->orderBy('created_at','DESC')
                                         ->get();
             }

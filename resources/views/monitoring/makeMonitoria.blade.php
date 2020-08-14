@@ -248,13 +248,13 @@
                                                 </td>
                                                 <td class="procedimentos" id="{{$item->id}}">
                                                 <label class="check">
-                                                    <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @elseif(!isset($monitoria)) checked="true" @endif id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Conforme
+                                                    <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Conforme
                                                 </label>
                                                 <label class="check">
                                                     <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Conforme
                                                 </label>
                                                 <label class="check">
-                                                    <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Avaliado
+                                                    <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Avaliado
                                                 </label>
                                                 <label class="check">
                                                     <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio NCG_{{$item->id}}"/> NCG

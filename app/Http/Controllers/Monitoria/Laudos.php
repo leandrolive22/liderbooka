@@ -101,6 +101,7 @@ class Laudos extends Controller
         $tipo_monitoria = $request->input('tipo_monitoria');
         $laudos = explode('_______________',substr($request->input('laudos'),0,-15));
         $valor = $request->input('valor');
+        $valores = $request->input('valores');
 
         //Cria laudo
         $laudo = new Laudo();
@@ -120,13 +121,18 @@ class Laudos extends Controller
                     $numberArray = $array[0];
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
+                    if($array[2] === 0) {
+                        $valorArray = $valor;
+                    } else {
+                        $valorArray = $array[4];
+                    }
 
                     $itensInsert[] = [
                         'numero' => $numberArray,
                         'questao' => $perguntaArray,
                         'sinalizacao' => $sinalArray,
                         'procedimento' =>  'Conforme;Não Conforme; Não Avaliado',
-                        'valor' => $valor,
+                        'valor' => $valorArray,
                         'creator_id' => $user,
                         'modelo_id' => $id,
                         'created_at' => date('Y-m-d H:i:s'),
