@@ -116,6 +116,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'areas', 'middleware' => 'web'], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
+            Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
 
         });
 

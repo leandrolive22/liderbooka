@@ -202,12 +202,10 @@ foreach([38, 34] AS $item) {
 </ul>
 <!-- END X-NAVIGATION VERTICAL -->
 {{-- Monitoria: Consideracoes (Operador) --}}
-@if(in_array(20,$permissions))
 @section('modalAll')
-{{-- Modal de Relatório  --}}
+    {{-- Modal de Relatório  --}}
     @include('monitoring.components.modais.resultRelatorio')
 @endsection
-@endif
 @section('xNavJs')
 <script lang="javascript">
 // pega monitorias
@@ -237,7 +235,7 @@ function saveFeedbackOperatorMonitoring(option,hash) {
                 layout: 'topRight',
                 type: 'success',
             })
-            $("#modalMonitoringFeedBack").hide().remove()
+            $("#modalMonitoring").hide().remove()
 
         },
         error: function (xhr) {
@@ -268,7 +266,7 @@ function saveFeedbackOperatorMonitoring(option,hash) {
                         layout: 'topRight',
                         type: 'error',
                     });
-                }       
+                }
 
             }
     })
@@ -357,7 +355,7 @@ function openModalSupOpeMonitoria() {
 
                     //tabela de laudos
                     $("tbody#laudos").html(linhas)
-                    $("#modalMonitoringFeedBack").show()
+                    $("#modalMonitoring").show()
         }
     });
 }
@@ -547,48 +545,45 @@ function linePhones(phone){
 
 $(function(){
     try {
-        // Pega cargos dos usuários
-        carregarCargo( {{Auth::user()->cargo_id}} )
-
         //busca mensagens à cada i segundos
         getMsgNotify()
         i = 60*5
 
-        setInterval(function() {getMsgNotify()}, (i*1000));
+        setTimeout(function() {getMsgNotify()}, (i*1000));
 
         //If supervisor, carrega notificação de monitoria (Permission - Monitoria: Aplicar Feedback)
         @if(in_array(19,$permissions))
              getMonitoriasNavBar()
 
 
-            setInterval(() => {
+             setTimeout(() => {
                 getMonitoriasNavBar()
             }, 70*1000);
 
         // If operador, carrega modal monitoria feedback
-        @elseif(in_array(20,$permissions))
+        @elseif(in_array(Auth::user()->cargo_id,[5]))
             openModalSupOpeMonitoria()
 
-            setInterval(() => {
+            setTimeout(() => {
                 openModalSupOpeMonitoria()
-            }, 70*1000);
+            }, 7*60*1000);
         @endif
 
     } catch(e) {
-        $.noty({
+        noty({
             text: 'Erro de conexão',
             layout: 'topRight',
             timeout: 3000,
             type: 'error'
-        })
+        });
 
         //If supervisor, carrega notificação de monitoria
-        setInterval( function() {getMsgNotify()}, (60*1000))
+        setTimeout( function() {getMsgNotify()}, (60*1000))
         @if(in_array(19,$permissions))
         setTimeout(() => {
             getMonitoriasNavBar()
         }, 2000);
-        setInterval(() => {
+        setTimeout(() => {
             getMonitoriasNavBar()
         }, 1800*1000);
 
@@ -597,7 +592,7 @@ $(function(){
         setTimeout(() => {
             openModalSupOpeMonitoria()
         }, 2000);
-        setInterval(() => {
+        setTimeout(() => {
             openModalSupOpeMonitoria()
         }, 180*1000);
         @endif

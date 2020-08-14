@@ -94,7 +94,9 @@ function saveMeasureResp(n) {
 
 //Carrega ao abrir
 $(document).ready(function(){
-        setInterval(function(){getMeasure()},60*1000*60)
-        getMeasure()
+        setInterval(function(){getMeasure()},60*1000*8)
+        setTimeout(() => {
+            getMeasure()
+        }, 240000);
 });
 </script>

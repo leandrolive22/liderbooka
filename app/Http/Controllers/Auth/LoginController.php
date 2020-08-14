@@ -9,6 +9,7 @@ use App\Http\Controllers\Permissions\UserPermission;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Session;
 use Hash;
+use App\Users\Cargo;
 
 class LoginController extends Controller
 {
@@ -83,6 +84,9 @@ class LoginController extends Controller
                 Session::put('countVideo',$countMat[1][2]);
             }
         }
+
+        $searchCargo = @Cargo::find($cargo);
+        @Session::put('cargoUser',@$searchCargo->description);
 
         if($firstLogin === 0 || Hash::check(env("DEFAULT_PASSWORD"),$user->password)) {
             Session::put('pwIsDf',1);

@@ -4,8 +4,8 @@
             <input type="hidden" name="idModal" value="0" id="idModal">
             <div class="form-row col-md-12">
                 <div class="form-group col-md-6">
-                    <label for="datelaudo">Data do Laudo</label>
-                    <p class="myParagraph pull-right" type="hidden" id="datelaudo"></p>
+                    <label for="datelaudo" class=" pull-left">Data do Laudo</label>
+                    <p class="myParagraph pull-left" type="hidden" id="datelaudo"></p>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="hash_monitoria">Hash da Monitoria</label>

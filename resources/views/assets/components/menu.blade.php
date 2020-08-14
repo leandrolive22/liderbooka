@@ -99,7 +99,7 @@ foreach([57,58] AS $item) {
                 </div>
                 <div class="profile-data">
                     <div class="profile-data-name">{{ Auth::user()->name }}</div>
-                    <div class="profile-data-title" id="cargoScript"></div>
+                    <div class="profile-data-title">{{ session('cargoUser') ?? '' }}</div>
                 </div>
             </div>
         </li>
@@ -233,19 +233,5 @@ foreach([57,58] AS $item) {
             }
         });
     });
-
-    setTimeout(() => {
-        $.getJSON("{{route('getIlhasEditBySetor', ['setor' => Auth::user()->setor_id] )}}", function(data) {
-            if(data.lenght > 0) {
-                linhas = ''
-                for(i=0; i<data.lenght; i++) {
-                    linhas += '<option value="'+data.id+'">'+data.setor+' | '+data.name+'</option>'
-                }
-
-                $("select#ilha_idEdit").html(linhas)
-                $("div#editIsland").show()
-            }
-        });
-    },5000);
 </script>
 @endsection

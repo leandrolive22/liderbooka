@@ -54,7 +54,7 @@
             </div>
 
             @php
-            
+
             $i = 0;
 
             @endphp
@@ -146,18 +146,9 @@
             @endif
 
           //tempo de busca
-      },5*60*1000);
-
-        //if Laravel
-        @if(in_array(Auth::user()->cargo_id,[1,3,4,5,7]))
-        setTimeout(function(){
-
-            nonReadMaterials()
-
-        }, (30*1000))
-        @endif
-
+        },5*60*1000);
     })
+
     //Pega dados de clima de equipe e converte em gráficos para os superiores
     function getEnvironment() {
         $.getJSON('{{ route("GetUsersHumourChart", [

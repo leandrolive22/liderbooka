@@ -94,7 +94,8 @@ class Monitorias extends Controller
                 $monitorias = Monitoria::where('supervisor_id',$id)
                                         ->orWhere('feedback_supervisor','IS','NULL')
                                         ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-3 Months')))
-                                        ->orderBy('supervisor_at') //ASC
+                                        ->orderByRaw('case(WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end)') //ASC
+                                        ->orderBy('created_at','DESC')
                                         ->get();
             }
 
@@ -547,7 +548,8 @@ class Monitorias extends Controller
                     WHERE m.operador_id = ?
                     AND m.hash_operator IS NULL
                     AND NOT m.feedback_supervisor IS NULL
-                    AND m.deleted_at IS NULL;',[$id]);
+                    AND m.deleted_at IS NULL
+                    LIMIT 1;',[$id]);
 
         return $monitoria;
     }

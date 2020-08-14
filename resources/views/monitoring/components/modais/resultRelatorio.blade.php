@@ -1,4 +1,4 @@
-<div class="modal in" @if(Auth::user()->cargo_id === 5) id="modalMonitoringFeedBack" @else id="modalMonitoring" @endif tabindex="-1" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="display: none;">
+<div class="modal in" id="modalMonitoring" tabindex="-1" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="display: none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" style="overflow-y: auto; max-height:500px;">
             <div class="modal-header">
@@ -18,7 +18,7 @@
                 @if(Auth::user()->cargo_id === 4)
                     <button type="button" id="GravarSupModal" onclick="saveFeedbackSupervisorMonitoring()" class="btn btn-success">Gravar FeedBack</button>
                 @endif
-            @elseif(in_array(1,session('permissionsIds')) || in_array(21, session('permissionsIds')))
+            @elseif(in_array(1,session('permissionsIds')) || in_array(21, session('permissionsIds')) || Auth::user()->cargo_id === 5)
                 @php
                 $hash2 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'2';
                 $hash1 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'1';

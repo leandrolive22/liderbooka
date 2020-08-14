@@ -86,19 +86,18 @@
                                 <div class="form-group col-md-12">
                                     <label class="col-md-2 control-label">Supervisor</label>
                                     <select data-live-search="true" class="form-control col-md-8" name="superior_id" id="superior_id">
-                                        <option id="noMoreSup">Selecione um Supervisor</option>
+                                        <option id="noMoreSup" value="">Selecione um Supervisor</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label class="col-md-2 control-label">Coordenador</label>
                                     <select data-live-search="true" class="form-control col-md-8" name="coordenador_id" id="coordenador_id">
-                                        <option id="noMoreCoord">Selecione um Coordenador</option>
+                                        <option id="noMoreCoord" value="">Selecione um Coordenador</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label class="col-md-2 control-label">Gerente</label>
                                     <select data-live-search="true" class="form-control col-md-8" name="manager_id" id="manager_id">
-                                        <option>Selecione um Gerente</option>
                                         @forelse ($gerentes as $g)
                                         <option value="{{$g->id}}">{{$g->name}}</option>
                                         @empty

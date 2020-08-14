@@ -124,7 +124,7 @@
                                         </thead>
                                         <tbody id="bodysetorest">
                                             @php
-                                                $setoresActions = '<input type="checkbox" disabled name="setores" id="setores_var_" class="form-check" value="_var_">';
+                                                $setoresActions = '<input type="checkbox" disabled name="setores" title="_NAME_" id="setores_var_" class="form-check" value="_var_">';
                                             @endphp
                                             @if(isset($setores))
                                                 @component('assets.components.tableObj',['actions' => $setoresActions, 'columns' => ['id','name',''], 'data' => $setores, 'idTr' => 'setores'])
@@ -164,7 +164,7 @@
                                         </thead>
                                         <tbody id="bodyilhast">
                                             @php
-                                                $ilhasActions = '<input type="checkbox" disabled name="ilhas" id="ilhas_var_" class="form-check" value="_var_">';
+                                                $ilhasActions = '<select multiple size="2" name="ilhas" id="ilhas_var_" disabled class="form-check"></select>';
                                             @endphp
                                             @if(isset($ilhas))
                                                 @component('assets.components.tableObj',['actions' => $ilhasActions, 'columns' => ['id','name',''], 'data' => $ilhas, 'idTr' => 'ilhas'])
@@ -189,7 +189,7 @@
                                 <button class="btn btn-danger btn-block">Excluir</button>
                             </div>
                             <div class="col-md-6">
-                                <button class="btn btn-primary btn-block">Sincronizar</button>
+                                <button class="btn btn-primary btn-block" onclick="sync()">Sincronizar</button>
                             </div>
                         </div>
                     </div>
@@ -236,17 +236,20 @@
                 url = "{{ __('') }}"
                 tbody = 'bodycarteirast'
                 idTr = 'carteiras'
+                input = '<input type="radio" onchange="changeCart(_var_)" name="carteiras" id="new_carteiras_var_" class="form-check" value="_var_">'
                 break;
             case 'S':
                 url = "{{ __('') }}"
                 tbody = 'bodysetorest'
                 idTr = 'setores'
+                input = '<input type="checkbox" name="setores" id="new_setores_var_" class="form-check" value="_var_">'
                 break;
 
             case 'I':
                 url = "{{ __('') }}"
                 tbody = 'bodyilhast'
                 idTr = 'ilhas'
+                input = '<input type="checkbox" name="ilhas" id="new_ilhas_var_" class="form-check" value="_var_">'
                 break;
             default:
                 noty({
@@ -257,27 +260,68 @@
                 break;
         }
 
-        n = $("#"+tbody+" tr").length
+        n = 'newAdd_'+$("#"+tbody+" tr").length
         newIdTr = "idTr"+idTr
 
-        linha = '<tr id="'+newIdTr+'">'+
-            '<td>#ID Automático</td>'+
-            '<td><input name="newAdd" id="newAdd'+n+'"></td>'+
-            '<td></td>'+
-        '</tr>';
+        linhas = '<tr id="'+newIdTr+'">'+
+                    '<td>#</td>'+
+                    '<td><input name="newAdd" id="'+n+'"></td>'+
+                    '<td>'+input.replace('_var_',$("#"+tbody+" tr").length)+'</td>'+
+                '</tr>';
 
-        $("#"+tbody).append(linhas)
+
+        linhas += $("#"+tbody).html()
+
+        $("#"+tbody).html(linhas)
     }
 
     function changeCart(id) {
-        if(!in_array($("input#carteiras"+id+"[name=carteiras][type=radio]"))) {
+        explode = String(id).split('_')
+        if(typeof explode[1] !== 'undefined') {
+            id = explode[1]
+        }
+        if(!in_array($("input[name=carteiras][type=radio]:checked").val())) {
+            getUrl = '{{ route("GetAreasgetSetoresIlhasByCart", ["carteira" => "---"]) }}'.replace('---',id)
             $.getJSON(getUrl, function (data) {
-                if(data['setores'].length > 0 && data['ilhas'].length > 0) {
-                    $('input[name=setores][type=checkbox]').attr('disabled',false)
-                    $('input[name=ilhas][type=checkbox]').attr('disabled',false)
-                }
+                len = data.length
+                if(len > 0) {
+                    for(i=0; i<len; i++) {
+                        $("input#setores"+data[i].setor).attr('checked',true)
+                        $("select#ilhas"+data[i].ilha).attr('disabled',false)
+                        $("select#ilhas"+data[i].ilha).append('<option> value="'+data[i].setor+'">'+$("select#ilhas"+data[i].ilha).attr('title')+'</option>')
 
+                    }
+                }
             });
+            $('input[name=setores][type=checkbox]').attr('disabled',false)
+            $('select[name=ilhas]').attr('disabled',false)
+        }
+    }
+
+    function sync() {
+        error = 0
+        carteira = $("input[name=carteiras][type=radio]:checked").val()
+        if(typeof carteira === undefined) {
+            noty({
+                    text: 'Nenhuma Carteira Selecionada!',
+                    layout: 'topRight',
+                    type: 'warning',
+            })
+        } else {
+            ilhas = ''
+            setores = ''
+            $.each($("input[name=setores][type=checkbox]:checked"),function (i,v) {
+                value = $(v).val()
+                setores += value+'|'
+            })
+
+            $.each($("input[name=ilhas][type=checkbox]:checked"),function (i,v) {
+                value = $(v).val()
+                ilhas += value+'|'
+            })
+
+            data = 'carteira='+carteira+'&setores='+setores+'&ilhas='+ilhas
+            console.log(data)
         }
     }
 </script>

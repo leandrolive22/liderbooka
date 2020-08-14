@@ -42,6 +42,10 @@
     @yield('modal')
 @endif
 
+@hasSection ('modalMoni')
+    @yield('modalAll')
+@endif
+
 @hasSection ('modalAll')
     @yield('modalAll')
 @endif

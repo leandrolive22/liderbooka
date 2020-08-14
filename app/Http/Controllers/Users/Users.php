@@ -176,7 +176,7 @@ class Users extends Controller
         if(Session::get('pwIsDf') == 1) {
             return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
         }
-        
+
         $carteira = Auth::user()->carteira_id;
         if($carteira == NULL) {
             return back()->with(['errorAlert','Erro! Atualize a página e tente novamente.']);
@@ -227,7 +227,7 @@ class Users extends Controller
         } else {
             $supervisores = $this->getSupervisores(0);
             Cache::put('getSupervisores',$supervisores,720);
-        }             
+        }
 
         $filiais  = Filial::select('id','name')->get();
         $carteira = new Carteiras();
@@ -456,7 +456,7 @@ class Users extends Controller
         $pass = $request->input('password');
         $word = $request->input('confirmPass');
         $id = $request->input('id');
-        
+
         if($pass == env("DEFAULT_PASSWORD")) {
             return response()->json(['errorAlert', 'Senha Padrão ('.env("DEFAULT_PASSWORD").') não permitida, altere a senha!']);
         } else if ($pass === $word) {

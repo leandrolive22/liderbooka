@@ -5,7 +5,7 @@
                 <td>{{$item->$c}}</td>
             @elseif(isset($actions))
                 @php
-                    echo '<td class="text-center">'.str_replace('_var_',$item->id,$actions).'</td>';
+                    echo '<td class="text-center">'.str_replace('_NAME_',$item->name,str_replace('_var_',$item->id,$actions)).'</td>';
                 @endphp
             @endif
         @endforeach
