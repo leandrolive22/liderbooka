@@ -58,7 +58,7 @@ class Ilhas extends Controller
 
     public function getIlhas($setor = 0)
     {
-        $ilhas = Ilha::select('ilhas.id', 'ilhas.name', 's.name AS setor')
+        $ilhas = Ilha::select('ilhas.id', 'ilhas.name', 's.name AS setor', 's.id As setor_id')
                     ->leftJoin('setores AS s','s.id','ilhas.setor_id')
                     ->when($setor > 0, function($q) use ($setor) {
                         return $q->where('ilhas.setor_id',$setor);

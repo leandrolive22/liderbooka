@@ -86,12 +86,10 @@
                         <table class="table col-md-12">
                             <thead>
                                 <tr>
-                                    <th>Nº</th>
+                                    <th>Grupo</th>
                                     <th>Pergunta</th>
                                     <th>Sinalização</th>
-                                    @if(Auth::id() === 37)
-                                    <th>Valor em % (0 para calculo automático)</th>
-                                    @endif
+                                    <th>Peso em % (0 para calculo automático)</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -162,7 +160,7 @@
             // monta linha
             linha = '<tr name="linhas" id="'+n+'">'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0" type="text">'+
+                            '<input class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0/Grupo" type="text">'+
                         '</td>'+
                         '<td id="myTd">'+
                             '<input class="tdInput" name="tdInput" id="pergunta_'+n+'" placeholder="Escreva aqui sua pergunta" type="text">'+
@@ -219,6 +217,7 @@
             // Instancia array
             laudos = ''
             valores = 1;
+            valuesPct = 0
 
             //pega linhas
             $.each($("tr[name=linhas]"),function(i,v){
@@ -262,6 +261,8 @@
                 // Valor em porcentagem
                 linha.push(value)
 
+                valuesPct += value
+
                 if(value > 0) {
                     valores -= valores
                 }
@@ -270,6 +271,18 @@
                 // Laudos de monitoria
                 laudos += linha+'_______________'
             })
+
+            //
+            if(valuesPct > 100 || (valuesPct < 100 && valuesPct > 0)) {
+                noty({
+                    text: 'Peso em % deve somar 100%!',
+                    layout: 'topRight',
+                    type: 'warning',
+                    timeout: 3000,
+                    timeOut: 3000
+                });
+                error++
+            }
 
             // titulo
             if($.inArray($("input#titulo").val(),[null,'',' ','undefined']) > -1) {
@@ -280,6 +293,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                error++
             }
 
             // tipo de laudo
@@ -291,6 +305,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                error++
             }
 
             // carteira
@@ -302,6 +317,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                error++
             }
 
             // em caso de erro, lança notificação
@@ -313,6 +329,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                $("#btnSave").html('Salvar')
             } else {
                 dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+
                     '&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+
