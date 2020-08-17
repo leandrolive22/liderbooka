@@ -45,4 +45,37 @@ class Carteiras extends Controller
         }
     }
 
+    public function sync(Request $request)
+    {
+        $rules = [
+            'carteira' => 'required',
+            'setores' => 'required',
+        ];
+
+        $message = [
+            'carteira.required' => 'Selecione uma :attribute!',            
+            'setores.required' => 'Selecione os :attribute corretamente!',
+        ];
+        try {
+            // Trata requisição
+            $request->validate($rules, $message);
+
+            $c = $request->carteira;
+            $setores = explode('|',substr($request->setores,0,-1));
+
+            $carteira = Carteira::find($c);
+            if(is_null($carteira)) {
+                return response()->json(['errorAlert' => 'Carteira não identificada, recarregue a página'],422);
+            }
+
+            Setor::whereIn('id',$setores)->update('carteira_id',$carteira);
+            Setor::whereNotIn('id',$setores)->delete();
+
+            return response()->json(['Sincronizado com sucesso!'],201);
+
+        } catch (Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()],500);
+        }
+    }
+
 }

@@ -83,11 +83,11 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6">
-                         <div class="panel-heading">
+                           <div class="panel-heading">
                             <div class="panel-title">
-                               Setores
-                           </div>
-                           <ul class="panel-controls">
+                             Setores
+                         </div>
+                         <ul class="panel-controls">
                             <li>
                                 <a href="javascript:add('S')"><span class="fa fa-plus"></span></a>
                             </li>
@@ -111,7 +111,9 @@
                                 </thead>
                                 <tbody id="bodysetorest">
                                     @php
-                                    $setoresActions = '<input type="checkbox" disabled name="setores" title="_NAME_" id="setores_var_" class="form-check" value="_var_"><button id="btn_setores_var_" class="btn btn-primary btn-rounded btn-sm" onclick="editIlhas(_var_)">Ilhas</button>';
+                                    $setoresActions = '
+                                    <input type="checkbox" disabled name="setores" title="_NAME_" id="setores_var_" class="form-check" value="_var_">
+                                    <button id="btn_setores_var_" class="btn btn-primary btn-rounded btn-sm" disabled onclick="editIlhas(_var_)">Ilhas</button>';
                                     @endphp
                                     @if(isset($setores))
                                     @component('assets.components.tableObj',['actions' => $setoresActions, 'columns' => ['id','name',''], 'data' => $setores, 'idTr' => 'setores'])
@@ -155,7 +157,7 @@
 @section('modal')
 
 <div class="modal in" id="modalAdd" tabindex="-1" z-index="999" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="margin-top: 15px; display: none;">
-    <form action="syncIlhas" method="POST">
+    <form onsubmit="return false;">
         @csrf
         <input type="hidden" name="modalSetor" id="modalSetor">
         <div class="modal-dialog">
@@ -164,7 +166,7 @@
                     <h4 class="modal-title" id="defModalHead">Ilhas do Setor</h4>
                 </div>
                 <div class="modal-body">
-                    <div id="modal_Ilhas" class="list-group scroll" style="overflow-y: scrool">
+                    <div id="modal_Ilhas" class="list-group scroll" style="max-height: 500px;">
                         @forelse($ilhas as $item)
                         <div class="list-group-item">
                             <label for="name" class="form-label">{{$item->name}}</label>
@@ -176,8 +178,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-danger pull-right" onclick="$('#modalAdd').hide()">Cancelar</button>
-                    <button type="button" class="btn btn-outline-success pull-right" onclick="#">Salvar</button>
+                    <button type="button" class="btn btn-secondary pull-right" onclick="$('#modalAdd').hide();$('input[name=ilhas_sync]').prop('checked',false);">Cancelar</button>
+                    <button type="button" class="btn btn-success pull-right" onclick="syncIlha()">Salvar Ilhas</button>
                 </div>
             </div>
         </div>
@@ -233,27 +235,31 @@
         $("#"+tbody).html(linhas)
     }
 
+    // Altera carteiras
     function changeCart(id) {
+        $("input[name=ilhas_sync]").prop('checked',false)
         $("input[name=setores]").attr('checked',false)
         explode = String(id).split('_')
         if(typeof explode[1] !== 'undefined') {
             id = explode[1]
         }
         if(!in_array($("input[name=carteiras][type=radio]:checked").val())) {
+            $('input[name=setores][type=checkbox]').attr('checked',false)
             getUrl = '{{ route("GetAreasgetSetoresIlhasByCart", ["carteira" => "---"]) }}'.replace('---',id)
             $.getJSON(getUrl, function (data) {
                 len = data.length
                 if(len > 0) {
                     for(i=0; i<len; i++) {
-                        $("input#setores"+data[i].setor).attr('checked',true)
+                        $("input#setores"+data[i].setor).prop('checked',true)
                     }
                 }
             });
             $('input[name=setores][type=checkbox]').attr('disabled',false)
-            $('select[name=ilhas]').attr('disabled',false)
+            $("button.btn-rounded").attr('disabled',false);
         }
     }
 
+    // carrega ilhas
     function editIlhas(id) {
         // Desabilita botões
         $("#btn_setores"+id).attr('disabled',true);
@@ -261,6 +267,7 @@
 
         // Modal
         $("#modalSetor").val(id)
+        $("input[name=ilhas_sync]").prop('checked',false)
 
         try {
             // Url
@@ -272,7 +279,7 @@
                 if(len > 0) {
                     linhas = ''
                     for(i=0; i<len; i++) {
-                        $("input[setor="+data[i].setor_id+"]").attr('checked',true)
+                        $("input[setor="+data[i].setor_id+"]").prop('checked',true)
                     }
                     $("#modalAdd").show()
                 } else {
@@ -292,31 +299,112 @@
         $("#btn_setores"+id).attr('disabled',false);
     }
 
+    // Sincroniza Ilhas
+    function syncIlha() {
+        ilhas = ''
+        setor = $("#modalSetor").val()
+
+        $.each($("input[name=ilhas_sync][type=checkbox]:checked"),function (i,v) {
+            value = $(v).val()
+            ilhas += value+'|'
+        })
+
+        if(typeof setor === 'undefined' || in_array(setor)) {
+            return noty({
+                text: 'Setor inválido, contate o suporte',
+                layout: 'topRight',
+                type: 'warning',
+            })
+        } else {
+            data = 'ilhas='+ilhas+'&setores='setor
+
+            $.ajax({
+                url: "{{ route('PutSyncIlhas') }}",
+                method: "PUT",
+                data: data,
+                success: function(resp) {
+                    console.log(resp)
+                },
+                error: function(xhr) {
+                    console.log(xhr)
+                    if(xhr.responseJSON.errors.carteiras) {
+                       noty({
+                        text: xhr.responseJSON.errors.carteiras,
+                        layout: 'topRight',
+                        type: 'error',
+                    })
+                   }
+                   if(xhr.responseJSON.errors.setores) {
+                    noty({
+                        text: xhr.responseJSON.errors.setores,
+                        layout: 'topRight',
+                        type: 'error',
+                    })
+                }
+            }})
+        }
+    }
+
+
+    // sincroniza carteiras e setores
     function sync() {
         error = 0
         carteira = $("input[name=carteiras][type=radio]:checked").val()
-        if(typeof carteira === undefined) {
-            noty({
+        if(typeof carteira === 'undefined') {
+            return noty({
                 text: 'Nenhuma Carteira Selecionada!',
                 layout: 'topRight',
                 type: 'warning',
             })
         } else {
-            ilhas = ''
             setores = ''
+            if(typeof $("input[name=setores][type=checkbox]:checked").val() === 'undefined') {
+                return noty({
+                    text: 'Nenhum Setor Selecionado!',
+                    layout: 'topRight',
+                    type: 'warning',
+                })
+            }
+
             $.each($("input[name=setores][type=checkbox]:checked"),function (i,v) {
                 value = $(v).val()
                 setores += value+'|'
             })
 
-            $.each($("input[name=ilhas][type=checkbox]:checked"),function (i,v) {
-                value = $(v).val()
-                ilhas += value+'|'
-            })
+            // $.each($("input[name=ilhas_sync][type=checkbox]:checked"),function (i,v) {
+            //     value = $(v).val()
+            //     ilhas += value+'|'
+            // })
 
-            data = 'carteira='+carteira+'&setores='+setores+'&ilhas='+ilhas
-            console.log(data)
+            data = 'carteira='+carteira+'&setores='+setores
+
+            $.ajax({
+                url: "{{ route('PutSyncAreas') }}",
+                method: "PUT",
+                data: data,
+                success: function(resp) {
+                    console.log(resp)
+                },
+                error: function(xhr) {
+                    console.log(xhr)
+                    if(xhr.responseJSON.errors.carteiras) {
+                        noty({
+                            text: xhr.responseJSON.errors.carteiras,
+                            layout: 'topRight',
+                            type: 'error',
+                        })
+                    }
+                    if(xhr.responseJSON.errors.setores) {
+                        noty({
+                            text: xhr.responseJSON.errors.setores,
+                            layout: 'topRight',
+                            type: 'error',
+                        })
+                    }
+                }
+            });
         }
     }
+
 </script>
 @endsection

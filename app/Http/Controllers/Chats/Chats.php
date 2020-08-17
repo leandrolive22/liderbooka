@@ -333,6 +333,9 @@ class Chats extends Controller
     //msg de Superintendente, gerentes,
     public function msgAdm()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
         $cargo = Auth::user()->cargo_id;
         $title = 'ChatBook';
@@ -374,6 +377,9 @@ class Chats extends Controller
     //msgMonitoria
     public function msgMonitor() {
         // id
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
 
         // superiores
@@ -389,7 +395,7 @@ class Chats extends Controller
                         ->leftJoin('book_chats.messages','messages.speaker_id','users.id')
                         ->where('messages.interlocutor_id',$id)
                         ->orWhereIn('users.cargo_id',[4,5])
-                        ->orWhereIn('users.id', [$sups])
+                        ->orWhereIn('users.id', $sups)
                         ->orderBy('users.deleted_at', 'ASC')
                         ->orderBy('users.name','ASC')
                         ->withTrashed()
@@ -408,6 +414,9 @@ class Chats extends Controller
     //msgOperator
     public function msgOperador()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
         $sups = [1,Auth::user()->coordenador_id, Auth::user()->supervisor_id,Auth::user()->gerente_id, Auth::user()->superintendente_id];
 
@@ -418,7 +427,7 @@ class Chats extends Controller
                         ->join('cargos', 'cargos.id', 'users.cargo_id')
                         ->leftJoin('book_chats.messages','messages.speaker_id','users.id')
                         ->where('messages.interlocutor_id',$id)
-                        ->orWhereIn('users.id', [$sups])
+                        ->orWhereIn('users.id', $sups)
                         ->orderBy('users.deleted_at', 'ASC')
                         ->orderBy('users.name','ASC')
                         ->withTrashed()
@@ -435,8 +444,11 @@ class Chats extends Controller
     //msg para analistas, técnicos, operadores que não sejam de cobrança
     public function msgOperadorAdm()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
-        $sups = [1,Auth::user()->coordenador_id, Auth::user()->supervisor_id,Auth::user()->gerente_id, Auth::user()->superintendente_id];
+        $sups = [Auth::user()->coordenador_id, Auth::user()->supervisor_id,Auth::user()->gerente_id, Auth::user()->superintendente_id];
 
         $title = 'ChatBook';
 
@@ -445,7 +457,7 @@ class Chats extends Controller
                         ->join('cargos', 'cargos.id', 'users.cargo_id')
                         ->leftJoin('book_chats.messages','messages.speaker_id','users.id')
                         ->where('messages.interlocutor_id',$id)
-                        ->orWhereIn('users.id', [$sups])
+                        ->orWhereIn('users.id', $sups)
                         ->orderBy('users.deleted_at', 'ASC')
                         ->orderBy('users.name','ASC')
                         ->withTrashed()
@@ -463,6 +475,9 @@ class Chats extends Controller
     //msgSupervisor MSG
     public function msgSupervisor()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
         $idSup = [Auth::user()->gerente_id,Auth::user()->coordenador_id, Auth::user()->superintendente_id, 1];
         $title = 'ChatBook';
@@ -491,6 +506,9 @@ class Chats extends Controller
     //msgCoordenador MSG
     public function msgCoordenador()
     {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
         $id = Auth::id();
 
         $title = 'ChatBook';

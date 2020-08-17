@@ -113,9 +113,49 @@ class Ilhas extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(array $data, $setor_id)
     {
-        //
+        $rules = [
+            'setores' => 'required',
+        ];
+
+        $message = [
+            'setor.required' => 'Error, :attribute incorreto, contate o suporte!',
+        ];
+
+        // Trata requisição
+        $request->validate($rules, $message);
+
+        // variaveis
+        $i = $request->ilhas;
+        $s = $request->setores;
+        
+        try {
+            // Se existe ilha
+            if(is_null($s)) {
+                return response()->json(['Setor obrigatório',422]);
+            }
+
+            // Se existe ilha
+            if(!is_null($i)) {
+                $ilhas = explode('|',substr($i,0,-1));
+
+                // Altera as ilhas
+                ILha::whereIn('id',$ilhas)->update(['setor_id' => $s]);
+
+                // Exclui ilhas 
+                ILha::whereNotIn('id',$ilhas)->update(['setor_id' => NULL]);
+                return response()->json(['Sincronizado com sucesso!',201]);
+            } else {
+                if(Ilha::where('setor_id',$s)->delete()) {
+                    return response()->json(['Sincronizado com sucesso!',201]);
+                } else {
+                    return response()->json(['Erro ao excluir setor, contate o suporte!',422]);
+                }
+            }
+        } catch (Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()],500);
+        }
     }
 
     /**
@@ -126,6 +166,11 @@ class Ilhas extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            Ilha::find($id)->delete();
+            return response()->json(['successAlert' => 'Excluído com sucesso!',201]);
+        } catch (Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()],500);   
+        }
     }
 }

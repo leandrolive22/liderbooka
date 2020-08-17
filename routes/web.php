@@ -117,7 +117,8 @@ Route::group(['middleware' => ['auth']], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
             Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
-
+            Route::put('sync','Users\Carteiras@sync')->name('PutSyncAreas');
+            Route::put('syncIlha','Users\Carteiras@sync')->name('PutSyncIlhas');
         });
 
         /**/

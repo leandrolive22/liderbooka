@@ -272,18 +272,6 @@
                 laudos += linha+'_______________'
             })
 
-            //
-            if(valuesPct > 100 || (valuesPct < 100 && valuesPct > 0)) {
-                noty({
-                    text: 'Peso em % deve somar 100%!',
-                    layout: 'topRight',
-                    type: 'warning',
-                    timeout: 3000,
-                    timeOut: 3000
-                });
-                error++
-            }
-
             // titulo
             if($.inArray($("input#titulo").val(),[null,'',' ','undefined']) > -1) {
                 noty({

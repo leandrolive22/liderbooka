@@ -69,12 +69,12 @@ $area_type = 0;
 foreach([57,58] AS $item) {
     if($webMaster) {
         $area++;
-    } elseif(in_array($item,$permissions)) {
-        if($item === 58) {
-            $area_type++;
-        }
-        $area++;
-    }
+    } //elseif(in_array($item,$permissions)) {
+    //     if($item === 58) {
+    //         $area_type++;
+    //     }
+    //     $area++;
+    // }
 }
 @endphp
 <div  class="page-sidebar mCustomScrollbar _mCS_1 mCS-autoHide page-sidebar-fixed scroll">
@@ -155,7 +155,7 @@ foreach([57,58] AS $item) {
         @if($chat >0)
         <li @if($current == 'msgs') class="active"@else @endif>
             @if(in_array(Auth::user()->cargo_id,[5,11,12,13,14]))
-            <a href="{{route('GetUsersMsgOpe')}}"id="MessagesTaskBtnMenu">
+            <a href="{{route('GetUsersMsgOpeSup')}}"id="MessagesTaskBtnMenu">
             {{-- MSG OPERATOR  --}}
             @elseif(in_array(Auth::user()->cargo_id,[7]))
             <a href="{{route('GetUsersMsgCoord')}}"id="MessagesTaskBtnMenu">
