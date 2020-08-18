@@ -81,7 +81,38 @@ class Ilhas extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'setores' => 'required',
+            'ilhas' => 'required',
+        ];
+
+        $message = [
+            'setores.required' => 'Selecione um :attribute corretamente!',
+            'ilhas.required' => 'Preencha os campos :attribute corretamente!',
+        ];
+
+        $date = date('Y-m-d H:i:s');
+        $data = [];
+        foreach(explode('|',substr($request->setores,0,-1)) as $item) {
+            $arr = [];
+            $arr['name'] = $item;
+            $arr['setor_id'] = $request->carteira_id;
+            $arr['created_at'] = $date;
+            $arr['updated_at'] = $date;
+
+            array_push($data, $arr);
+        }
+
+        try {
+            // bulk insert
+            if(Ilha::insert($data)) {
+                return redirect(url()->previous())->with('successAlert','Ilha(s) inserida(s) com sucesso!');
+            }
+
+            return back()->with('errorAlert','Erro ao inserir, contate o suporte!');
+        } catch (Exception $e) {
+            return back()->with('errorAlert',$e->getMessage());
+        }
     }
 
     /**
@@ -113,14 +144,14 @@ class Ilhas extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(array $data, $setor_id)
+    public function update(Request $request)
     {
         $rules = [
-            'setores' => 'required',
+            'setor' => 'required',
         ];
 
         $message = [
-            'setor.required' => 'Error, :attribute incorreto, contate o suporte!',
+            'setor.required' => 'Erro, :attribute inválido, contate o suporte!',
         ];
 
         // Trata requisição
@@ -128,7 +159,7 @@ class Ilhas extends Controller
 
         // variaveis
         $i = $request->ilhas;
-        $s = $request->setores;
+        $s = $request->setor;
         
         try {
             // Se existe ilha
@@ -141,11 +172,15 @@ class Ilhas extends Controller
                 $ilhas = explode('|',substr($i,0,-1));
 
                 // Altera as ilhas
-                ILha::whereIn('id',$ilhas)->update(['setor_id' => $s]);
+                if(ILha::whereIn('id',$ilhas)->update(['setor_id' => $s])) {
+                    $search = ILha::whereNotIn('id',$ilhas)->where('setor_id',$s);
+                    if($search->count() > 0) {
+                        $search->update(['setor_id' => NULL]);
+                    }
 
-                // Exclui ilhas 
-                ILha::whereNotIn('id',$ilhas)->update(['setor_id' => NULL]);
-                return response()->json(['Sincronizado com sucesso!',201]);
+                    return response()->json(['successAlert' => 'Sincronizado com sucesso!']);
+                }
+                return response()->json(['errorAlert' => 'Erro ao sincronizar, recarregue a página e tente novamente'],422);
             } else {
                 if(Ilha::where('setor_id',$s)->delete()) {
                     return response()->json(['Sincronizado com sucesso!',201]);

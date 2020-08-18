@@ -117,8 +117,17 @@ Route::group(['middleware' => ['auth']], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
             Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
+            
             Route::put('sync','Users\Carteiras@sync')->name('PutSyncAreas');
-            Route::put('syncIlha','Users\Carteiras@sync')->name('PutSyncIlhas');
+            Route::delete('sync','Users\Carteiras@destroy')->name('DeleteSyncAreas');
+
+            Route::put('syncIlha','Users\Ilhas@update')->name('PutSyncIlhas');
+
+            Route::group(['prefix' => 'create'], function () {
+                Route::post('carteira','Users\Carteiras@store')->name('PostCreateCarteira');
+                Route::post('setor','Users\Setores@store')->name('PostCreateSetor');
+                Route::post('ilha','Users\Ilhas@store')->name('PostCreateIlha');
+            });
         });
 
         /**/

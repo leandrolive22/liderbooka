@@ -68,13 +68,84 @@ class Carteiras extends Controller
                 return response()->json(['errorAlert' => 'Carteira não identificada, recarregue a página'],422);
             }
 
-            Setor::whereIn('id',$setores)->update('carteira_id',$carteira);
-            Setor::whereNotIn('id',$setores)->delete();
+            $search = Setor::whereNotIn('id',$setores)->where('carteira_id',$c);
+            if($search->count() > 0) {
+                $search->update(['carteira_id' => NULL]);
+            }
 
-            return response()->json(['Sincronizado com sucesso!'],201);
+            if(Setor::whereIn('id',$setores)->update(['carteira_id' => $c])) {
+                return response()->json(['successAlert' => 'Sincronizado com sucesso!'],201);
+            }
+
+            return response()->json(['errorAlert' => 'Erro ao sincronizar, recarregue a página e tente novamente!'],422);
 
         } catch (Exception $e) {
             return response()->json(['errorAlert' => $e->getMessage()],500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $rules = [
+            'carteira' => 'required',
+            'setores' => 'required',
+        ];
+
+        $message = [
+            'carteira.required' => 'Selecione uma :attribute!',            
+            'setores.required' => 'Selecione os :attribute corretamente!',
+        ];
+        try {
+            // Trata requisição
+            $request->validate($rules, $message);
+
+            $c = $request->carteira;
+            $setores = explode('|',substr($request->setores,0,-1));
+
+            $carteira = Carteira::find($c);
+            if(is_null($carteira)) {
+                return response()->json(['errorAlert' => 'Carteira não identificada, recarregue a página'],422);
+            }
+
+            if(Setor::whereIn('id',$setores)->delete() && $carteira->delete()) {
+                return response()->json(['successAlert' => 'Deletado com sucesso!'],201);
+            }
+
+            return response()->json(['errorAlert' => 'Erro ao sincronizar, recarregue a página e tente novamente'],422);
+
+        } catch (Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()],500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $rules = [
+            'carteira' => 'required',
+        ];
+
+        $message = [
+            'carteira.required' => 'Preencha o campo :attribute corretamente!',
+        ];
+        try {
+            // Trata requisição
+            $request->validate($rules, $message);
+            $name = $request->carteira;
+            $insert = new Carteira();
+            $insert->name = $name;
+            if($insert->save()) {
+                return redirect(url()->previous())->with('successAlert','Carteira inserida com sucesso!');
+            }
+
+            return back()->with('errorAlert','Erro ao inserir, contate o suporte!');
+        } catch (Exception $e) {
+            return back()->with('errorAlert',$e->getMessage());
         }
     }
 

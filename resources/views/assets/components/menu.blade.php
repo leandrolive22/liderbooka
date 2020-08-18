@@ -69,12 +69,12 @@ $area_type = 0;
 foreach([57,58] AS $item) {
     if($webMaster) {
         $area++;
-    } //elseif(in_array($item,$permissions)) {
-    //     if($item === 58) {
-    //         $area_type++;
-    //     }
-    //     $area++;
-    // }
+    } elseif(in_array($item,$permissions)) {
+        if($item === 58) {
+            $area_type++;
+        }
+        $area++;
+    }
 }
 @endphp
 <div  class="page-sidebar mCustomScrollbar _mCS_1 mCS-autoHide page-sidebar-fixed scroll">
