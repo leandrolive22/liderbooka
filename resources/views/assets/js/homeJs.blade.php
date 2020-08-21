@@ -16,7 +16,17 @@
     //carrega posts
     function carregarPosts() {
         var n = contarLinha();
-        $.getJSON("{{asset('/')}}api/post/{{Auth::user()->ilha_id}}/" + n +"/{{ Auth::id().'/'.Auth::user()->cargo_id }}", function(publicacao){
+
+        url = "{{asset('/')}}api/post/{{Auth::user()->ilha_id}}/" + n +"/{{ Auth::id().'/'.Auth::user()->cargo_id }}"
+
+        
+        @if(in_array(62,session('permissionsIds')))
+            url += '?=permissions=1'
+        @else 
+            url += '?=permissions=0'
+        @endif
+
+        $.getJSON(url, function(publicacao){
             l = publicacao.length
             if(l > 0) {
                 for(i=0; i < l; i++) {

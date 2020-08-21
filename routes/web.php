@@ -142,6 +142,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', 'Users\Users@managerUserView')
                 ->name('GetUsersManagerUser');
 
+            Route::get('restore_deleted', 'Users\Users@managerUserViewRestore')
+                ->name('GetUsersManagerUserDeleted');
+
+            Route::post('restore/{userAction}/{user}','Users\Users@restore')->name('PostRestoreUser');
+
             Route::get('/register', 'Users\Users@registerUserView')
                 ->name('GetUsersRegisterUser')->middleware('AddUser');
         });

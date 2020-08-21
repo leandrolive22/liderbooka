@@ -42,6 +42,17 @@
                             Permissionamento
                         </a>
                         @endif
+                        @if(in_array(1, session('permissionsIds')) || in_array(45, session('permissionsIds')))
+                            @if(Route::current()->getName() === 'GetUsersManagerUserDeleted')
+                            <a href="{{ route('GetUsersManagerUser') }}" class="btn btn-light pull-right">
+                                Ativos 
+                            </a>
+                            @else
+                            <a href="{{ route('GetUsersManagerUserDeleted') }}" class="btn btn-light pull-right">
+                                Deletados 
+                            </a>
+                            @endif
+                        @endif
                         <div class="col-md-5 input-group">
                             <input class="form-control col-md-4" name="searchInTable" id="searchInTable" placeholder="Pesquise um usuário aqui">
                             <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
@@ -59,8 +70,9 @@
                             </thead>
                             <tbody>
                                 @forelse($users as $user)
+                                <form id="retoreUserForm{{$user->id}}" method="POST" action="{{route('PostRestoreUser',['userAction' => Auth::id(), 'user' => $user->id])}}">@csrf</form>
                                 <tr id="usersTr{{$user->id}}">
-                                    <form id="formEditDelete{{$user->id}}" method="POST">
+                                    <form id="formEditDelete{{$user->id}}" method="POST" onsubmit="return false;">
                                         @csrf
                                         <input type="hidden" name="user" value="{{ Auth::id() }}">
                                         <input type="hidden" name="id" value="{{ $user->id }}">
@@ -77,6 +89,15 @@
                                         @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                         <td>
                                             <div class="input-group btn">
+{{-- Se a view traz usuários deletados --}}
+                                                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted')
+                                                @php $titleDelete = 'Clique aqui para excluir de vez o usuário'; @endphp
+                                                <button type="button" class="btn btn-success btn-sm" title="Clique aqui para restaurar o usuário" onclick="$('form#retoreUserForm{{$user->id}}').submit();">
+                                                    <span id="btnPencil{{$user->id}}" class="fa fa-mail-reply"></span>
+                                                </button>
+                                                {{-- Se traz usuários ativos --}}
+                                                @else
+                                                @php $titleDelete = 'Clique aqui para desativar usuário'; @endphp
                                                 {{-- Editar --}}
                                                 @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                                 <button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser({{$user->id}});">
@@ -88,14 +109,15 @@
                                                 </button>
                                                 @endif
                                                 {{-- Excluir --}}
-                                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                <button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser({{$user->id}});">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
-                                                @endif
                                                 @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
                                                 <button type="button" onclick="window.location.href = '{{ route('GetPermissionsIndexUser', $user->id) }}'" class="btn btn-dark btn-sm">
                                                     <span class="fa fa-sitemap"></span>
+                                                </button>
+                                                @endif
+                                                @endif
+                                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                <button type="button" class="btn btn-danger btn-sm" title="{{$titleDelete}}" onclick="deleteUser({{$user->id}});">
+                                                    <span class="fa fa-times"></span>
                                                 </button>
                                                 @endif
                                             </div>
@@ -176,7 +198,7 @@
             },]
         });
         }
-
+        @if(Route::current()->getName() !== 'GetUsersManagerUserDeleted')
         //edita usuario
         function updateUser(id) {
             $("#btnPencil"+id).attr('class','fa fa-refresh')
@@ -392,8 +414,10 @@
                     }
                 })
 }
-
 }
+@endif
+
+
 
         //salva alterações de usuário
         function saveChanges(element,id) {
@@ -549,10 +573,15 @@
         function searchInTable() {
             $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
             val = $("#searchInTable").val()
-            if(val.length > 3) {
+            if(val.length > 0) {
+                data = 'str='+val 
+                
+                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted') data += 'deleted_at=1' @endif
+
+
                 $.ajax({
                     url: '{{route("searchInTableUser")}}',
-                    data: 'str='+val,
+                    data: data,
                     success: function(data) {
                         console.log(data)
                         if(data.length > 0) {
@@ -607,16 +636,21 @@
 
                             $("#usersTable >tbody").append(linhas)
                         } else {
+                            noty({
+                                text: 'Nenhum dado encontrado',
+                                layout: 'topRight',
+                                type: 'warning'
+                            })
                             $("#usersTable > tbody tr").show()
                         }
                         $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
                     }
                 });// end Ajax
-            } else {
-                $("#usersTable > tbody tr").show()
-                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-            }
-        }
+} else {
+    $("#usersTable > tbody tr").show()
+    $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
+}
+}
 
 $(function(){
     $("#loadingPreLoader").hide();

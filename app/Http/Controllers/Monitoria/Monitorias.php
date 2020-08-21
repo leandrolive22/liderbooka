@@ -49,6 +49,7 @@ class Monitorias extends Controller
             $editarLaudo = in_array(53, $permissions);
             $editarMonitoria = in_array(54, $permissions);
             $excluirMonitoria = in_array(55, $permissions);
+            $seeAll = in_array(61, $permissions);
 
             //permissões de consulta
             $carteira = in_array(23, $permissions);
@@ -69,8 +70,17 @@ class Monitorias extends Controller
                     $models = [];
                 }
 
-                //Tabela
-                $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
+                if($seeAll) {
+                    //Tabela
+                    $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
+                                            ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
+                                            ->orderBy('monitorias.created_at','DESC')
+                                            ->orderBy('users.name') //ASC
+                                            ->paginate(env('PAGINATE_NUMBER'));
+                } else {
+
+                    //Tabela
+                    $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
                                         ->when($carteira, function($q) use($all){
@@ -79,10 +89,10 @@ class Monitorias extends Controller
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
-                                        ->where('monitorias.created_at','>=',date('Y-m-d 00:00:00',strtotime('-30 Days')))// Pega monitorias dos ultimos 2 mese
                                         ->orderBy('monitorias.created_at','DESC')
                                         ->orderBy('users.name') //ASC
                                         ->paginate(env('PAGINATE_NUMBER'));
+                    }
 
                 // dados do Cards
                 $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');

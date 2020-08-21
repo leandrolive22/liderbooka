@@ -33,6 +33,40 @@ foreach([16,17] AS $item) {
     }
 }
 
+// LiderReport
+if(in_array(17, $permissions) || $webMaster) {
+    $cargo = Auth::user()->cargo_id;
+
+    // Area LiderReport
+    if(in_array($cargo, [15])) {
+        $area = 1;
+        $nivel = 2;
+    }
+    if(in_array($cargo, [4,8,7])) {
+        $area = 2;
+        $nivel = 3;
+    }
+    if(in_array($cargo, [7,9,2])) {
+        $area = 3;
+        $nivel = 3;
+    }
+    if(in_array($cargo, [1])) {
+        $area = 4;
+        $nivel = 0;
+    } else {
+        $area = 0;
+        $nivel = NULL;
+    }
+
+    $strEnc = implode("|", [Auth::id(),Auth::user()->name,Auth::user()->username,$nivel,$area]);
+    $password = date('Ymd');
+
+    $hash = openssl_encrypt($strEnc,"AES-128-ECB",$password);
+    
+} else {
+    $hash = NULL;
+}
+
 // Inserts Rápidos
 $inserts = 0;
 foreach([38, 34] AS $item) {
@@ -120,7 +154,7 @@ foreach([38, 34] AS $item) {
         </div>
     </li>
     @endif
-    {{-- Módulos com login via API  --}}
+    {{-- Módulos com login via API   --}}
     @if($modulo > 0)
     <li class="xn-icon-button pull-right">
         <a href="#"><span class="fa fa-circle-o"></span></a>
@@ -138,6 +172,18 @@ foreach([38, 34] AS $item) {
                         <img src="{{ asset('img/formTransfer.png') }}" alt="FormTransfer" class="col-md-2">
                         <input type="password" name="password" id="passwordFormTransfer" class="form-control col-md-4 btn-rounded" placeholder="Senha">
                         <button class="btn btn-link col-md-2"> Login | FormTransfer </button>
+                    </form>
+                </div>
+                @endif
+                @if(in_array(17, $permissions) || $webMaster)
+                <div class="list-group-item">
+                    <form action="{{url('http://172.30.130.14/report/index.php?acao=autologin&ori=book')}}" method="POST">
+                        <input type="hidden" name="hash_autologin" value="{{$hash}}">
+                        @csrf
+                        <button class="btn btn-link">
+                            <img src="{{ asset('img/favicon.png') }}" alt="FormTransfer" class="col-md-2">
+                            Clique aqui para acessar o LiderReport  
+                        </button>
                     </form>
                 </div>
                 @endif

@@ -170,6 +170,31 @@ class Users extends Controller
         return $user->toJSON();
     }
 
+    // retorna usuários deletados
+    public function managerUserViewRestore()
+    {
+        if(Session::get('pwIsDf') == 1) {
+            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
+        }
+
+        $carteira = Auth::user()->carteira_id;
+        if($carteira == NULL) {
+            return back()->with(['errorAlert','Erro! usuário sem carteira registrada, contate o treinamento.']);
+        }
+
+        $users = User::select('id','name','username','cpf','ilha_id')
+        ->when(!in_array($carteira,[1,2,9]),function($q,$carteira) {
+            return $q->where('carteira_id',$carteira);
+        })
+        ->orderBy('name')
+        ->onlyTrashed()
+        ->paginate(15);
+
+        $title = 'Restaurar Usuários';
+
+        return view('gerenciamento.users.managerUser', compact('title', 'users'));
+    }
+
     //retorna gerenciamento de usuarios
     public function managerUserView()
     {
@@ -179,7 +204,7 @@ class Users extends Controller
 
         $carteira = Auth::user()->carteira_id;
         if($carteira == NULL) {
-            return back()->with(['errorAlert','Erro! Atualize a página e tente novamente.']);
+            return back()->with(['errorAlert','Erro! usuário sem carteira registrada, contate o treinamento.']);
         }
 
         // grava usuários em Cache
@@ -262,7 +287,10 @@ class Users extends Controller
                         $q->orderByRaw($orderBy);
 
                         return $q;
-                    })->get();
+                    })->when(!is_null($request->deleted_at), function($q) {
+                        return $q->onlyTrashed();
+                    })
+                    ->get();
 
         return $data;
     }
@@ -688,6 +716,21 @@ class Users extends Controller
 
     }
 
+    public function restore($userAction,$user, Request $request)
+    {
+        try {
+            if(User::withTrashed()->find($user)->restore()) {
+                $log = new Logs();
+                $log->log('RESTORE_ID->', $user, $request->fullUrl(), $userAction, 1);
+                return redirect(url()->previous())->with('successAlert','Usuário restaurado com sucesso!');
+            }
+
+            return back()->with('errorAlert','Erro ao restaurar, recarregue a página e tente novamente');
+        } catch (Exception $e) {
+            return back()->with('errorAlert',$e->getMessage());
+        }
+    }
+
     /*
     * @param $user = User que solicitou alteração
     * @param Request $request = dados da Requisição
@@ -787,7 +830,7 @@ class Users extends Controller
         $userLog = $request->input('user');
 
         // pega usuario para ser deletado
-        $user = User::find($id);
+        $user = User::withTrashed()->find($id);
         if(!is_null($user)) {
             $ilha = $user->ilha_id;
 
@@ -799,7 +842,17 @@ class Users extends Controller
             $deleted->cpf = $user->cpf;
             $deleted->save();
 
-            if ($user->delete()) {
+            if(!is_null($user->deleted_at)) {
+                if($user->forceDelete()) {    
+                    //Registra log
+                    $log = new Logs();
+                    $log->log('FORCE_DELETE_USER_ID->', $id, route('PostUsersDeleteUser'), $userLog, $ilha);
+
+                    return response()->json(['success' => TRUE]);
+                } else {
+                    return response()->json(['success' => FALSE]);
+                }
+            } else if($user->delete()) {
                 //Registra log
                 $log = new Logs();
                 $log->log('DELETE_USER_ID->', $id, route('PostUsersDeleteUser'), $userLog, $ilha);
