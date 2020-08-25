@@ -374,11 +374,7 @@ class Monitorias extends Controller
         $rules = [
             'operador' => 'required',
             'hr_call' => 'required',
-            // 'min_call' => 'required',
-            // 'seg_call' => 'required',
             'hr_tp_call' => 'required',
-            // 'min_tp_call' => 'required',
-            // 'seg_tp_call' => 'required',
             'userCli' => 'required',
             'nome_cliente' => 'required',
             'tp_call' => 'required',
@@ -431,7 +427,7 @@ class Monitorias extends Controller
         }
 
         // Verifica se media está correta e verifica NCG
-        if(isset($_POST['ncg'])) {
+        if($request->ncg == 1) {
             $ncg += 1;
             unset($media);
             $media = 0;
@@ -496,16 +492,19 @@ class Monitorias extends Controller
             }
 
             $n=0;
+            $error = 0;
             foreach($monitoriaLaudos as $laudo) {
                 $laudo->value = $MonitoriaItem[$n]['value'];
                 $laudo->updated_at = $MonitoriaItem[$n]['updated_at'];
-                $laudo->save();
+                if(!$laudo->save()) {
+                    $error++;
+                }
                 $n++;
             }
 
             // grava laudos
-            if(TRUE) {
-                return response()->json(['success' => TRUE, 'msg' => 'Monitoria Alterada!<br>Redirecionando...'], 201);
+            if($error === 0) {
+                return response()->json(['success' => TRUE, 'msg' => 'Monitoria Alterada!'], 201);
             } else {
                 return response()->json($monitoriaLaudos->errors()->all(), 500);
                 Monitoria::delete($monitoria_id);

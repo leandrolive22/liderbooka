@@ -177,7 +177,7 @@ foreach([38, 34] AS $item) {
                 @endif
                 @if(in_array(17, $permissions) || $webMaster)
                 <div class="list-group-item">
-                    <form action="{{url('http://172.30.130.14/report/index.php?acao=autologin&ori=book')}}" method="POST">
+                    <form action="{{url('http://app.liderancacobrancas.com.br:8085/report/index.php?acao=autologin&ori=book')}}" method="POST">
                         <input type="hidden" name="hash_autologin" value="{{$hash}}">
                         @csrf
                         <button class="btn btn-link">

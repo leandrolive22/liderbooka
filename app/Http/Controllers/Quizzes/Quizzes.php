@@ -111,7 +111,7 @@ class Quizzes extends Controller
         }
 
         $quizzes =  DB::select('SELECT quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses,
-                        (SELECT COUNT(1) FROM book_relatorios.logs WHERE user_id = '.$id.' AND action = "ANSWER_QUIZ" AND value = quizzes.id) as answered , users.name, users.avatar
+                        (SELECT COUNT(id) FROM book_relatorios.logs WHERE user_id = '.$id.' AND action = "ANSWER_QUIZ" AND value = quizzes.id) as answered , users.name, users.avatar
                     FROM book_quizzes.quizzes
                     LEFT JOIN book_usuarios.users ON users.id = quizzes.creator_id
                     LEFT JOIN book_relatorios.logs ON quizzes.id = logs.value AND users.id = logs.user_id

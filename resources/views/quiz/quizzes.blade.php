@@ -117,7 +117,7 @@
                                 <div class="pull-left">
 
                                     <!-- if eu tiver respondido -->
-                                    @if($quiz->answered == 1)
+                                    @if($quiz->answered >= 1)
                                     <a class="text-success">
                                         <i class="fa fa-check"></i>
                                         Respondido

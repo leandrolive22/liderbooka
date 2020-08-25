@@ -86,10 +86,12 @@
                         <table class="table col-md-12">
                             <thead>
                                 <tr>
-                                    <th>Grupo</th>
+                                    <th>Nº</th>
                                     <th>Pergunta</th>
                                     <th>Sinalização</th>
-                                    <th>Peso em % (0 para calculo automático)</th>
+                                    @if(Auth::id() === 37)
+                                    <th>Valor (0 para valores iguais)</th>
+                                    @endif
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -160,7 +162,7 @@
             // monta linha
             linha = '<tr name="linhas" id="'+n+'">'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0/Grupo" type="text">'+
+                            '<input class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0" type="text">'+
                         '</td>'+
                         '<td id="myTd">'+
                             '<input class="tdInput" name="tdInput" id="pergunta_'+n+'" placeholder="Escreva aqui sua pergunta" type="text">'+
@@ -216,8 +218,6 @@
 
             // Instancia array
             laudos = ''
-            valores = 1;
-            valuesPct = 0
 
             //pega linhas
             $.each($("tr[name=linhas]"),function(i,v){
@@ -236,10 +236,12 @@
 
                 sinal = $("input#sinal_"+id+".tdInput").val()
 
-                value = $("input#value_"+id+".tdInput").val()
+                // // NCG
+                // ncg = ''
+                // check = $("input#value_"+id+".form-check:checked").val()
 
                 // Verifica campos vazios
-                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1 || $.inArray(value,[null,'',' ']) > -1) {
+                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1) {
                     error += Number(1)
                 }
 
@@ -255,18 +257,11 @@
                 // Sinalização
                 linha.push(sinal)
 
+                // // NCG
+                // linha.push(ncg)
+
                 //id
                 linha.push(v.id)
-
-                // Valor em porcentagem
-                linha.push(value)
-
-                valuesPct += value
-
-                if(value > 0) {
-                    valores -= valores
-                }
-
 
                 // Laudos de monitoria
                 laudos += linha+'_______________'
@@ -281,7 +276,6 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
-                error++
             }
 
             // tipo de laudo
@@ -293,10 +287,9 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
-                error++
             }
 
-            // carteira
+            // cartira
             if($.inArray($("select#carteira_id").val(),[null,'',' ','undefined']) > -1) {
                 noty({
                     text: 'Selecione uma carteira válida',
@@ -305,7 +298,6 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
-                error++
             }
 
             // em caso de erro, lança notificação
@@ -317,13 +309,8 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
-                $("#btnSave").html('Salvar')
             } else {
-                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+
-                    '&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+
-                    '&tipo_monitoria='+$("#type").val()+
-                    '&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))+'&valores='+valores
-
+                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))
                 $.ajax({
                     url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
                     data: dados,

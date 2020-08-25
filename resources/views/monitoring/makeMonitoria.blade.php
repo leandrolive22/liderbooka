@@ -295,7 +295,7 @@
                                                 <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Avaliado
                                             </label>
                                             <label class="check">
-                                                <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio NCG_{{$item->id}}"/>
+                                                <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio NCG"/>
                                                 NCG
                                             </label>
                                             </td>
@@ -405,12 +405,18 @@
 @endsection
 @section('Javascript')
 <script language="javascript">
+    // Altera supervisor
     function saveSup() {
         supervisor = $("#supSelection").val()
+        if(typeof $("select#operador").val() === 'undefined') {
+            idOpe = $("input#operador").val()
+        } else {
+            idOpe = $("select#operador").val()
+        }
         $("button#editsupBtn").html('<span class="fa fa-spinner fa-spin"></span> Alterando...')
         $.ajax({
             url: "{{route('PutUsersEditSupervisor',['user' => Auth::id()])}}",
-            data: 'id='+$("#operador").val()+'&supSelection='+supervisor,
+            data: 'id='+idOpe+'&supSelection='+supervisor,
             method: "PUT",
             success: function(resp) {
                 console.log(resp)
@@ -575,7 +581,7 @@
                 }
 
                 // Conta se existe NCG
-                if($("input.NCG_"+id+":checked").val() === 'NCG') {
+                if(typeof $("input.NCG#procedimento_"+id+":checked").val() !== 'undefined') {
                     ncg++
                     isNcg++
                 }
@@ -585,10 +591,10 @@
             });
             if(ncg > 0) {
                 media = 0
-                ncg = '&ncg=1'
+                ncg_concat = '&ncg=1'
             } else {
                 media = ((conf/(conf+nConf))*100).toFixed(2)
-                ncg = ''
+                ncg_concat = '&ncg=0'
             }
 
             $("#resultConf").html(conf)
@@ -597,7 +603,8 @@
             $("#resultncg").html(ncg)
             $("#resultMedia").html(media+'%')
 
-            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+ncg
+            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+ncg_concat
+            console.log(data)
 
             $("#btnConfirmModal").attr('onclick','storeMonitoring('+'"'+data+'"'+',@if($id > 0) 0 @else 1 @endif)')
             $("#modalConfirm").show()
@@ -615,6 +622,7 @@
             url = "{{ route('PostMonitoriaStore', ['user' => Auth::id(),]) }}"
             method = "POST"
         }
+
         $.ajax({
                 url: url,
                 data: data,
