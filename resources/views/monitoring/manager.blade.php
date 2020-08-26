@@ -10,6 +10,9 @@
     .notfound{
         display: none;
     }
+    .popover{
+        max-width: 100%; /* Max Width of the popover (depending on the container!) */
+    }
 </style>
 @endsection
 @section('content')
@@ -391,6 +394,7 @@
                     $("p#nAV").html(data[0].nAv)
                     $("#media").val(data[0].media)
                     $("p#media").html(data[0].media)
+                    $("#ContestSupModal").attr('onclick','contestar('+id+')')
                     if(data[0].feedback_supervisor !== null) {
                         $("textarea#feedback_supervisor").attr('style','border-color: #95B75D')
                     }
@@ -761,5 +765,9 @@
                 $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
             }
         }
+
+    function contestar(id) {
+        $()
+    }
 </script>
 @endsection

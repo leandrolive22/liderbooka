@@ -1,4 +1,4 @@
-<div class="modal-body">
+<div class="modal-body" style="overflow-y: auto; max-height:300px;">
     <div class="panel panel-default">
         <div class="panel-body">
             <input type="hidden" name="idModal" value="0" id="idModal">
