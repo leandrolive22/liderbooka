@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Users;
-
+use App\User AS UserDefault;
 use App\Chats\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,23 +66,24 @@ class Users extends Controller
     {
         $id = Auth::id();
 
-        if($id !== NULL && $id > 0 && is_int($id) == TRUE && $id !== '') {
-            $user = User::find($id);
-            if(is_null($user)) {
-                Auth::logout();
-                return redirect('/')->with(['errorAlert','Usuário não encontrado']);
-            }
-
-
-            $user->accept_lgpd = date('Y-m-d H:i:s');
-            if($user->save()) {
-                $log = new Logs();
-                $log->log(strtoupper('accept_lgpd'), base64_encode('Eu, portador do CPF'.Auth::user()->cpf.'declaro que aceito a politica de privacidade'), $request->fullUrl(), Auth::id(), Auth::user()->ilha_id);
-
-                return redirect('home/page');
-            }
+        if(is_null($id) || in_array($id,[NULL, 0, '', ' '])) {
+            return back()->with(['errorAlert','Usuário não encontrado']);
         }
-        return back()->with(['errorAlert','Usuário não encontrado']);
+
+        $user = UserDefault::find($id);
+
+        if(is_null($user)) {
+            Auth::logout();
+            return redirect('/')->with(['errorAlert','Usuário não encontrado']);
+        }
+
+        $user->accept_lgpd = date('Y-m-d H:i:s');
+        if($user->save()) {
+            $log = new Logs();
+            $log->log(strtoupper('accept_lgpd'), base64_encode('Eu, portador do CPF'.Auth::user()->cpf.'declaro que aceito a politica de privacidade'), $request->fullUrl(), Auth::id(), Auth::user()->ilha_id);
+
+            return redirect('home/page');
+        }
 
     }
 
@@ -843,7 +844,7 @@ class Users extends Controller
             $deleted->save();
 
             if(!is_null($user->deleted_at)) {
-                if($user->forceDelete()) {    
+                if($user->forceDelete()) {
                     //Registra log
                     $log = new Logs();
                     $log->log('FORCE_DELETE_USER_ID->', $id, route('PostUsersDeleteUser'), $userLog, $ilha);

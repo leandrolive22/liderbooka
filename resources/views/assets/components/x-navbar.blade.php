@@ -51,7 +51,7 @@ if(in_array(17, $permissions) || $webMaster) {
         $nivel = 3;
     }
     if(in_array($cargo, [1])) {
-        $area = '1;2;3;4';
+        $area = '1,2,3,4';
         $nivel = 0;
     } else {
         $area = 0;
@@ -62,7 +62,7 @@ if(in_array(17, $permissions) || $webMaster) {
     $password = date('Ymd');
 
     $hash = openssl_encrypt($strEnc,"AES-128-ECB",$password);
-    
+
 } else {
     $hash = NULL;
 }
@@ -182,7 +182,7 @@ foreach([38, 34] AS $item) {
                         @csrf
                         <button class="btn btn-link">
                             <img src="{{ asset('img/favicon.png') }}" alt="FormTransfer" class="col-md-2">
-                            Clique aqui para acessar o LiderReport  
+                            Clique aqui para acessar o LiderReport
                         </button>
                     </form>
                 </div>
