@@ -17,7 +17,10 @@ class Cargos extends Controller
     }
 
     public function selectCustom($query) {
-    	return $cargos = Cargo::selectRaw($query)->get();
+    	return $cargos = Cargo::selectRaw($query)
+                                ->where('id','>',1)
+                                ->orderBy('description')
+                                ->get();
     }
 
     public function nameCargo($id) {

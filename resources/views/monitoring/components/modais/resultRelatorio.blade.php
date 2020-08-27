@@ -1,31 +1,20 @@
 @php
+$motivosText = '<option disabled>Selecione um motivo</option>';
+foreach($motivos as $item) {
+    $motivosText .= '<option value="'.$item->id.'">'.$item->name.'</option>';
+}
 $popoverHtml = "
                 <div id='contestarPopover' class='scroll' style='max-height: 250px; overflow-y: auto; overflow-x: auto'>
-                    <button type='button' class='close' onclick='$(this).parent().parent().parent().hide().remove()'>
+                    <button type='button' class='close' onclick='$(this).parent().parent().parent().hide()'>
                         <span aria-hidden='true'>×</span>
                         <span class='sr-only'>Close</span>
                     </button>
                     <div>
-                        <table class='table table-hover table-responsive'>
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Motivo</th>
-                                    <th>Grupo</th>
-                                    <th>OBS</th>
-                                    <th>Nome</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>25/08/2020</td>
-                                    <td>Monitoria OK</td>
-                                    <td>Procedente</td>
-                                    <td>What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting industry Lorem Ipsum has been the industry's standard dummy text ever since the 1500s when an unknown printer took a galley of type and scrambled it to make a type specimen book it has?</td>
-                                    <td>Mariana</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class='text-center' id='preLoaderContestar'>
+                        <div class='spinner-grow' role='status'>
+                            <span class='sr-only'>Loading...</span>
+                        </div>
+                    </div>
                     <div class='form-group'>
                         </div>
                         <form method='POST' action='".route('login')."'>
@@ -33,7 +22,7 @@ $popoverHtml = "
                             <div class='form-group'>
                                 <label for='contestarSelect'>Motivo:</label>
                                 <select id='contestarSelect' name='contestarSelect' class='form-control' required>
-                                    <option>Monitoria OK</option>
+                                    $motivosText
                                 </select>
                             </div>
                             <div class='form-group'>
@@ -41,8 +30,7 @@ $popoverHtml = "
                                 <input id='contestarTextarea' name='contestarTextarea' max-length='255' class='form-control' placeholder='Observações'>
                             </div>
                             <div class='text-center'>
-                                <button onclick='$(this).parent().parent().parent().parent().parent().parent().hide().remove()' class='btn btn-secondary col-md-5'>Cancelar</button>
-                                <button class='btn btn-danger col-md-5'>Contestar</button>
+                                <button class='btn btn-block btn-danger'>Contestar</button>
                             </div>
                         </form>
                     </div>

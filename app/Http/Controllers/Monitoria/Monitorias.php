@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Monitoria\Laudo;
 use App\Monitoria\Monitoria;
 use App\Monitoria\MonitoriaItem;
+use App\Monitoria\MotivoContestar AS Motivo;
+use App\Monitoria\Contestacoes;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Tools\Tools;
 use App\Http\Controllers\Users\Users;
@@ -109,10 +111,55 @@ class Monitorias extends Controller
                                         ->get();
             }
 
-            $compact = compact('title', 'models', 'monitorias', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor');
+            $motivos = Motivo::all();
+
+            $compact = compact('title', 'models', 'monitorias', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor','motivos');
             return view('monitoring.manager',$compact);
         } catch (Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
+        }
+    }
+
+    // Adiciona motivo de Contestação
+    public function addContest(Request $request)
+    {
+        try {
+            $request->validate(['name' => 'required|max:255'],['name.required' => 'Digite o motivo', 'max.required' => 'Máximo de 255 caracteres!']);
+            $motivo = new Motivo();
+            $motivo->name = $request->name;
+            $motivo->creator_id = Auth::id();
+            if($motivo->save()) {
+                return redirect(url()->previous())->with('successAlert','Inserido com sucesso!');
+            }
+
+            return back()->with('errorAlert','Erro');
+        } catch (Exception $e) {
+            return back()->with('errorAlert',$e->getMessage());
+        }
+    }
+
+    // Deleta motivo de contestação
+    public function deleteContest($id)
+    {
+        try {
+            if(is_null($id)) {
+                return back()->with('errorAlert','ID inválido, recarregue e tente novamente');
+            }
+
+            $motivo = Motivo::find($id);
+
+            if(is_null($motivo)) {
+                return back()->with('errorAlert','Motivo inxistente, recarregue a página para atualizar');
+            }
+
+            if($motivo->delete()) {
+                return back()->with('successAlert','Excluído com sucesso!');
+            }
+
+            return back()->with('errorAlert','Erro ao excluir, Contate o suporte e pass o código: '.date('YmdHis').$id);
+
+        } catch (Exception $e) {
+            return back()->with('errorAlert',$e->getMessage());
         }
     }
 

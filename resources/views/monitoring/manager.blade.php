@@ -165,32 +165,37 @@
                         </div>
                     </div>
                 </div> --}
-            {{-- Grafico --}}
+            {{-- START Grafico --}}
             <div class="row col-sm-12 col-md-12 col-lg-12">
                 <div class="panel panel-secondary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            Monitoria
-                            <p class="text-muted">Atualizado diariamente</p>
+                            Procurando o Dash? Acesse-o no <a href="#" class="btn btn-link" onclick="$('#formLogonLiderReport').submit()">LiderReport</a>!
+                            {{-- <p class="text-muted">Atualizado diariamente</p> --}}
                         </h3>
                         <ul class="panel-controls pull-right">
                             <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
                         </ul>
-                        @if($webMaster || $export)
+                        @if($webMaster)
                             <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportar Analítico</button>
                         @endif
                     </div>
-                    <div class="panel-body text-center" style="overflow-x:scroll">
-                        <div class="col-sm-3 col-md-3 col-lg-3" style="display: none">
-                            <label for="quartisChart" class="col-sm-12 col-md-12 col-lg-12">Quartis</label>
-                            <div id="quartisChart" style="width: 250px; height: 250px"></div>
-                        </div>
+                    <div class="panel-body">
+                        @if($webMaster)
+                            <button class="btn btn-dark" onclick="$('#AdminContestacao').show()">Motivos de Contestação</button>
+                        @endif
+                    </div>
+                    {{-- DASH MONITORIA POWER BI --}
+                    <div class="panel-body text-center" style="overflow-x:auto">
+                        
                         <div class="col" style="border: solid 0.5px gray">
                             <iframe width="980" height="640" src="https://app.powerbi.com/view?r=eyJrIjoiMDE5OGNmMWEtN2E3Ni00MDNhLThkNjktMzA2ZmIxMTc1MDFiIiwidCI6ImZkYzJlZjNkLWEzZDEtNDA1OC1hOTA4LTAxMWMxMTcxZTYxNiJ9" frameborder="0" allowFullScreen="true"></iframe>
                         </div>
                     </div>
+                    {{-- ./ DASH MONITORIA POWER BI --}}
                 </div>
             </div>
+            {{-- END Grafico --}}
 @endif
 @if($webMaster || $isMonitor || $isSupervisor)
             <div class="row col-sm-12 col-md-12 col-lg-12">
@@ -281,7 +286,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($isMonitor  || $webMaster)
+                    @if($isMonitor || $webMaster)
                     <div class="panel-footer">
                         {{ $monitorias->links() }}
                     </div>
@@ -309,7 +314,45 @@
 @endif
 
 {{-- Modal de resultado de Relatório  --}}
-@include('monitoring.components.modais.resultRelatorio')
+@component('monitoring.components.modais.resultRelatorio', ['motivos' => $motivos])
+@endcomponent
+
+
+<div class="modal in" id="AdminContestacao" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="defModalHead">Motivos de Contestação</h4>
+                <button type="button" class="close" onclick="javascript:$('#AdminContestacao').hide()" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @forelse($motivos as $item)
+                        <div class="list-group-item">
+                            <label class="pull-left">{{$item->name}}</label>
+                            <form action="{{route('DeleteMotivoContestacao', ['id' => $item->id])}}" method="POST">
+                                @method('DELETE')
+                                @csrf
+                                <button title="Excluir Motivo" class="btn btn-danger pull-right"><span class="fa fa-trash-o"></span></button>
+                            </form>
+                        </div>
+                    @empty
+                        <div class="list-group-item">
+                            Nenhum dado encontrado
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="$('#AdminContestacao').hide();$('#formAddMotivoContestacao').parent().parent().remove()">Cancelar</button>
+                <button class="btn btn-success" data-container="body" data-toggle="popover" data-title="Adicionar Motivo" data-placement="top" data-content='<form action="{{route('AddMotivoContestacao')}}" method="POST" id="formAddMotivoContestacao">@csrf<input required class="form-control" placeholder="Nome do motivo" name="name"><button class="btn btn-block btn-success">Adicionar</button></form>' data-html="true">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 @section('Javascript')
@@ -398,6 +441,9 @@
                     if(data[0].feedback_supervisor !== null) {
                         $("textarea#feedback_supervisor").attr('style','border-color: #95B75D')
                     }
+
+                    //
+                    $("#ContestSupModal").attr('onclick','getContestByMonitoriaId('+id+')')
                     //tabela de laudos
                     $("tbody#laudos").html(linhas)
                     $("#modalMonitoring").show()
@@ -766,8 +812,37 @@
             }
         }
 
-    function contestar(id) {
-        $()
+    function getContestByMonitoriaId(monitoria_id) {
+        url = '{{route("GetContestacaoByMon",['id' => '---'])}}'.replace('---', monitoria_id)
+        $.getJSON(url,function(data) {
+            
+                table = "<table class='table table-hover table-responsive'>"+
+                            "<thead>"+
+                                "<tr>"+
+                                    "<th>Data</th>"+
+                                    "<th>Motivo</th>"+
+                                    "<th>Grupo</th>"+
+                                    "<th>OBS</th>"+
+                                    "<th>Nome</th>"+
+                                "</tr>"+
+                            "</thead>"+
+                            "<tbody>";
+
+                // 
+                for(i=0; i<data.length; i++) {
+                    table += '<tr>'+
+                            '<td>Data</td>'+
+                            '<td>Motivo</td>'+
+                            '<td>Grupo</td>'+
+                            '<td>OBS</td>'+
+                            '<td>Nome</td>'+
+                            '</tr>';
+                }
+                                        
+                table += "</tbody></table>"
+                
+                $("#preLoaderContestar").html(table)
+        })
     }
 </script>
 @endsection

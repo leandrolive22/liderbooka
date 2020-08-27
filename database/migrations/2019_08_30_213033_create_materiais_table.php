@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Connection;
 
 
-class CreateRoteirosTable extends Migration
+class CreateMateriaisTable extends Migration
 {
     /**
      * Run the migrations.
@@ -21,7 +21,7 @@ class CreateRoteirosTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_path');
-            $table->unsignedBigInteger('sub_local_id');
+            $table->unsignedBigInteger('sub_local_id')->nullable();
             $table->foreign('sub_local_id')->references('id')->on('sub_locais')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('ilha_id');
             $table->foreign('ilha_id')->references('id')->on(('book_usuarios.ilhas'))->onDelete('cascade')->onUpdate('cascade');

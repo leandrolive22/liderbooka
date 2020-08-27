@@ -37,7 +37,7 @@ foreach([16,17] AS $item) {
 if(in_array(17, $permissions) || $webMaster) {
     $cargo = Auth::user()->cargo_id;
 
-    // Area LiderReport
+    // Areas e Níveis LiderReport
     if(in_array($cargo, [15])) {
         $area = 1;
         $nivel = 2;
@@ -177,11 +177,11 @@ foreach([38, 34] AS $item) {
                 @endif
                 @if(in_array(17, $permissions) || $webMaster)
                 <div class="list-group-item">
-                    <form action="{{url('http://app.liderancacobrancas.com.br:8085/report/index.php?acao=autologin&ori=book')}}" method="POST">
+                    <form action="{{url('http://app.liderancacobrancas.com.br:8085/report/index.php?acao=autologin&ori=book')}}" method="POST" id="formLogonLiderReport">
                         <input type="hidden" name="hash_autologin" value="{{$hash}}">
                         @csrf
                         <button class="btn btn-link">
-                            <img src="{{ asset('img/favicon.png') }}" alt="FormTransfer" class="col-md-2">
+                            <img src="{{ asset('img/favicon.png') }}" alt="Liderança Logo" class="col-md-2">
                             Clique aqui para acessar o LiderReport
                         </button>
                     </form>
@@ -250,7 +250,8 @@ foreach([38, 34] AS $item) {
 {{-- Monitoria: Consideracoes (Operador) --}}
 @section('modalAll')
     {{-- Modal de Relatório  --}}
-    @include('monitoring.components.modais.resultRelatorio')
+    @component('monitoring.components.modais.resultRelatorio',['motivos' => []])
+    @endcomponent
 @endsection
 @section('xNavJs')
 <script lang="javascript">

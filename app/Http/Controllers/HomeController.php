@@ -54,7 +54,7 @@ class HomeController extends Controller
         @$users->saveLogin($user);
 
         // se pode publicar, carrega ilhas
-        if(!in_array($cargo, [4,5])) {
+        if(in_array(1,Session::get('permissionsIds')) || in_array(26,Session::get('permissionsIds'))) {
             //pega Ilhas
             $i = new Ilhas();
             $ilhas = json_decode($i->index('id, name'));

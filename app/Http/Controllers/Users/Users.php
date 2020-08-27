@@ -116,18 +116,53 @@ class Users extends Controller
     //retorna insert de usuarios
     public function registerUserView()
     {
-        $s = new Setores();
-        $setores = ($s->index());
+        // Gravas Setores em cache
+        if(Cache::has('getSetores'))
+        {
+            $setores = Cache::get('getSetores');
+        } else {
+            $s = new Setores();
+            $setores = ($s->index());
+            Cache::put('getSetores',$setores,720);
+        }
 
-        $c = new Cargos();
-        $cargos = json_decode($c->index());
+        // grava cargos em cache
+        if(Cache::has('getCargos'))
+        {
+            $cargos = Cache::get('getCargos');
+        } else {
+            $c = new Cargos();
+            $cargos = json_decode($c->selectCustom('id, description'));
+            Cache::put('getCargos',$cargos,720);
+        }
 
-        $t = new Carteiras();
-        $carteiras = json_decode($t->index());
+        // grava carteiras em cache
+        if(Cache::has('getCarteiras'))
+        {
+            $carteiras = Cache::get('getCarteiras');
+        } else {
+            $t = new Carteiras();
+            $carteiras = json_decode($t->index());
+            Cache::put('getCarteiras',$carteiras,720);
+        }
 
-        $superintendentes = $this->getSuperintendentes();
+        // grava superintendentes em cache
+        if(Cache::has('getSuperintendentes'))
+        {
+            $superintendentes = Cache::get('getSuperintendentes');
+        } else {
+            $superintendentes = $this->getSuperintendentes();
+            Cache::put('getSuperintendentes',$superintendentes,720);
+        }
 
-        $gerentes = $this->getGerentes();
+        // grava gerentes em cache
+        if(Cache::has('getGerentes'))
+        {
+            $gerentes = Cache::get('getGerentes');
+        } else {
+            $gerentes = $this->getGerentes();
+            Cache::put('getGerentes',$gerentes,720);
+        }
 
         $title = 'Registrar Usuários';
 
@@ -216,8 +251,15 @@ class Users extends Controller
         ->orderBy('name')
         ->paginate(15);
 
-        $cargo = new Cargos();
-        $cargos = $cargo->selectCustom('id, description');
+        // grava cargos em cache
+        if(Cache::has('getCargos'))
+        {
+            $cargos = Cache::get('getCargos');
+        } else {
+            $c = new Cargos();
+            $cargos = json_decode($c->selectCustom('id, description'));
+            Cache::put('getCargos',$cargos,720);
+        }
 
         // grava superintendentes em cache
         if(Cache::has('getSuperintendentes'))

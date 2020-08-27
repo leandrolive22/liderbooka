@@ -62,6 +62,16 @@ Route::group(['middleware' => ['auth']], function () {
 
     /*********** Rotas de Monitoria ***********/
     Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
+        Route::group(['prefix' => 'contestar'], function () {
+            // Motivos de contestação
+            Route::delete('delete/{id}','Monitoria\Monitorias@deleteContest')->name('DeleteMotivoContestacao');
+            Route::post('add','Monitoria\Monitorias@addContest')->name('AddMotivoContestacao');
+
+            // Contestações
+            route::get('contestacao/{id}', 'Monitoria\Contestacoes@showBy')->name('GetContestacaoByMon');
+
+        });
+
         Route::get('manager','Monitoria\Monitorias@index')
             ->name('GetMonitoriasIndex');
 
