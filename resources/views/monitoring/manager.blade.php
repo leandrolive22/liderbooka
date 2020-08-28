@@ -180,11 +180,11 @@
                             <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportar Analítico</button>
                         @endif
                     </div>
+                    @if($webMaster)
                     <div class="panel-body">
-                        @if($webMaster)
                             <button class="btn btn-dark" onclick="$('#AdminContestacao').show()">Motivos de Contestação</button>
-                        @endif
                     </div>
+                    @endif
                     {{-- DASH MONITORIA POWER BI --}
                     <div class="panel-body text-center" style="overflow-x:auto">
                         

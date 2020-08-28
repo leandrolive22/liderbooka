@@ -52,7 +52,9 @@ $popoverHtml = "
             @if(in_array(1,session('permissionsIds')) || in_array(19, session('permissionsIds')))
                 <button type="button" id="closeModal" onclick="$('#modalMonitoring').hide()" class="btn btn-dark">Fechar</button>
                 {{-- BTNS SUPERVISOR --}}
-                <button type="button" id="ContestSupModal" data-container="body" data-toggle="popover" data-placement="top" data-content="{{$popoverHtml}}" data-html="true" class="btn btn-danger">Contestar</button>
+                                                @if(Auth::id() === 37)
+                                                    <button type="button" id="ContestSupModal" data-container="body" data-toggle="popover" data-placement="top" data-content="{{$popoverHtml}}" data-html="true" class="btn btn-danger">Contestar</button>
+                                                @endif
                 @if(Auth::user()->cargo_id === 4)
                     <button type="button" id="GravarSupModal" onclick="saveFeedbackSupervisorMonitoring()" class="btn btn-success">Gravar FeedBack</button>
                 @endif

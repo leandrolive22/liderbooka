@@ -47,7 +47,7 @@ class UserPermission extends Controller
         $id = $this->getUser()->id;
         $userPermissions = UserPermissionModel::selectRaw('user_id, permission_id, users.name, user_permissions.id')
                                 ->leftJoin('book_usuarios.users','users.id','user_id')
-                                ->where('user_id',$id)
+                                ->where('user_permissions.user_id',$id)
                                 ->get();
 
         return $userPermissions;

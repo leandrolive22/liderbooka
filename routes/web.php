@@ -21,7 +21,7 @@ Route::group(['prefix' => 'forgot'], function () {
 });
 Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth','LogsRequest']], function () {
     //change pass
     Route::post('changePass/{id}','Users\Users@changePass')->name('PostUsersPass');
 

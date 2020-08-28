@@ -233,7 +233,7 @@ class Monitorias extends Controller
 
         // trata variáveis para salvar
         $operador = $request->input('operador');
-        $supervisor = User::select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
+        $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
         $ncg = 0;
 
@@ -263,12 +263,10 @@ class Monitorias extends Controller
         }
 
         // Verifica se media está correta e verifica NCG
-        if(isset($_POST['ncg'])) {
-            $ncg += 1;
+        if(!is_null($request->ncg) && $request->ncg > 0) {
+            $ncg++;
             unset($media);
             $media = 0;
-        } else if(round((($conf/($conf+$nConf))*100),2) !== $media) {
-            $media = round((($conf/($conf+$nConf))*100),2);
         }
 
         // Calcula quartil
@@ -444,7 +442,7 @@ class Monitorias extends Controller
 
         // trata variáveis para salvar
         $operador = $request->input('operador');
-        $supervisor = User::select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
+        $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
         $ncg = 0;
 
@@ -474,12 +472,10 @@ class Monitorias extends Controller
         }
 
         // Verifica se media está correta e verifica NCG
-        if($request->ncg == 1) {
-            $ncg += 1;
+        if(!is_null($request->ncg) && $request->ncg > 0) {
+            $ncg++;
             unset($media);
             $media = 0;
-        } else if(round((($conf/($conf+$nConf))*100),2) !== $media) {
-            $media = round((($conf/($conf+$nConf))*100),2);
         }
 
         // Calcula quartil

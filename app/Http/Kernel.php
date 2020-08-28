@@ -29,6 +29,7 @@ class Kernel extends HttpKernel
     protected $middlewareGroups = [
         'web' => [
             \App\Http\Middleware\EncryptCookies::class,
+            // \App\Http\Middleware\LogsRequest::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
@@ -80,6 +81,8 @@ class Kernel extends HttpKernel
         'AddUser' => \App\Http\Middleware\AddUser::class,
         'ManagerUsers' => \App\Http\Middleware\ManagerUsers::class,
         'SetPermissions' => \App\Http\Middleware\SetPermissions::class,
+        // Logs
+        'LogsRequest' => \App\Http\Middleware\LogsRequest::class,
     ];
 
     /**

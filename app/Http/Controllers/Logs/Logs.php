@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Users\Users;
 use Auth;
 use Storage;
+use Session;
 
 
 class Logs extends Controller
@@ -105,6 +106,7 @@ class Logs extends Controller
         $log->ilha_id = $ilha;
         if( $log->save() ) {
             Auth::logout();
+            Session::flush();
             return redirect('/');
         }
 

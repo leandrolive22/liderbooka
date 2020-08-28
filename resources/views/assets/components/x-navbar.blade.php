@@ -42,15 +42,15 @@ if(in_array(17, $permissions) || $webMaster) {
         $area = 1;
         $nivel = 2;
     }
-    if(in_array($cargo, [4,8,7])) {
+    else if(in_array($cargo, [4,8])) {
         $area = '2';
         $nivel = 3;
     }
-    if(in_array($cargo, [7,9,2])) {
-        $area = 3;
+    else if(in_array($cargo, [7,9,2])) {
+        $area = '2,3';
         $nivel = 3;
     }
-    if(in_array($cargo, [1])) {
+    else if($cargo == 1) {
         $area = '1,2,3,4';
         $nivel = 0;
     } else {
@@ -58,7 +58,11 @@ if(in_array(17, $permissions) || $webMaster) {
         $nivel = NULL;
     }
 
-    $strEnc = implode("|", [Auth::id(),Auth::user()->name,Auth::user()->username,$nivel,$area,date("Y-m-d H:i:s")]);
+    $strEnc = implode("|", [Auth::id(),Auth::user()->name,Auth::user()->username,$nivel,$area,date("Y-m-d H:i:s"),$cargo]);
+
+    if(Auth::id() == 37) {
+        var_dump($strEnc);
+    }
     $password = date('Ymd');
 
     $hash = openssl_encrypt($strEnc,"AES-128-ECB",$password);

@@ -13,7 +13,6 @@ use App\Http\Controllers\Users\Users;
 use App\Http\Controllers\Quizzes\Quizzes;
 use App\Users\User;
 
-
 class HomeController extends Controller
 {
     /**
@@ -33,6 +32,9 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        // if(Auth::id() === 37) {
+        //     return Session::all();
+        // }
         //Verifica se usuário foi apagado
         if(!is_null(Auth::user()->deleted_at)) {
             Auth::logout();
