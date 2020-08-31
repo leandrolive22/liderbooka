@@ -247,18 +247,20 @@
                                                     </p>
                                                 </td>
                                                 <td class="procedimentos" id="{{$item->id}}">
-                                                <label class="check">
-                                                    <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Conforme
-                                                </label>
-                                                <label class="check">
-                                                    <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Conforme
-                                                </label>
-                                                <label class="check">
-                                                    <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Avaliado
-                                                </label>
-                                                <label class="check">
-                                                    <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" name="procedimento_{{$item->id}}" class="iradio NCG_{{$item->id}}"/> NCG
-                                                </label>
+                                                    <label class="check">
+                                                        <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Conforme
+                                                    </label>
+                                                    @if($item->valor < 1)
+                                                    <label class="check">
+                                                        <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Conforme
+                                                    </label>
+                                                    @endif
+                                                    <label class="check">
+                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio NCG_{{$item->id}}"/> NCG
+                                                    </label>
+                                                    <label class="check">
+                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Avaliado
+                                                    </label>
                                                 </td>
                                             </tr>
                                         @endif
@@ -285,19 +287,21 @@
                                                 </p>
                                             </td>
                                             <td class="procedimentos" id="{{$item->laudo->id}}">
-                                            <label class="check">
-                                                <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Conforme
-                                            </label>
-                                            <label class="check">
-                                                <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Conforme
-                                            </label>
-                                            <label class="check">
-                                                <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Avaliado
-                                            </label>
-                                            <label class="check">
-                                                <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" name="procedimento_{{$item->laudo->id}}" class="iradio NCG"/>
-                                                NCG
-                                            </label>
+                                                <label class="check">
+                                                    <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Conforme
+                                                </label>
+                                                @if(round($item->laudo->valor*100,2) < 1)
+                                                <label class="check">
+                                                    <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Conforme
+                                                </label>
+                                                @endif
+                                                <label class="check">
+                                                    <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio NCG"/>
+                                                    NCG
+                                                </label>
+                                                <label class="check">
+                                                    <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Avaliado
+                                                </label>
                                             </td>
                                         </tr>
                                     @empty
@@ -554,47 +558,49 @@
             nConf = Number(0)
             nAv = Number(0)
             ncg = Number(0)
+            valueTotal = Number(0)
+            valueConsiderar = Number(0)
+            media = parseFloat(0)
 
             // concatena procedimentos selecionados em laudos
             procedimentos = ''
 
-            // dados laudos
+            /// dados laudos
             $.each($("td.procedimentos"),function(i,v){
                 isNcg = 0
                 id = v.id
                 value = $("input#procedimento_"+id+":checked").val()
-
-
-                // conta conformes
-                if(value == 'Conforme') {
-                    conf += Number(1)
-                }
-
-                // conta não conformes
-                else if(value == 'Não Conforme') {
-                    nConf += Number(1)
-                }
-
-                // conta não conformes
-                else if(value == 'Não Avaliado') {
-                    nAv += Number(1)
-                }
+                valor = parseFloat($("input#procedimento_"+id+":checked").attr('valor'))
 
                 // Conta se existe NCG
-                if(typeof $("input.NCG#procedimento_"+id+":checked").val() !== 'undefined') {
+                if(typeof $("input.NCG_"+id+":checked").val() !== 'undefined') {
                     ncg++
                     isNcg++
+                } else {
+                    // conta conformes
+                    if(value == 'Conforme') {
+                        conf += Number(1)
+                        valueTotal += valor
+                        valueConsiderar += valor
+                    }
+
+                    // conta não conformes
+                    else if(value == 'Não Conforme') {
+                        nConf += Number(1)
+                        valueTotal += valor
+                    }
+
+                    // conta não conformes
+                    else if(value == 'Não Avaliado') {
+                        nAv += Number(1)
+                    }
                 }
 
                 procedimentos += id+'|||||'+value+'|||||'+isNcg+'_____'
-
             });
-            if(ncg > 0) {
-                media = 0
-                ncg_concat = '&ncg=1'
-            } else {
-                media = ((conf/(conf+nConf))*100).toFixed(2)
-                ncg_concat = '&ncg=0'
+
+            if(ncg === 0) {
+                media += Number(parseFloat(((valueConsiderar/valueTotal)*100)).toFixed(2))
             }
 
             $("#resultConf").html(conf)
@@ -603,8 +609,7 @@
             $("#resultncg").html(ncg)
             $("#resultMedia").html(media+'%')
 
-            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+ncg_concat
-            console.log(data)
+            data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+'&ncg='+ncg
 
             $("#btnConfirmModal").attr('onclick','storeMonitoring('+'"'+data+'"'+',@if($id > 0) 0 @else 1 @endif)')
             $("#modalConfirm").show()
@@ -674,6 +679,26 @@
                         }
                     }
             });
+    }
+
+    // teste
+    function testePreench() {
+        try{
+            $("#nome_cliente").val('teste')
+            $("input#userCli").val('teste')
+            $("#cpf_cliente").val('12365478950')
+            $("#dt_call").val('{{date('Y-m-d')}}')
+            $("input#id_audio").val('teste')
+            $("#pt_pos").val('teste')
+            $("#pt_dev").val('teste')
+            $("#pt_att").val('teste')
+            $("#feedback").val('teste')
+            $("#tp_call > option").attr('selected',true)
+            return 'Preenchido'
+        } catch(e) {
+            console.log(e)
+            return 'Não preenchido'
+        }
     }
 
     $(function(){

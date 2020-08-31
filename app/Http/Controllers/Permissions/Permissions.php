@@ -196,11 +196,11 @@ class Permissions extends Controller
             break;
 
             case 3:
-            $defaultPermission = [3,6,7,26,27,29,30,31,32,33,46,34,35,36,45,38,39,40,41,56];
+            $defaultPermission = [3,6,17,7,26,27,29,30,31,32,33,46,34,35,36,45,38,39,40,41,56];
             break;
 
             case 4:
-            $defaultPermission = [3,6,7,26,27,29,30,31,32,33];
+            $defaultPermission = [3,6,7,16,17,26,27,29,30,31,32,33];
             break;
 
             case 5:
@@ -212,7 +212,7 @@ class Permissions extends Controller
             break;
 
             case 8:
-            $defaultPermission = [6,8,27,31,33,46,41,43];
+            $defaultPermission = [6,8,17,31,33,46,41,43];
             break;
 
             case 9:

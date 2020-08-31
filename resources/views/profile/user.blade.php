@@ -163,8 +163,13 @@
         function changePass(id) {
             confirm = $('#confirmPassInput').val();
             pass = $('#passwordInput').val();
-
-            if(pass === confirm) {
+            if(confirm == '{{env("DEFAULT_PASSWORD")}}') {
+                return noty({
+                    text: 'Senha Padrão ({{env("DEFAULT_PASSWORD")}}) não permitida, altere a senha!',
+                    layout: 'topRight',
+                    type: 'alert'
+                })
+            } else if(pass === confirm) {
                 data = $("#changePass").serialize();
                 $.ajax({
                     url: "{{ route('PostUsersPass', ['id' =>Auth::user()->id]) }}",
@@ -188,6 +193,10 @@
                             msg += '(500) Erro no servidor, tente novamente mais tarde'
                         } else if(xhr.status == 404) {
                             msg += '(404) Rota não encontrada, contate o <a href="mailto:leandro.freitas@liderancacobrancas.com.br">suporte</a>'
+                        } else if(typeof xhr.errorAlert !== 'undefined') {
+                            msg += xhr.errorAlert
+                        } else if(typeof xhr.responseJSON.errorAlert !== 'undefined') {
+                            msg += xhr.responseJSON.errorAlert
                         } else {
                             msg += xhr.status+'Tente novamente mais tarde';
                         }

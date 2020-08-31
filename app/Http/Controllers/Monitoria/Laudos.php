@@ -121,10 +121,10 @@ class Laudos extends Controller
                     $numberArray = $array[0];
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
-                    if($array[2] === 0) {
+                    if($array[4] === 0) {
                         $valorArray = $valor;
                     } else {
-                        $valorArray = $array[4];
+                        $valorArray = ($array[4]/100);
                     }
 
                     $itensInsert[] = [
@@ -170,6 +170,7 @@ class Laudos extends Controller
         ];
 
         $request->validate($rules,$messages);
+        return $_POST;
 
         // trata variaveis
         $error = 0;
@@ -199,6 +200,11 @@ class Laudos extends Controller
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
                     $idArray = $array[3];
+                    if($array[4] === 0) {
+                        $valorArray = $valor;
+                    } else {
+                        $valorArray = ($array[4]/100);
+                    }
 
 
                     if(count(explode('_',$idArray)) == 2) {
@@ -209,7 +215,7 @@ class Laudos extends Controller
                                                 'questao' => $perguntaArray,
                                                 'sinalizacao' => $sinalArray,
                                                 'procedimento' =>  'Conforme;Não Conforme; Não Avaliado',
-                                                'valor' => $valor,
+                                                'valor' => $valorArray,
                                                 'creator_id' => $user,
                                                 'updated_at' => date('Y-m-d H:i:s'),
                                             ]);

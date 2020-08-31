@@ -205,11 +205,7 @@ class Monitorias extends Controller
         $rules = [
             'operador' => 'required',
             'hr_call' => 'required',
-            // 'min_call' => 'required',
-            // 'seg_call' => 'required',
             'hr_tp_call' => 'required',
-            // 'min_tp_call' => 'required',
-            // 'seg_tp_call' => 'required',
             'userCli' => 'required',
             'nome_cliente' => 'required',
             'tp_call' => 'required',
@@ -247,6 +243,7 @@ class Monitorias extends Controller
         $conf = $request->input('conf');
         $nConf = $request->input('nConf');
         $nAv = $request->input('nAv');
+        $ncg = $request->input('ncg');
         $id_audio = $request->input('id_audio');
         $hash = $request->input('hash');
 
@@ -263,8 +260,7 @@ class Monitorias extends Controller
         }
 
         // Verifica se media está correta e verifica NCG
-        if(!is_null($request->ncg) && $request->ncg > 0) {
-            $ncg++;
+        if($ncg > 0) {
             unset($media);
             $media = 0;
         }
@@ -456,6 +452,7 @@ class Monitorias extends Controller
         $conf = $request->input('conf');
         $nConf = $request->input('nConf');
         $nAv = $request->input('nAv');
+        $ncg = $request->input('ncg');
         $id_audio = $request->input('id_audio');
         $hash = $request->input('hash');
 
@@ -472,8 +469,7 @@ class Monitorias extends Controller
         }
 
         // Verifica se media está correta e verifica NCG
-        if(!is_null($request->ncg) && $request->ncg > 0) {
-            $ncg++;
+        if($ncg > 0) {
             unset($media);
             $media = 0;
         }

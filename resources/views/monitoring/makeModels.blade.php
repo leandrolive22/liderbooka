@@ -89,9 +89,7 @@
                                     <th>Nº</th>
                                     <th>Pergunta</th>
                                     <th>Sinalização</th>
-                                    @if(Auth::id() === 37)
                                     <th>Valor (0 para valores iguais)</th>
-                                    @endif
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -111,7 +109,7 @@
                                 <td colspan="5">
                                     <button class="btn btn-light btn-block" onclick="addLine($('input#lines').val())">
                                         <span class="fa fa-plus"></span>
-                                        Adicionar Linha
+                                        Linha
                                     </button>
                                 </td>
                             </tfoot>
@@ -170,11 +168,9 @@
                         '<td id="myTd">'+
                             '<input class="tdInput" name="tdInput" id="sinal_'+n+'" placeholder="Tipo de sinalização" type="text">'+
                         '</td>'+
-                        @if(Auth::id() === 37)
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="value_'+n+'" placeholder="0 Para igual" type="number" value="0">'+
+                            '<input class="tdInput" name="tdInput" id="value_'+n+'" placeholder="0 Para CallCenter" type="number" value="0">'+
                         '</td>'+
-                        @endif
                         '<td id="myTd">'+
                             '<button id="myBtn" class="btn btn-danger btn-block" onclick="deleteLine('+n+')">'+
                                 '<span class="fa fa-trash-o"></span>'+
@@ -215,6 +211,8 @@
             $("#btnSave").html('<span class="fa fa-spinner fa-spin"></span>')
             // Variavel de controles de errors
             error = Number(0)
+            contagemDefinidos = Number(0)
+            valoresDefinidos = Number(0)
 
             // Instancia array
             laudos = ''
@@ -236,12 +234,11 @@
 
                 sinal = $("input#sinal_"+id+".tdInput").val()
 
-                // // NCG
-                // ncg = ''
-                // check = $("input#value_"+id+".form-check:checked").val()
+                // Valor dos Itens
+                valor = $("input#value_"+id+".tdInput").val()
 
                 // Verifica campos vazios
-                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1) {
+                if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1 || $.inArray(valor,[null,'',' ']) > -1) {
                     error += Number(1)
                 }
 
@@ -257,14 +254,20 @@
                 // Sinalização
                 linha.push(sinal)
 
-                // // NCG
-                // linha.push(ncg)
-
                 //id
                 linha.push(v.id)
 
+                // valor
+                linha.push(valor)
+
                 // Laudos de monitoria
                 laudos += linha+'_______________'
+
+                // Conta quantas linhas automáticas(0) foram definidas para calcular as restantes
+                if(valor > 0) {
+                    valoresDefinidos += parseFloat(valor)
+                    contagemDefinidos++
+                }
             })
 
             // titulo
@@ -276,6 +279,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                $("#btnSave").html('Salvar')
             }
 
             // tipo de laudo
@@ -287,6 +291,7 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                $("#btnSave").html('Salvar')
             }
 
             // cartira
@@ -298,7 +303,11 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                $("#btnSave").html('Salvar')
             }
+
+            // calcula valores automáticos (0), descontando os definidos
+            valores = parseFloat(((((100-valoresDefinidos)/($("tbody#laudosCreate > tr").length-contagemDefinidos)))/100).toFixed(6))
 
             // em caso de erro, lança notificação
             if(error > 0) {
@@ -309,8 +318,10 @@
                     timeout: 3000,
                     timeOut: 3000
                 });
+                $("#btnSave").html('Salvar')
             } else {
-                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+((1/$("tbody#laudosCreate > tr").length).toFixed(6))
+                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+valores
+                
                 $.ajax({
                     url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
                     data: dados,
