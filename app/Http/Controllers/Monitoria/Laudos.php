@@ -20,6 +20,7 @@ class Laudos extends Controller
     {
         $title = 'Criar Modelo/Laudo';
         $carteiras = Carteira::select('id','name')
+                    ->orderBy('name')
                     ->get();
 
         return view('monitoring.makeModels',compact('title','carteiras'));
@@ -95,6 +96,9 @@ class Laudos extends Controller
 
         $request->validate($rules,$messages);
 
+        // DEBUG
+        // return response()->json([$_POST['laudos']], 422);
+
         // trata variaveis
         $title = $request->input('title');
         $carteira_id = $request->carteira_id;
@@ -121,16 +125,17 @@ class Laudos extends Controller
                     $numberArray = $array[0];
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
+                    // $array[3] - Não utilizado na inserção, apenas edição
                     if($array[4] === 0) {
                         $valorArray = $valor;
                     } else {
-                        $valorArray = ($array[4]/100);
+                        $valorArray = (str_replace('|','.',$array[4])/100);
                     }
 
                     $itensInsert[] = [
-                        'numero' => $numberArray,
-                        'questao' => $perguntaArray,
-                        'sinalizacao' => $sinalArray,
+                        'numero' => str_replace('|',',',$numberArray),
+                        'questao' => str_replace('|',',',$perguntaArray),
+                        'sinalizacao' => str_replace('|',',',$sinalArray),
                         'procedimento' =>  'Conforme;Não Conforme; Não Avaliado',
                         'valor' => $valorArray,
                         'creator_id' => $user,

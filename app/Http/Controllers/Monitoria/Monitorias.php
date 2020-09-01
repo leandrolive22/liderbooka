@@ -44,6 +44,7 @@ class Monitorias extends Controller
             $criarLaudo = in_array(18, $permissions);
             $excluirLaudo = in_array(22, $permissions);
             $isMonitor = in_array(25, $permissions);
+            $isMonitor = in_array(25, $permissions);
             $dash = in_array(47,$permissions);
             $aplicarLaudo = in_array(50, $permissions);
             $export = in_array(51,$permissions);
@@ -54,8 +55,14 @@ class Monitorias extends Controller
             $seeAll = in_array(61, $permissions);
 
             //permissões de consulta
-            $carteira = in_array(23, $permissions);
             $all = in_array(24, $permissions);
+            $carteira = in_array(23, $permissions);
+            $escobs = in_array(64, $permissions);
+
+            // DEBUG
+            // if(Auth::id() === 37) {
+            //     return var_dump($escobs);
+            // }
 
             if($isMonitor || $webMaster) {
                 $dataArray = [];
@@ -66,7 +73,14 @@ class Monitorias extends Controller
                     $models = Laudo::select('titulo','id')
                                     ->orderBy('utilizacoes','DESC')
                                     ->orderBy('id','DESC')
-                                    ->where('carteira_id',Auth::user()->carteira_id)
+                                    ->when(($carteira || $escobs), function($q) use($all,$escobs){
+                                            if($all) {
+                                                return $q;
+                                            } else if($escobs) {
+                                                return $q->whereIn('carteira_id',[32,31,30,29,28,12,14,6,5,16,4,25,24,8,33]);    
+                                            }
+                                            return $q->where('carteira_id',Auth::user()->carteira_id);
+                                    })
                                     ->get();
                 } else {
                     $models = [];
@@ -80,24 +94,36 @@ class Monitorias extends Controller
                                             ->orderBy('users.name') //ASC
                                             ->paginate(env('PAGINATE_NUMBER'));
                 } else {
-
                     //Tabela
                     $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
-                                        ->when($carteira, function($q) use($all){
+                                        ->when(($carteira || $escobs), function($q) use($all,$escobs){
                                             if($all) {
                                                 return $q;
+                                            } else if($escobs) {
+                                                return $q->whereIn('users.carteira_id',[32,31,30,29,28,12,14,6,5,16,4,25,24,8,33]);    
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
                                         ->orderBy('monitorias.created_at','DESC')
                                         ->orderBy('users.name') //ASC
                                         ->paginate(env('PAGINATE_NUMBER'));
-                    }
+                }
+
+                // verifica qual carteira o monitor tem visualização
+                if($escobs) {
+                    $searchCarteira = 'users.carteira_id IN (32,31,30,29,28,12,14,6,5,16,4,25,24,8,33)';
+                } else if($all) {
+                    $searchCarteira = '';
+                } else if($carteira) {
+                    $searchCarteira = 'users.carteira_id = '.Auth::user()->carteira_id;
+                } else {
+                    $searchCarteira = 'users.carteira_id = '.Auth::user()->carteira_id;
+                }
 
                 // dados do Cards
-                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE users.carteira_id = '.Auth::user()->carteira_id.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
 
             } else {
                 $ncgs = 0;
@@ -106,7 +132,7 @@ class Monitorias extends Controller
                 $monitorias = Monitoria::where('supervisor_id',$id)
                                         ->orWhere('feedback_supervisor','IS','NULL')
                                         ->orWhere('supervisor_at','<=',date('Y-m-d H:i:s',strtotime('-3 Months')))
-                                        // ->orderByRaw('case(WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end)') //ASC
+                                        // ->orderByRaw('case WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end') //ASC
                                         ->orderBy('created_at','DESC')
                                         ->get();
             }

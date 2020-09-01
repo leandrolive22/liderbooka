@@ -92,7 +92,7 @@
                 <div class="list-group list-group-contacts border-bottom push-down-10">
                     <div class="list-group-item"  style="padding: 0">
                         <div class="panel-heading ui-draggable-handle">
-                            <h3 class="panel-title">Grupos</h3>
+                            <h3 class="panel-title">Grupos <label class="label label-info">Beta</label></h3>
                             <ul class="panel-controls">
                                 <a role="button" href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a>
                             </ul>

@@ -123,7 +123,7 @@ foreach([57,58] AS $item) {
         <li @if($current == 'area') class="active"@else @endif>
             <a href="{{ route('GetAreasIndex', ['area_type' => $area_type])}}">
                 <span class="fa fa-sitemap"></span>
-                <span class="xn-text">Áreas</span>
+                <span class="xn-text">Áreas <label class="label label-info">Beta</label></span>
             </a>
         </li>
         @endif

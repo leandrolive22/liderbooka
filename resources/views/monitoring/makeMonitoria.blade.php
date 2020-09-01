@@ -218,10 +218,10 @@
                             <thead>
                                 <thead>
                                     <tr>
-                                        <th>Nº</th>
-                                        <th>Pergunta</th>
-                                        <th>Sinalização</th>
-                                        <th>Procedimento</th>
+                                        <th>{{env('N_MON')}}</th>
+                                        <th>{{env('QUEST_MON')}}</th>
+                                        <th>{{env('CAT_MON')}}</th>
+                                        <th>{{env('PROCED_MON')}}</th>
                                     </tr>
                                 </thead>
                             </thead>
@@ -247,19 +247,19 @@
                                                     </p>
                                                 </td>
                                                 <td class="procedimentos" id="{{$item->id}}">
-                                                    <label class="check">
-                                                        <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Conforme
+                                                    <label class="check btn btn-success">
+                                                        <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Conforme" /> {{-- <span class="fa fa-check"></span> --}} Conforme
                                                     </label>
                                                     @if($item->valor < 1)
-                                                    <label class="check">
-                                                        <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Conforme
+                                                    <label class="check btn btn-dark">
+                                                        <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Conforme" /> {{-- <span class="fa fa-times"></span> --}} Não Conforme
                                                     </label>
                                                     @endif
-                                                    <label class="check">
-                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio NCG_{{$item->id}}"/> NCG
+                                                    <label class="check btn btn-danger">
+                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="NCG_{{$item->id}}" title="NCG" /> {{-- <span class="fa fa-times"></span> --}} NCG
                                                     </label>
-                                                    <label class="check">
-                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="iradio"/> Não Avaliado
+                                                    <label class="check btn btn-secondary">
+                                                        <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Avaliado" /> {{-- <span class="fa fa-times"></span> --}} Não Avaliado
                                                     </label>
                                                 </td>
                                             </tr>
@@ -287,20 +287,19 @@
                                                 </p>
                                             </td>
                                             <td class="procedimentos" id="{{$item->laudo->id}}">
-                                                <label class="check">
-                                                    <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Conforme
+                                                <label class="check btn btn-success">
+                                                    <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Conforme"/> Conforme
                                                 </label>
                                                 @if(round($item->laudo->valor*100,2) < 1)
-                                                <label class="check">
-                                                    <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Conforme
+                                                <label class="check btn btn-dark">
+                                                    <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Não Conforme"/> Não Conforme
                                                 </label>
                                                 @endif
-                                                <label class="check">
-                                                    <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio NCG"/>
-                                                    NCG
+                                                <label class="check btn btn-danger">
+                                                    <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="NCG"/> NCG
                                                 </label>
-                                                <label class="check">
-                                                    <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" class="iradio"/> Não Avaliado
+                                                <label class="check btn btn-secondary">
+                                                    <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Não Avaliado"/> Não Avaliado
                                                 </label>
                                             </td>
                                         </tr>

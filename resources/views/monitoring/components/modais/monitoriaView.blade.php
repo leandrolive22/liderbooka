@@ -130,10 +130,10 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Numero</th>
-                            <th>Pergunta</th>
-                            <th>Sinalização</th>
-                            <th>Procedimento</th>
+                           <th>{{env('N_MON')}}</th>
+                            <th>{{env('QUEST_MON')}}</th>
+                            <th>{{env('CAT_MON')}}</th>
+                            <th>{{env('PROCED_MON')}}</th>
                         </tr>
                     </thead>
                     <tbody id="laudos">

@@ -86,10 +86,10 @@
                         <table class="table col-md-12">
                             <thead>
                                 <tr>
-                                    <th>Nº</th>
-                                    <th>Pergunta</th>
-                                    <th>Sinalização</th>
-                                    <th>Valor (0 para valores iguais)</th>
+                                    <th>{{env('N_MON')}}</th>
+                                    <th>{{env('QUEST_MON')}}</th>
+                                    <th>{{env('CAT_MON')}}</th>
+                                    <th>{{env('VAL_MON')}}</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -160,16 +160,16 @@
             // monta linha
             linha = '<tr name="linhas" id="'+n+'">'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0" type="text">'+
+                            '<input autocomplete="off" class="tdInput" name="tdInput" id="number_'+n+'" placeholder="0.0.0" type="text">'+
                         '</td>'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="pergunta_'+n+'" placeholder="Escreva aqui sua pergunta" type="text">'+
+                            '<input autocomplete="off" class="tdInput" name="tdInput" id="pergunta_'+n+'" placeholder="Escreva aqui sua pergunta" type="text">'+
                         '</td>'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="sinal_'+n+'" placeholder="Tipo de sinalização" type="text">'+
+                            '<input autocomplete="off" class="tdInput" name="tdInput" id="sinal_'+n+'" placeholder="Tipo de sinalização" type="text">'+
                         '</td>'+
                         '<td id="myTd">'+
-                            '<input class="tdInput" name="tdInput" id="value_'+n+'" placeholder="0 Para CallCenter" type="number" value="0">'+
+                            '<input autocomplete="off" class="tdInput" name="tdInput" id="value_'+n+'" placeholder="0 Para CallCenter" type="number" value="0">'+
                         '</td>'+
                         '<td id="myTd">'+
                             '<button id="myBtn" class="btn btn-danger btn-block" onclick="deleteLine('+n+')">'+
@@ -228,14 +228,14 @@
                 }
 
                 // dados dos inputs
-                number = $("input#number_"+id+".tdInput").val()
+                number = $("input#number_"+id+".tdInput").val().replaceAll(',','|')
 
-                pergunta = $("input#pergunta_"+id+".tdInput").val()
+                pergunta = $("input#pergunta_"+id+".tdInput").val().replaceAll(',','|')
 
-                sinal = $("input#sinal_"+id+".tdInput").val()
+                sinal = $("input#sinal_"+id+".tdInput").val().replaceAll(',','|')
 
                 // Valor dos Itens
-                valor = $("input#value_"+id+".tdInput").val()
+                valor = $("input#value_"+id+".tdInput").val().replaceAll(',','|')
 
                 // Verifica campos vazios
                 if($.inArray(number,[null,'',' ']) > -1 || $.inArray(pergunta,[null,'',' ']) > -1 || $.inArray(sinal,[null,'',' ']) > -1 || $.inArray(valor,[null,'',' ']) > -1) {
@@ -245,22 +245,22 @@
                 // Instancia array
                 linha = new Array()
 
-                // Numero
+                // Numero [0]
                 linha.push(number)
 
-                // Pergunta
+                // Pergunta [1]
                 linha.push(pergunta)
 
-                // Sinalização
+                // Sinalização [2]
                 linha.push(sinal)
 
-                //id
+                //id [3]
                 linha.push(v.id)
 
-                // valor
+                // valor [4]
                 linha.push(valor)
 
-                // Laudos de monitoria
+                // Laudos de monitoria [5]
                 laudos += linha+'_______________'
 
                 // Conta quantas linhas automáticas(0) foram definidas para calcular as restantes
