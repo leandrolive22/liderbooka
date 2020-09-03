@@ -58,11 +58,11 @@
                                     @if(isset($operador))
                                         <label for="operador">Operador</label>
                                         <b class="form-control">{{$operador->name}}</b>
-                                        <input type="hidden" name="operador" id="operador" value="{{$operador->id}}">
+                                        <input type="hidden" validate="Operador" name="operador" id="operador" value="{{$operador->id}}">
                                     @else
                                         <label for="operador">Selecione o operador</label>
                                         {{-- Colaborador avaliado --}}
-                                        <select data-live-search="true" name="operador" id="operador" onchange="selectSup(this)" class="form-control select monitoria ">
+                                        <select data-live-search="true" validate="Operador" name="operador" id="operador" onchange="selectSup(this)" class="form-control select monitoria ">
                                             <option value="">Selecione um operador</option>
                                             @forelse ($users as $item)
                                                 <option value="{{$item->id}}" @if(isset($monitoria) && $monitoria->operador_id === $item->id) selected="true" @endif id="supervisor_slct{{$item->id}}" class="{{$item->supervisor_id}}">{{$item->name}}</option>
@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="form-group col-sm-6 col-md-6 col-lg-6">
                                     <label for="monitor">Usuário-Cliente</label>
-                                    <input required type="text" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @elseif(isset($operador)) value="" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
+                                    <input required type="text" validate="Usuário-Cliente" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @elseif(isset($operador)) value="" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
                                 </div>
                             </div>
                             {{-- Dados da Monitoria  --}}
@@ -85,26 +85,26 @@
                                         @if(!is_null($operador->supervisor))
                                         <p class="form-control">{{$operador->supervisor}}</p>
                                         @else
-                                        <input type="text" name="supervisor" class="form-control monitoria" >
+                                        <input type="text" name="supervisor" validate="Supervisor" class="form-control monitoria" >
                                         <button class="btn btn-danger col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
                                             <span class="fa fa-pencil"></span>
                                         </button>
                                         @endif
                                     @elseif(isset($monitoria))
-                                        <input type="text" name="supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-sm-11 col-md-11 col-lg-11" readonly>
+                                        <input type="text" name="supervisor" validate="Supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-sm-11 col-md-11 col-lg-11" readonly>
 
                                         <button class="btn btn-secondary col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
                                             <span class="fa fa-pencil"></span>
                                         </button>
                                     @else
                                         <label for="supervisor">Supervisor</label>
-                                        <input type="text" name="supervisor" class="form-control monitoria" >
+                                        <input type="text" validate="Supervisor" name="supervisor" class="form-control monitoria" >
                                     @endif
                                     <input required type="hidden" class="monitoria" name="monitor" id="monitor" value="{{Auth::id()}}">
                                 </div>
                                 <div class="form-group col-sm-6 col-md-6 col-lg-6">
                                     <label for="produto">Produto</label>
-                                    <select data-live-search="true" name="produto" id="produto" class="form-control select monitoria ">
+                                    <select data-live-search="true" validate="Produto" name="produto" id="produto" class="form-control select monitoria ">
                                         @forelse ($ilhas as $item)
                                             <option value="{{$item->id}}" @if(isset($operador) && $operador->ilha_id === $item->id || isset($monitoria) && $monitoria->produto == $item->id) selected="true" @endif >{{$item->name}}</option>
                                         @empty
@@ -117,41 +117,47 @@
                             <div class="form-row">
                                 <div class="form-group col-sm-5 col-md-5 col-lg-5">
                                     <label for="nome_cliente">Cliente</label>
-                                    <input required type="text" class="form-control monitoria" name="nome_cliente" id="nome_cliente" placeholder="Nome do Cliente" @if(isset($monitoria)) value="{{$monitoria->cliente}}" @endif>
+                                    <input required type="text" validate="Cliente" class="form-control monitoria" name="nome_cliente" id="nome_cliente" placeholder="Nome do Cliente" @if(isset($monitoria)) value="{{$monitoria->cliente}}" @endif>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
                                     <label for="tp_call">Tipo da Ligação</label>
-                                    <select name="tp_call" id="tp_call" class="form-control select monitoria ">
+                                    <select name="tp_call" validate="Tipo da Ligação" id="tp_call" class="form-control select monitoria ">
                                         <option value="0" @if(isset($monitoria) && $monitoria->tipo_ligacao === '0') selected="true" @endif>Selecione o tipo da ligação</option>
                                         <option value="sucesso" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'sucesso') selected="true" @endif>Sucesso</option>
                                         <option value="insucesso" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'insucesso') selected="true" @endif>Insucesso</option>
                                         <option value="recado" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'recado') selected="true" @endif>Recado</option>
+                                        <option value="Promessa de Pagamento" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Promessa de Pagamento') selected="true" @endif>Promessa de Pagamento</option>
+                                        <option value="Sem Condições" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Sem Condições') selected="true" @endif>Sem Condições</option>
+                                        <option value="Preventivo Positivo" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo Positivo') selected="true" @endif>Preventivo Positivo</option>
+                                        <option value="Manutenção Negativa" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Manutenção Negativa') selected="true" @endif>Manutenção Negativa</option>
+                                        <option value="Preventivo em Atraso Positiva" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Positiva') selected="true" @endif>Preventivo em Atraso Positiva</option>
+                                        <option value="Preventivo em Atraso Negativo" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Negativo') selected="true" @endif>Preventivo em Atraso Negativo</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-sm-3 col-md-3 col-lg-3">
                                     <label for="cpf_cliente">CPF</label>
-                                    <input required type="number" class="form-control" name="cpf_cliente" id="cpf_cliente" @if(isset($monitoria)) value="{{$monitoria->cpf_cliente}}" @endif>
+                                    <input required type="number" validate="CPF" class="form-control" name="cpf_cliente" id="cpf_cliente" @if(isset($monitoria)) value="{{$monitoria->cpf_cliente}}" @endif>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-sm-2 col-md-2 col-lg-2">
                                     <label for="dt_call">Data da Ligação</label>
-                                    <input required type="date" class="form-control monitoria" name="dt_call" id="dt_call" @if(isset($monitoria)) value="{{$monitoria->data_ligacao}}" @endif>
+                                    <input required type="date" class="form-control monitoria" validate="Data da Ligação" name="dt_call" id="dt_call" @if(isset($monitoria)) value="{{$monitoria->data_ligacao}}" @endif>
                                 </div>
                                 <div class="form-group col-sm-3 col-md-3 col-lg-3">
                                     <label for="hora_ligacao">Hora da Ligação</label>
                                     <div class="input-group input-group-md col-sm-12 col-md-12 col-lg-12" id="hora_ligacao">
-                                        <input required type="time" step="1" max="23:59:59" name="hr_call" id="hr_call" class="form-control col-sm-4 col-md-4 col-lg-4" @if(isset($monitoria)) value="{{ $monitoria->hora_ligacao }}" @else value="{{ date('H:i') }}:53" @endif>
+                                        <input required type="time" validate="Hora da Ligação" step="1" max="23:59:59" name="hr_call" id="hr_call" class="form-control col-sm-12 col-md-12 col-lg-12" @if(isset($monitoria)) value="{{ $monitoria->hora_ligacao }}" @else value="{{ date('H:i') }}:53" @endif>
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
-                                    <label for="id_audio">ID do Audio</label>
-                                    <input required type="text" class="form-control monitoria" name="id_audio" id="id_audio" placeholder="Digite o código do audio" @if(isset($monitoria)) value="{{$monitoria->id_audio}}" @endif>
+                                    <label for="id_audio">ID do Áudio</label>
+                                    <input required type="text" class="form-control monitoria" validate="ID do Áudio" name="id_audio" id="id_audio" placeholder="Digite o código do audio" @if(isset($monitoria)) value="{{$monitoria->id_audio}}" @endif>
                                 </div>
                                 <div class="form-group col-sm-3 col-md-3 col-lg-3">
                                     <label for="tempo_ligacao">Tempo da Ligação</label>
                                     <div class="input-group input-group-md col-sm-12 col-md-12 col-lg-12" id="tempo_ligacao">
-                                        <input required type="time" step="1" max="23:59:59" name="hr_tp_call" id="hr_tp_call" class="form-control col-sm-4 col-md-4 col-lg-4" @if(isset($monitoria)) value="{{ $monitoria->tempo_ligacao}}" @else value="00:30:12" @endif>
+                                        <input required type="time" step="1" max="23:59:59" validate="Tempo da Ligação" name="hr_tp_call" id="hr_tp_call" class="form-control col-sm-12 col-md-12 col-lg-12" @if(isset($monitoria)) value="{{ $monitoria->tempo_ligacao}}" @else value="00:30:12" @endif>
                                     </div>
                                 </div>
                             </div>
@@ -161,19 +167,19 @@
                                     <label for="pt_pos">
                                         Pontos Positivos
                                     </label>
-                                    <input required type="text" class="form-control monitoria" name="pt_pos" id="pt_pos" placeholder="Descreva os Pontos Positivos" @if(isset($monitoria)) value="{{$monitoria->pontos_positivos}}" @endif>
+                                    <input required type="text" class="form-control monitoria" validate="Pontos Positivos" name="pt_pos" id="pt_pos" placeholder="Descreva os Pontos Positivos" @if(isset($monitoria)) value="{{$monitoria->pontos_positivos}}" @endif>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
                                     <label for="pt_dev">
                                         Pontos a Desenvolver
                                     </label>
-                                    <input required type="text" class="form-control monitoria" name="pt_dev" id="pt_dev" placeholder="Descreva os Pontos a Desenvolver" @if(isset($monitoria)) value="{{$monitoria->pontos_desenvolver}}" @endif>
+                                    <input required type="text" class="form-control monitoria" validate="Pontos a Desenvolver" name="pt_dev" id="pt_dev" placeholder="Descreva os Pontos a Desenvolver" @if(isset($monitoria)) value="{{$monitoria->pontos_desenvolver}}" @endif>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
                                     <label for="pt_att">
-                                    Pontos de Atenção
+                                        Pontos de Atenção
                                     </label>
-                                    <input required type="text" class="form-control monitoria" name="pt_att" id="pt_att" placeholder="Descreva os Pontos de Atenção" @if(isset($monitoria)) value="{{$monitoria->pontos_atencao}}" @endif>
+                                    <input required type="text" class="form-control monitoria" validate="Pontos a Atenção" name="pt_att" id="pt_att" placeholder="Descreva os Pontos de Atenção" @if(isset($monitoria)) value="{{$monitoria->pontos_atencao}}" @endif>
                                 </div>
                             </div>
                             {{-- NCG btn & Feedback  --}}
@@ -181,20 +187,10 @@
                                 <div class="form-row col-sm-8 col-md-8 col-lg-8">
                                     <div class="form-group col-sm-10 col-md-10 col-lg-10">
                                         <label for="feedback">FeedBack/Dicas</label>
-                                        <textarea type="text" id="feedback" class="form-control" name="feedback" placeholder="Escreva um Feedback para o colaborador" @if(isset($monitoria)) value="{{$monitoria->feedback_monitor}}" @endif></textarea>
+                                        <textarea type="text" id="feedback" validate="FeedBack" class="form-control" name="feedback" placeholder="Escreva um Feedback para o colaborador" @if(isset($monitoria)) value="{{$monitoria->feedback_monitor}}" @endif></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
-                                    @if(Auth::user()->carteira_id === 1)
-                                        {{-- <br>
-                                        <h3 for="ncg" class="icheck">
-                                            <input type="checkbox" class="icheck" id="ncg" value="ncg" name="ncg" @if(isset($monitoria) && $monitoria->ncg === 1) checked="true" @endif>
-                                            NCG
-                                        </h3> --}}
-                                        <br>
-                                        <br>
-                                        <label>Procurando as NCGs? Agora estão nos itens!</label>
-                                    @endif
                                     @php
                                        $hash = md5(base64_encode('MONITORIA_MONITOR'.Auth::id().date('D')).microtime()).date('ymd');
                                     @endphp
@@ -248,7 +244,7 @@
                                                 </td>
                                                 <td class="procedimentos" id="{{$item->id}}">
                                                     <label class="check btn btn-success">
-                                                        <input required type="radio" value="Conforme"  @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Conforme" /> {{-- <span class="fa fa-check"></span> --}} Conforme
+                                                        <input required type="radio" value="Conforme" @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Conforme" /> {{-- <span class="fa fa-check"></span> --}} Conforme
                                                     </label>
                                                     @if($item->valor < 1)
                                                     <label class="check btn btn-dark">
@@ -290,7 +286,7 @@
                                                 <label class="check btn btn-success">
                                                     <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Conforme"/> Conforme
                                                 </label>
-                                                @if(round($item->laudo->valor*100,2) < 1)
+                                                @if($item->laudo->valor < 1)
                                                 <label class="check btn btn-dark">
                                                     <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Não Conforme"/> Não Conforme
                                                 </label>
@@ -493,7 +489,7 @@
             if($.inArray(v.value,[null,'',' ']) > -1) {
                 if(v.class !== 'input-block-level') {
                     noty({
-                        text: 'Preencha corretamente o input'+v.id,
+                        text: 'Preencha corretamente o campo '+$(v).attr('validate'),
                         layout: 'topRight',
                         type: 'warning',
                         timeout: 3000
@@ -519,7 +515,7 @@
         // Checa se há algum laudo sem escolher
         $.each($("td.procedimentos"),function(i,v){
             id = v.id
-            value = $("input#procedimento_"+id+".iradio:checked").val()
+            value = $("input#procedimento_"+id+":checked").val()
             if(typeof value === 'undefined') {
                 errors += Number(1)
                 noty({
@@ -595,7 +591,7 @@
                     }
                 }
 
-                procedimentos += id+'|||||'+value+'|||||'+isNcg+'_____'
+                procedimentos += id+'|||||'+value+'|||||'+isNcg+'|||||'+(valor/100).toFixed(6)+'_____'
             });
 
             if(ncg === 0) {

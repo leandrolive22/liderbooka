@@ -48,7 +48,7 @@ class Posts extends Controller
         return $posts->toJSON();
     }
 
-    // não uso, ma não apaguem
+    // não uso, mas não apaguem
     public function index($ilha,$skip,$user,$cargo)
     {
         //verifica cargo para saber se o usuário verá todo conteúdo ou apenas o próprio
@@ -63,7 +63,7 @@ class Posts extends Controller
             'book_posts.posts.reactions_number','book_posts.posts.priority',
             'book_posts.posts.user_id','book_usuarios.ilhas.name as ilha_name',
             'book_posts.posts.created_at as date','book_posts.posts.updated_at as updated',
-            'book_usuarios.users.name as userPost', 'book_usuarios.users.avatar','book_posts.posts.view_number as view_number')
+            'book_usuarios.users.name as userPost', 'book_usuarios.users.avatar')
         ->join('book_usuarios.ilhas','book_posts.posts.ilha_id','book_usuarios.ilhas.id')
         ->join('book_usuarios.users','book_posts.posts.user_id','book_usuarios.users.id')
         ->when(!is_null($ilhas),function($q, $ilhas){
@@ -86,26 +86,31 @@ class Posts extends Controller
     public function viewPost($id, $user, $ilha) {
         $views = $this->verifyViewPost($user,$id);
 
-        if($views == 0 || $views == NULL) {
+        if($views[0] == 0 || $views[0] == NULL) {
 
             $log = new Logs();
-            $log->log('VIEW_POST:',$id,asset('/home'),$user,$ilha);
+            $log->log('VIEW_POST',$id,asset('/home'),$user,$ilha);
 
-            $postObj = Post::find($id);
-            $postObj->view_number++;
-            return $postObj->save();
+            if(is_null($views[1])) {
+                $postObj = Post::find($id);
+                $postObj->view_number++;
+                return $postObj->save();
+            }
+
+            return TRUE;
         }
     }
 
     //verifica quantas vezes o post foi visto
-    public function verifyViewPost($user,$post) : INT
+    public function verifyViewPost($user,$post) : Array
     {
-        $views = Log::where('action','VIEW_POST:')
+        $views = Log::select('created_at')
+        ->whereRaw('action LIKE "VIEW_POST%" ')
         ->where('value',$post)
         ->where('user_id',$user)
-        ->count();
+        ->get();
 
-        return $views;
+        return [@$views->count(), @$views[0]->created_at];
     }
 
     //Salva Posts

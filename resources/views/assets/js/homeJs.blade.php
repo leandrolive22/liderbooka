@@ -19,10 +19,10 @@
 
         url = "{{asset('/')}}api/post/{{Auth::user()->ilha_id}}/" + n +"/{{ Auth::id().'/'.Auth::user()->cargo_id }}"
 
-        
+
         @if(in_array(62,session('permissionsIds')))
             url += '?=permissions=1'
-        @else 
+        @else
             url += '?=permissions=0'
         @endif
 
@@ -150,9 +150,6 @@
                                                             '</div>'+
                                                         '</div>'+
                                                     '</a>'+
-                                                '</div>'+
-                                                '<div class="pull-right">'+
-                                                    '<a><span class="fa fa-eye"> '+p.view_number+'</span></a>'+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+
@@ -424,9 +421,6 @@
                                                             '</div>'+
                                                         '</div>'+
                                                     '</a>'+
-                                                '</div>'+
-                                                '<div class="pull-right">'+
-                                                    '<a><span class="fa fa-eye"> '+p.view_number+'</span></a>'+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+

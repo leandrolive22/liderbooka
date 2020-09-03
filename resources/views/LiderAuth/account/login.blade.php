@@ -97,7 +97,7 @@
 												</a>
                                             </div>
                                             <div class="kt-login__actions">
-                                                <a target="_blank" href="{{asset('storage/posts/9bkP14PYUe99M9Awyud8rrWZZ7kiuu1epR4NoHh7.pdf')}}" type="submit" class="btn btn-dark btn-elevate kt-login__btn-dark col-md-12">
+                                                <a target="_blank" href="{{asset('storage/posts/J5vxWptNHOI6jEHsF3sRtv0lSAgHAtHxFgH2vNrT.pdf')}}" type="submit" class="btn btn-dark btn-elevate kt-login__btn-dark col-md-12">
 													{{ __('POLITICA DE
                                                     SEGURANÇA DA
                                                     INFORMAÇÃO') }}

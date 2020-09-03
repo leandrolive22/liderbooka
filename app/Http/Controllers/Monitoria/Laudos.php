@@ -175,7 +175,6 @@ class Laudos extends Controller
         ];
 
         $request->validate($rules,$messages);
-        return $_POST;
 
         // trata variaveis
         $error = 0;

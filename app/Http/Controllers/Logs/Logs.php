@@ -77,7 +77,7 @@ class Logs extends Controller
         return FALSE;
     }
 
-    // Verificar depois quem usa essa função e apagar pois não gravamos mais isso 
+    // Verificar depois quem usa essa função e apagar pois não gravamos mais isso
     public function page($page, $user, $ilha, $ip = NULL) : bool {
         return TRUE;
     }
@@ -175,18 +175,21 @@ class Logs extends Controller
                                 ->where('action','VIEW_' . $type)
                                 ->where('video_id',$id)
                                 ->where('user_id',$user)
+                                ->where('created_at', '<=', date('Y-m-d 00:00:00',strtotime('-1 Days')))
                                 ->get();
         } else if($type === 'MATERIAL') {
             $check = MaterialLogs::select('id','value as hash','action')
                                 ->where('action','VIEW_' . $type)
                                 ->where('material_id',$id)
                                 ->where('user_id',$user)
+                                ->where('created_at', '<=', date('Y-m-d 00:00:00',strtotime('-1 Days')))
                                 ->get();
         } else if($type === 'CIRCULAR') {
             $check = MaterialLogs::select('id','action','value as hash')
                                 ->where('action','VIEW_' . $type)
                                 ->where('circular_id',$id)
                                 ->where('user_id',$user)
+                                ->where('created_at', '<=', date('Y-m-d 00:00:00',strtotime('-1 Days')))
                                 ->get();
 
         } else if($type === 'SCRIPT') {
@@ -194,6 +197,7 @@ class Logs extends Controller
                                 ->where('action','VIEW_' . $type)
                                 ->where('roteiro_id',$id)
                                 ->where('user_id',$user)
+                                ->where('created_at', '<=', date('Y-m-d 00:00:00',strtotime('-1 Days')))
                                 ->get();
         } else {
             $check = [];
@@ -212,7 +216,7 @@ class Logs extends Controller
             return 0;
         }
 
-        // Caso exista log, retorna ele 
+        // Caso exista log, retorna ele
         return $check->toJSON();
     }
 
@@ -266,7 +270,7 @@ class Logs extends Controller
     }
 
     //Conta materiais não lidos
-    public function countNotRead($user,$ilha) 
+    public function countNotRead($user,$ilha)
     {
         return 0;
         $check = Log::whereRaw('action LIKE "%ACCEPT_TERMS_MATERIALS_%"')
@@ -412,7 +416,7 @@ class Logs extends Controller
         $log->value = $quiz;
         $log->page = 'public/quiz/view';base64_encode($quiz);
         $log->user_id = $user;
-        $log->ilha_id = 1;    
+        $log->ilha_id = 1;
         if($log->save()) {
             return TRUE;
         }

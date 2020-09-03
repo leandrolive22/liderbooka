@@ -83,7 +83,7 @@
 
                                                     {{-- Editar Laudo --}}
                                                     @if($webMaster || $editarLaudo)
-                                                    <a role="button" class="btn btn-outline-warning" href="{{ route('GetMonitoriasEdit',base64_encode($item->id)) }}">
+                                                    <a role="button" data-toggle="tooltip" data-placement="top" title="Em Manutenção" class="btn btn-outline-warning" href="{{-- route('GetMonitoriasEdit',base64_encode($item->id)) --}}#">
                                                         Editar
                                                     </a>
                                                     @endif
@@ -187,7 +187,7 @@
                     @endif
                     {{-- DASH MONITORIA POWER BI --}
                     <div class="panel-body text-center" style="overflow-x:auto">
-                        
+
                         <div class="col" style="border: solid 0.5px gray">
                             <iframe width="980" height="640" src="https://app.powerbi.com/view?r=eyJrIjoiMDE5OGNmMWEtN2E3Ni00MDNhLThkNjktMzA2ZmIxMTc1MDFiIiwidCI6ImZkYzJlZjNkLWEzZDEtNDA1OC1hOTA4LTAxMWMxMTcxZTYxNiJ9" frameborder="0" allowFullScreen="true"></iframe>
                         </div>
@@ -815,7 +815,7 @@
     function getContestByMonitoriaId(monitoria_id) {
         url = '{{route("GetContestacaoByMon",['id' => '---'])}}'.replace('---', monitoria_id)
         $.getJSON(url,function(data) {
-            
+
                 table = "<table class='table table-hover table-responsive'>"+
                             "<thead>"+
                                 "<tr>"+
@@ -828,7 +828,7 @@
                             "</thead>"+
                             "<tbody>";
 
-                // 
+                //
                 for(i=0; i<data.length; i++) {
                     table += '<tr>'+
                             '<td>Data</td>'+
@@ -838,9 +838,9 @@
                             '<td>Nome</td>'+
                             '</tr>';
                 }
-                                        
+
                 table += "</tbody></table>"
-                
+
                 $("#preLoaderContestar").html(table)
         })
     }

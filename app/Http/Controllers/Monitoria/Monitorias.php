@@ -20,6 +20,15 @@ use Session;
 
 class Monitorias extends Controller
 {
+    public function escobsStr()
+    {
+        return '32,31,30,29,28,12,14,6,5,16,4,25,24,8,33';
+    }
+    public function escobsArr()
+    {
+        return explode(',',$this->escobsStr());
+    }
+
     public function index()
     {
         try {
@@ -77,7 +86,7 @@ class Monitorias extends Controller
                                             if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                return $q->whereIn('carteira_id',[32,31,30,29,28,12,14,6,5,16,4,25,24,8,33]);    
+                                                return $q->whereIn('carteira_id',$this->escobsArr());
                                             }
                                             return $q->where('carteira_id',Auth::user()->carteira_id);
                                     })
@@ -102,7 +111,7 @@ class Monitorias extends Controller
                                             if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                return $q->whereIn('users.carteira_id',[32,31,30,29,28,12,14,6,5,16,4,25,24,8,33]);    
+                                                return $q->whereIn('users.carteira_id',$this->escobsArr());
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
@@ -113,7 +122,7 @@ class Monitorias extends Controller
 
                 // verifica qual carteira o monitor tem visualização
                 if($escobs) {
-                    $searchCarteira = 'users.carteira_id IN (32,31,30,29,28,12,14,6,5,16,4,25,24,8,33)';
+                    $searchCarteira = 'users.carteira_id IN ('.$this->escobsStr().')';
                 } else if($all) {
                     $searchCarteira = '';
                 } else if($carteira) {
@@ -257,6 +266,9 @@ class Monitorias extends Controller
         $operador = $request->input('operador');
         $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
+        // Dados do Monitori
+        $monitor = User::find($user);
+
         $ncg = 0;
 
         $horaCall = $request->input('hr_call');
@@ -328,6 +340,11 @@ class Monitorias extends Controller
         $monitoria->ncg = $ncg;
         $monitoria->feedback_monitor = $request->input('feedback');
         $monitoria->modelo_id = $modelo;
+        if(@in_array($monitor->carteira_id,$this->escobsArr())) {
+            $monitoria->supervisor_at = date('Y-m-d H:i:s');
+            $monitoria->feedback_supervisor = $request->input('feedback');
+        }
+
         if($monitoria->save()) {
             //id da monitoria e tratamento de laudos
             $monitoria_id = $monitoria->id;
@@ -342,6 +359,7 @@ class Monitorias extends Controller
                         'id_laudo_item' => $i[0],
                         'monitoria_id' => $monitoria_id,
                         'ncg' => $i[2],
+                        'value_pct'=> $i[3],
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
                     ];
@@ -550,6 +568,8 @@ class Monitorias extends Controller
                 if(isset($i[1])) {
                     $MonitoriaItem[] = [
                         'value' => $i[1],
+                        'ncg' => $i[2],
+                        'value_pct'=> $i[3],
                         'updated_at' => date('Y-m-d H:i:s'),
                     ];
                 }
@@ -572,7 +592,7 @@ class Monitorias extends Controller
                 return response()->json(['success' => TRUE, 'msg' => 'Monitoria Alterada!'], 201);
             } else {
                 return response()->json($monitoriaLaudos->errors()->all(), 500);
-                Monitoria::delete($monitoria_id);
+                Monitoria::where($monitoria_id)->delete();
             }
         }
 
