@@ -269,8 +269,6 @@ class Monitorias extends Controller
         // Dados do Monitori
         $monitor = User::find($user);
 
-        $ncg = 0;
-
         $horaCall = $request->input('hr_call');
         $tpCall = $request->input('hr_tp_call');
         $dtCall = $request->input('dt_call');
@@ -483,8 +481,6 @@ class Monitorias extends Controller
         // trata variáveis para salvar
         $operador = $request->input('operador');
         $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
-
-        $ncg = 0;
 
         $horaCall = $request->input('hr_call');
         $tpCall = $request->input('hr_tp_call');

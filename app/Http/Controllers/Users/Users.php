@@ -43,6 +43,9 @@ class Users extends Controller
         $user = User::find($id);
         $user->last_login = date('Y-m-d H:i:s');
         $user->save();
+
+        $log = new Logs();
+        @$log->log('ITS_LOGED',NULL,'LiderBook',$id,$user->ilha);
     }
 
     //rotas de direcionamento

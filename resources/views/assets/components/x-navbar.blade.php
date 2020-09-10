@@ -38,7 +38,7 @@ if(in_array(17, $permissions) || $webMaster) {
     $cargo = Auth::user()->cargo_id;
 
     // Areas e Níveis LiderReport
-    if(in_array($cargo, [15])) {
+    if(in_array($cargo,[15])) {
         $area = 1;
         $nivel = 2;
     }
@@ -46,7 +46,7 @@ if(in_array(17, $permissions) || $webMaster) {
         $area = '2';
         $nivel = 3;
     }
-    else if(in_array($cargo, [7,9,2])) {
+    else if(in_array($cargo, [7,9,2,3])) {
         $area = '1,2,3';
         $nivel = 3;
     }
@@ -55,12 +55,12 @@ if(in_array(17, $permissions) || $webMaster) {
         $nivel = 0;
     } else {
         $area = 0;
-        $nivel = NULL;
+        $nivel = 2;
     }
 
     $strEnc = implode("|", [Auth::id(),Auth::user()->name,Auth::user()->username,$nivel,$area,date("Y-m-d H:i:s"),$cargo]);
 
-    if(Auth::id() == 37) {
+    if((in_array(Auth::id(),[37,282]))) {
         var_dump($strEnc);
     }
     $password = date('Ymd');
