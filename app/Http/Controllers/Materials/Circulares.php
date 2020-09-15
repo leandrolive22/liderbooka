@@ -35,19 +35,23 @@ class Circulares extends Controller
             $or = '';
             $carteira = Auth::user()->carteira_id;
             // Seleiona carteiras
-            $carteiras = Setor::select('id')
-                                    ->where('carteira_id',$carteira)
-                                    ->get();
+            $setores = Ilha::select('id')
+                                ->join('book_usuarios.setores s','s.id','ilhas.setor_id')
+                                ->where('s.carteira_id',$carteira)
+                                ->get();
 
             // monta select
-            foreach($carteiras as $item) {
-                $or .= "OR setor_id LIKE '%,".$item->id.",%'";
+            foreach($setores as $item) {
+                $or .= $item->id.",";
+            }
+            if(strlen($or) > 1) {
+                $or = substr($or,0,-1);
+            } else if(strlen($or) < 1) {
+                $or = "ilha_id LIKE '%,1,%'";
             }
 
             $sql = "(ilha_id LIKE '%,1,%' $or) AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
-        } else if($types['setor']) {
-            $setor = Auth::user()->setor_id;
-            $sql = "(ilha_id LIKE '%,1,%' OR setor_id LIKE '%,$setor,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+
         } else if($types['ilha']) {
             $sql = "(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
         } else {

@@ -45,7 +45,7 @@ class Users extends Controller
         $user->save();
 
         $log = new Logs();
-        @$log->log('ITS_LOGED',NULL,'LiderBook',$id,$user->ilha);
+        @$log->log('ITS_LOGED',NULL,'LiderBook',$id,$user->ilha_id);
     }
 
     //rotas de direcionamento
@@ -534,9 +534,15 @@ class Users extends Controller
         if($pass == env("DEFAULT_PASSWORD")) {
             return response()->json(['errorAlert', 'Senha Padrão ('.env("DEFAULT_PASSWORD").') não permitida, altere a senha!'],422);
         } else if ($pass === $word) {
-            $insert = User::find($id);
-            $insert->password = Hash::make($pass);
-            if ($insert->save()) {
+            $change = User::find($id);
+
+            //
+            if(is_null($change)) {
+                return response()->json(['c', 'Usuário não encontrado'], 422);
+            }
+
+            $change->password = Hash::make($pass);
+            if ($change->save()) {
                 Session::put('pwIsDf',0);
                 return response()->json(['successAlert', 'Senha Alterada com Sucesso!']);
             } else {
@@ -762,7 +768,7 @@ class Users extends Controller
 
     }
 
-    public function restore($userAction,$user, Request $request)
+    public function restore($userAction, $user, Request $request)
     {
         try {
             if(User::withTrashed()->find($user)->restore()) {

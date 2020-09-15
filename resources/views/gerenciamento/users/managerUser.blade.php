@@ -45,11 +45,11 @@
                         @if(in_array(1, session('permissionsIds')) || in_array(45, session('permissionsIds')))
                             @if(Route::current()->getName() === 'GetUsersManagerUserDeleted')
                             <a href="{{ route('GetUsersManagerUser') }}" class="btn btn-light pull-right">
-                                Ativos 
+                                Ativos
                             </a>
                             @else
                             <a href="{{ route('GetUsersManagerUserDeleted') }}" class="btn btn-light pull-right">
-                                Deletados 
+                                Deletados
                             </a>
                             @endif
                         @endif
@@ -95,7 +95,7 @@
                                                 <button type="button" class="btn btn-success btn-sm" title="Clique aqui para restaurar o usuário" onclick="$('form#retoreUserForm{{$user->id}}').submit();">
                                                     <span id="btnPencil{{$user->id}}" class="fa fa-mail-reply"></span>
                                                 </button>
-                                                {{-- Se traz usuários ativos --}}
+{{-- Se traz usuários ativos --}}
                                                 @else
                                                 @php $titleDelete = 'Clique aqui para desativar usuário'; @endphp
                                                 {{-- Editar --}}
@@ -574,9 +574,9 @@
             $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
             val = $("#searchInTable").val()
             if(val.length > 0) {
-                data = 'str='+val 
-                
-                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted') data += 'deleted_at=1' @endif
+                data = 'str='+val
+
+                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted') data += '&deleted_at=1' @endif
 
 
                 $.ajax({
@@ -589,6 +589,7 @@
                             linhas = ''
                             for(i=0;i<data.length;i++) {
                                 linhas += '<tr id="usersTr'+data[i].id+'">'+
+                                    '<form id="retoreUserForm'+data[i].id+'" method="POST" action="'+"{{route('PostRestoreUser',['userAction' => Auth::id(), 'user' => '---'])}}".replace('---',data[i].id)+'">@csrf</form>'+
                                 '<form id="formEditDelete'+data[i].id+'" method="POST">'+
                                 '@csrf'+
                                 '<input type="hidden" name="user" value="{{ Auth::id() }}">'+
@@ -606,29 +607,39 @@
                                 '</td>'+
                                 @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                 '<td>'+
-                                '<div class="input-group btn">'+
-                                {{-- Editar --}}
-                                @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
-                                '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
-                                '</button>'+
-                                {{-- editar senha --}}
-                                '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
-                                '<span class="fa fa-lock"></span>'+
-                                '</button>'+
-                                @endif
-                                {{-- Excluir --}}
-                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                '<button type="button" class="btn btn-danger btn-sm" title="Clique aqui para desativar usuário" onclick="deleteUser('+data[i].id+');">'+
-                                '<span class="fa fa-times"></span>'+
-                                '</button>'+
-                                @endif
-                                @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                '<button type="button" onclick="window.location.href = '+"'{{ asset('manager/permissions') }}/"+data[i].id+"'"+'" class="btn btn-dark btn-sm">'+
-                                '<span class="fa fa-sitemap"></span>'+
-                                '</button>'+
-                                @endif
-                                '</div>'+
+                                    '<div class="input-group btn">'+
+"{{-- Se a Consulta traz usuários deletados --}}"+
+                                                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted')
+                                                @php $titleDelete = 'Clique aqui para excluir de vez o usuário'; @endphp
+                                                '<button type="button" class="btn btn-success btn-sm" title="Clique aqui para restaurar o usuário" onclick="$('+"'form#retoreUserForm"+data[i].id+"'"+').submit();">'+
+                                                    '<span id="btnPencil'+data[i].id+'" class="fa fa-mail-reply"></span>'+
+                                                '</button>'+
+"{{-- Se a Consulta traz usuários ativos --}}"+
+                                                @else
+                                                @php $titleDelete = 'Clique aqui para desativar usuário'; @endphp
+                                                {{-- Editar --}}
+                                                @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
+                                                    '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
+                                                '</button>'+
+                                                {{-- editar senha --}}
+                                                '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
+                                                    '<span class="fa fa-lock"></span>'+
+                                                '</button>'+
+                                                @endif
+                                                {{-- Excluir --}}
+                                                @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                '<button type="button" onclick="window.location.href = '+"{{ route('GetPermissionsIndexUser', '---') }}".replace('---',data[i].id)+'" class="btn btn-dark btn-sm">'+
+                                                    '<span class="fa fa-sitemap"></span>'+
+                                                '</button>'+
+                                                @endif
+                                                @endif
+                                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+'                                                <button type="button" class="btn btn-danger btn-sm" title="{{$titleDelete}}" onclick="deleteUser('+data[i].id+');">'+
+                                                    '<span class="fa fa-times"></span>'+
+                                                '</button>'+
+                                                @endif
+                                            '</div>'+
                                 '</td>'+
                                 @endif
                                 '</tr>';

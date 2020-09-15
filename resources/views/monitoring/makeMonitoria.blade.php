@@ -85,7 +85,7 @@
                                         @if(!is_null($operador->supervisor))
                                         <p class="form-control">{{$operador->supervisor}}</p>
                                         @else
-                                        <input type="text" name="supervisor" validate="Supervisor" class="form-control monitoria" >
+                                        <input type="text" name="supervisor" id="supervisor" validate="Supervisor" class="form-control monitoria" >
                                         <button class="btn btn-danger col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
                                             <span class="fa fa-pencil"></span>
                                         </button>
@@ -412,12 +412,15 @@
         } else {
             idOpe = $("select#operador").val()
         }
+
         $("button#editsupBtn").html('<span class="fa fa-spinner fa-spin"></span> Alterando...')
         $.ajax({
             url: "{{route('PutUsersEditSupervisor',['user' => Auth::id()])}}",
             data: 'id='+idOpe+'&supSelection='+supervisor,
             method: "PUT",
             success: function(resp) {
+                $("input#supervisor").val(resp.super)
+                $("#modalTrue").hide()
                 console.log(resp)
                 noty({
                         text: resp.msg,
@@ -425,8 +428,6 @@
                         type: 'success',
                         timeout: 3000
                 });
-                $("#supervisor").val(resp.super)
-                $("#modalTrue").hide()
             },
             error: (xhr) => {
                 console.log(xhr)
@@ -451,6 +452,8 @@
         });
         $("#editsupBtn").html('<span class="fa fa-pencil"> Alterar</span>')
     }
+
+    // Seleciona supervisor
     function selectSup(element) {
         selectedSup = $("#supervisor_slct"+element.value).attr('class')
         if(selectedSup == "") {
@@ -480,12 +483,14 @@
             });
         }
     }
+
+    // Verifica se todos os campos form preenchidos corretamente
     function checkInputs() {
         //Variável de controle
         errors = Number(0)
 
         // checa se todos inputs estão preenchidos
-        $.each($("input.monitoria "),function(i,v){
+        $.each($("input.monitoria"), function(i,v) {
             if($.inArray(v.value,[null,'',' ']) > -1) {
                 if(v.class !== 'input-block-level') {
                     noty({
@@ -613,6 +618,7 @@
         $("#btnSaveMonitoriaGravar").html(html)
     });
 
+    // Salva monitoria
     function storeMonitoring(data, type) {
         $("button#btnConfirmModal").prop('disabled',true)
         if(type === 0) {

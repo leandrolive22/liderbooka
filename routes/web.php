@@ -19,6 +19,7 @@ Route::group(['prefix' => 'forgot'], function () {
     Route::get('/', 'Users\Users@forgot')->name('forgot');
     Route::get('/', 'Users\Users@forgot')->name('forgotPost');
 });
+
 Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 
 Route::group(['middleware' => ['auth','LogsRequest']], function () {
@@ -127,7 +128,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
             Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
-            
+
             Route::put('sync','Users\Carteiras@sync')->name('PutSyncAreas');
             Route::delete('sync','Users\Carteiras@destroy')->name('DeleteSyncAreas');
 
@@ -318,7 +319,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
             ->name('saveFileCirc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Circulares@destroy')
-                ->name('DeleteCircular'); 
+                ->name('DeleteCircular');
         });
 
         Route::group(['prefix' => 'script'], function () {

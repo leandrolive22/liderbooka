@@ -20,12 +20,11 @@ class Permissions extends Controller
     public function wikiSearchType()
     {
         $permissions = Session::get('permissionsIds');
-        $tudo = in_array(44, $permissions);
-        $carteira = in_array(42, $permissions);
-        $ilha = in_array(56, $permissions);
-        $setor = in_array(57, $permissions);
+        $tudo = in_array(44, $permissions); // name = 'Wiki: Ver todos os conteudos'
+        $carteira = in_array(42, $permissions); // name = 'Wiki: Ver por Carteira'
+        $ilha = in_array(56, $permissions); // name = 'Wiki: Ver Por Ilha'
 
-        return compact('tudo','carteira','ilha','setor');
+        return compact('tudo','carteira','ilha');
     }
 
     public function getPermissions() : array
@@ -158,7 +157,7 @@ class Permissions extends Controller
             if($countOldDb > 0) {
                 UserPermission::withTrashed()->whereIn('id',$id)->restore();
             }
-            
+
             return response()->json(['msg' => 'Erro ao alterar permissões!'],422);
         } catch (Exception $e) {
             return response()->json(['errorAlert' => $e->getMessage()],500);
@@ -265,7 +264,7 @@ class Permissions extends Controller
 
             default:
             throw new Exception("Cargo Inválido", 1);
-            
+
         }
 
         $data = [];
