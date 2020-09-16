@@ -627,14 +627,15 @@
                                                     '<span class="fa fa-lock"></span>'+
                                                 '</button>'+
                                                 @endif
-                                                {{-- Excluir --}}
+                                                {{-- PERMISSAO --}}
                                                 @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                '<button type="button" onclick="window.location.href = '+"{{ route('GetPermissionsIndexUser', '---') }}".replace('---',data[i].id)+'" class="btn btn-dark btn-sm">'+
+                                                '<button type="button" onclick="window.location.href = '+"'{{ route('GetPermissionsIndexUser', '---') }}'".replace('---',data[i].id)+'" class="btn btn-dark btn-sm">'+
                                                     '<span class="fa fa-sitemap"></span>'+
                                                 '</button>'+
                                                 @endif
                                                 @endif
                                                 @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
+                                                {{-- Excluir --}}
 '                                                <button type="button" class="btn btn-danger btn-sm" title="{{$titleDelete}}" onclick="deleteUser('+data[i].id+');">'+
                                                     '<span class="fa fa-times"></span>'+
                                                 '</button>'+

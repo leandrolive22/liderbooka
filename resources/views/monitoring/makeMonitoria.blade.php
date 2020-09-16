@@ -573,7 +573,7 @@
                 valor = parseFloat($("input#procedimento_"+id+":checked").attr('valor'))
 
                 // Conta se existe NCG
-                if(typeof $("input.NCG_"+id+":checked").val() !== 'undefined') {
+                if(value == 'NCG') {
                     ncg++
                     isNcg++
                 } else {

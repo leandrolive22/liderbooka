@@ -131,7 +131,7 @@
                                                 <option value="0">Pesquise por segmento</option>
                                             @if($segmentos == 0)
                                             @else
-                                            @forelse ($segmentos as $segmento)
+                                            @forelse ([] as $segmento)
                                                 <option value="{{$segmento->id}}">{{$segmento->name}}</option>
                                             @empty
                                                 <option value="0">Nenhum segmento encontrado</option>
@@ -151,7 +151,7 @@
                                             <option value="0">Pesquise por segmento</option>
                                             @if($segmentos == 0)
                                             @else
-                                            @forelse ($segmentos as $segmento)
+                                            @forelse ([] as $segmento)
                                             <option value="{{$segmento->id}}">{{$segmento->name}}</option>
                                             @empty
                                             <option value="0">Nenhum segmento encontrado</option>
@@ -172,7 +172,7 @@
                                             <option value="0">Pesquise por segmento</option>
                                             @if($segmentos == 0)
                                             @else
-                                            @forelse ($segmentos as $segmento)
+                                            @forelse ([] as $segmento)
                                             <option value="{{$segmento->id}}">{{$segmento->name}}</option>
                                             @empty
                                             <option value="0">Nenhum segmento encontrado</option>
