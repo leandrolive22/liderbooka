@@ -83,7 +83,7 @@
 
                                                     {{-- Editar Laudo --}}
                                                     @if($webMaster || $editarLaudo)
-                                                    <a role="button" class="btn btn-outline-warning" href="{{-- route('GetMonitoriasEdit',base64_encode($item->id)) --}}#">
+                                                    <a role="button" class="btn btn-outline-warning" href="{{ route('GetMonitoriasEdit',base64_encode($item->id)) }}/#">
                                                         Editar
                                                     </a>
                                                     @endif
