@@ -50,6 +50,10 @@
     @yield('modalAll')
 @endif
 
+@hasSection ('modalPost')
+    @yield('modalPost')
+@endif
+
 <body>
     @hasSection('basicDatatableExcel')
         @yield('basicDatatableExcel')

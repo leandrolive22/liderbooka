@@ -57,6 +57,22 @@
         $("#file_pathPOSTName").html(file[0]);
     })
 
+    // Carrega dados do Post em Modal
+    function loadReportPost(id) {
+        // url
+        url = '{{route("PostReport", ['id' => '----'])}}'.replace('----', id)
+
+        // Pega dados do banco
+        $.getJSON(url, function (data) {
+            console.log(data)
+            linhas = ''
+
+            $("#modalPostData").html(linhas)
+            $("#idPostReportHd").val(id)
+            $("#modalPost").show()
+        });
+    }
+
 
     //Monta Posts
     function montarLinha(p){
@@ -117,7 +133,7 @@
                                                             '<li><a onclick="deletePost('+p.id_post+')" class="panel-collapse"><span class="fa fa-trash-o"></span></span> Excluir</a></li>'+
                                                         @endif
                                                         @if(in_array(30,$permissions) || in_array(1,$permissions))
-                                                            '<li><a onclick="" class="panel-collapse"><span class="fa fa-bar-chart-o"></span></span> Relatório</a></li>'+
+                                                            '<li><a onclick="loadReportPost('+p.id_post+')" class="panel-collapse"><span class="fa fa-bar-chart-o"></span></span> Relatório</a></li>'+
                                                         @endif
                                                         '</ul>'+
                                                     '</li>'+

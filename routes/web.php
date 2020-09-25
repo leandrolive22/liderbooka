@@ -180,6 +180,8 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         /*********** rotas Relatorios ***********/
         Route::group(['prefix' => 'report'], function () {
 
+            Route::get('post/{id}','Posts\Posts@report')->name('PostReport');
+
             //rotas que retornam view
             Route::get('/clima', 'Relatorios\Relatorios@clima')
                 ->name('GetRelatorioClima');
