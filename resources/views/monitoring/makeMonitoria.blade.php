@@ -4,26 +4,26 @@
 <div class="page-container">
 
 
-	<!-- PAGE CONTENT -->
-	<div class="page-content">
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
 
-		@component('assets.components.x-navbar')
-		@endcomponent
+        @component('assets.components.x-navbar')
+        @endcomponent
 
         {{-- Preloader --}}
         <div class="spinner-grow text-dark" role="status" id='loadingPreLoader' style="margin-left:35%; margin-right:35%; margin-top:10%; width: 30rem; height:30rem">
             <span class="sr-only">Loading...</span>
         </div>
 
-		<!-- START CONTENT FRAME -->
-		<div class="content-frame" id="contentFrameMonitoring" style="display: none;">
+        <!-- START CONTENT FRAME -->
+        <div class="content-frame" id="contentFrameMonitoring" style="display: none;">
 
-			<!-- START PAGE CONTENT WRAP -->
-			<div class="page-content-wrap" style="padding: 2rem">
-				<div class="page-title">
-					<a href="{{ route('GetMonitoriasIndex') }}">
-						<h2 class="page-title">
-							<span class="fa fa-arrow-circle-o-left">
+            <!-- START PAGE CONTENT WRAP -->
+            <div class="page-content-wrap" style="padding: 2rem">
+                <div class="page-title">
+                    <a href="{{ route('GetMonitoriasIndex') }}">
+                        <h2 class="page-title">
+                            <span class="fa fa-arrow-circle-o-left">
                             </span>
                             Monitoria LiderBook
                         </h2>
@@ -367,6 +367,7 @@
 
             </div>
             <div class="modal-body">
+                <input type="hidden" name="dataStoreMonitoring" id="dataStoreMonitoring">
                 <div class="row">
                     <table class="table table-bordered">
                         <body>
@@ -610,8 +611,9 @@
             $("#resultMedia").html(media+'%')
 
             data += '&laudos='+procedimentos+'&media='+media+'&conf='+conf+'&nConf='+nConf+'&nAv='+nAv+'&ncg='+ncg
+            $("input#dataStoreMonitoring").val(data)
 
-            $("#btnConfirmModal").attr('onclick','storeMonitoring('+'"'+data+'"'+',@if($id > 0) 0 @else 1 @endif)')
+            $("#btnConfirmModal").attr('onclick','storeMonitoring(@if($id > 0) 0 @else 1 @endif)')
             $("#modalConfirm").show()
 
         }
@@ -619,7 +621,8 @@
     });
 
     // Salva monitoria
-    function storeMonitoring(data, type) {
+    function storeMonitoring(type) {
+        data = $("input#dataStoreMonitoring").val()
         $("button#btnConfirmModal").prop('disabled',true)
         if(type === 0) {
             url = "{{ route('PutMonitoriaEdit', ['id' => $id, 'user' => Auth::id()]) }}"

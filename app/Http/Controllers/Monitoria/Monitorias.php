@@ -499,6 +499,12 @@ class Monitorias extends Controller
         $operador = $request->input('operador');
         $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
+        // Dados do Monitor
+        $monitor = User::find($user);
+        if(is_null($monitor)) {
+            return response()->json(['msg' => 'Erro de dados do Monitor, contate o suporte!'], 422);
+        }
+
         $ncg = 0;
 
         $horaCall = $request->input('hr_call');
@@ -534,14 +540,27 @@ class Monitorias extends Controller
         }
 
         // Calcula quartil
-        if($media >= 88) {
-            $quartil = 'Q1';
-        } else if($media >= 75) {
-            $quartil = 'Q2';
-        } else if ($media >= 50) {
-            $quartil = 'Q3';
+        if($monitor->carteira_id == 1) {
+            // Calcula quartil
+            if($media >= 88) {
+                $quartil = 'Q1';
+            } else if($media >= 75) {
+                $quartil = 'Q2';
+            } else if ($media >= 50) {
+                $quartil = 'Q3';
+            } else {
+                $quartil = 'Q4';
+            }
         } else {
-            $quartil = 'Q4';
+            if($media >= 95) {
+                $quartil = 'Q1';
+            } else if($media >= 90) {
+                $quartil = 'Q2';
+            } else if ($media >= 86) {
+                $quartil = 'Q3';
+            } else {
+                $quartil = 'Q4';
+            }
         }
 
         // grava monitoria
