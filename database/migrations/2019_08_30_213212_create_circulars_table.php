@@ -44,6 +44,6 @@ class CreateCircularsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('circulars');
+        Schema::dropIfExists('circulares');
     }
 }

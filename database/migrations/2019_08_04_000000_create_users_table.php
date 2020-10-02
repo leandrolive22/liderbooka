@@ -15,17 +15,17 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('matricula',8)->unique()->nullable();
+            $table->unsignedInteger('matricula')->unique()->nullable();
             $table->string('name');
             $table->string('username');
             $table->string('password')->default('$2y$12$FQiayIoIgaxLnQ81lYY7QemihcutWiPap8R3zc8ZfMbjkP1UeUdya');
             $table->unsignedBigInteger('cpf');
-            $table->integer('ddd',2)->nullable();
-            $table->integer('phone',10)->nullable();
+            $table->unsignedInteger('ddd')->nullable();
+            $table->unsignedInteger('phone')->nullable();
             $table->string('avatar')->default('storage/img/avatar/default.png   ');
             $table->string('css',8)->default('white');
             $table->text('token')->nullable();
-            $table->integer('have_msg',11)->default(0);
+            $table->unsignedInteger('have_msg')->nullable();
             $table->date('have_humour')->nullable();
             $table->timestamp('last_login');
             $table->unsignedBigInteger('cargo_id');
