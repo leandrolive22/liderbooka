@@ -21,12 +21,9 @@
 			<!-- START CONTENT FRAME TOP -->
 			<div class="content-frame-top">
 				<div class="page-title">
-					<h2>
-						<a href="{{ url()->previous() }}">
-							<span class="fa fa-arrow-circle-o-left"></span> 
-						</a>
-						Clique aqui para voltar
-					</h2>
+					<a href="{{ url()->previous() }}">
+						<h2><span class="fa fa-arrow-circle-o-left"></span> Clique aqui para voltar</h2>
+					</a>
 				</div>
 				<div class="pull-right">
 					<button class="btn btn-default content-frame-right-toggle">

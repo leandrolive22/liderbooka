@@ -92,19 +92,19 @@
                 <div class="list-group list-group-contacts border-bottom push-down-10">
                     <div class="list-group-item"  style="padding: 0">
                         <div class="panel-heading ui-draggable-handle">
-                            <h3 class="panel-title">Grupos <label class="label label-info">Beta</label></h3>
+                            <h3 class="panel-title">Grupos</h3>
                             <ul class="panel-controls">
                                 <a role="button" href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a>
                             </ul>
                             <input type="text" class="form-control" id="filtroGroup" placeholder="Digite algum Titulo de grupo">
-@if($createGroup || $deleteGroup || $webMaster)
-                            @if($createGroup || $webMaster)
+@if($groups || $groups || $webMaster)
+                            @if($groups || $webMaster)
                                 <a href="{{ route('GetNewChat', base64_encode(Auth::user()->id) ) }}" role="button"
                                     class="btn btn-default col-md-6">
                                     <span class="fa fa-users"></span> Novo Grupo
                                 </a>
                             @endif
-                            @if($deleteGroup || $webMaster)
+                            @if($groups || $webMaster)
                                 <a href="{{ route('GetDeleteChat', [ 'cargo' => base64_encode(Auth::user()->cargo_id), 'user' => base64_encode(Auth::user()->id) ] ) }}" role="button"
                                     class="btn btn-default col-md-6">
                                     <span class="fa fa-trash-o"></span> Excluir Grupo

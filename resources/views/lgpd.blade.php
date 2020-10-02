@@ -51,28 +51,28 @@
         <div class="modal-content">
           <div class="panel-header"><h2 style="font-style: bold">Política de Privacidade</h2></div>
           <div class="panel-body">
-            <p>A confidencialidade dos dados pessoais dos utilizadores deste sistema é importante para o LiderBook e os
+            <p>A confidencialidade dos dados pessoais dos utilizadores deste sistema é importante para o LiderBook e os 
             dados recolhidos serão usados para tornar seu uso o mais seguro possível.</p>
-            <p>Todas as informações pessoais relativas a usuários/clientes do sistema serão protegidas por
-              senhas, criptografia e tratadas em concordância com a Lei da Proteção de Dados Pessoais de 26 de outubro de
+            <p>Todas as informações pessoais relativas a usuários/clientes do sistema serão protegidas por 
+              senhas, criptografia e tratadas em concordância com a Lei da Proteção de Dados Pessoais de 26 de outubro de 
             1998 (Lei n.º 67/98).</p>
-            <p>Os dados pessoais recolhidos poderão incluir nomes, e-mails, telefones, endereços e outros campos necessário
+            <p>Os dados pessoais recolhidos poderão incluir nomes, e-mails, telefones, endereços e outros campos necessário 
             para a gestão e utilização do sistema.</p>
-            <p>O uso deste sistema pressupõe a <b>aceitação deste Acordo de Privacidade</b>
-              e reservamos o direito de altera-lo sem aviso prévio. Deste modo, recomendamos que consulte periódicamente
+            <p>O uso deste sistema pressupõe a <b>aceitação deste Acordo de Privacidade</b> 
+              e reservamos o direito de altera-lo sem aviso prévio. Deste modo, recomendamos que consulte periódicamente 
             nossa política de privacidade.</p>
 
             <h2>Segurança da Informação</h2>
-            <p>Os dados aqui tratados não poderão ser extraviados, copiados ou movidos para outros sistemas sem a autorização
-              dos administradores deste sistema. Toda movimentação efetuada no sistema será registrada com data, hora, usuário e ip
+            <p>Os dados aqui tratados não poderão ser extraviados, copiados ou movidos para outros sistemas sem a autorização 
+              dos administradores deste sistema. Toda movimentação efetuada no sistema será registrada com data, hora, usuário e ip 
             do computador.</p>
 
             <h2>Os Cookies</h2>
-            <p>Utilizaremos cookies para armazenar informações, tais como as suas preferências pessoais quando utilizar
+            <p>Utilizaremos cookies para armazenar informações, tais como as suas preferências pessoais quando utilizar 
             o sistema.</p>
-            <p>Você detém o poder de desligar os seus cookies, nas opções do seu browser, ou efetuando alterações nas
-              ferramentas de programas Anti-Virus. No entanto, isso poderá alterar a forma como interage com o sistema.
-              Isso poderá afetar ou não permitir que faça logins em programas, sites ou fóruns da nossa e de
+            <p>Você detém o poder de desligar os seus cookies, nas opções do seu browser, ou efetuando alterações nas 
+              ferramentas de programas Anti-Virus. No entanto, isso poderá alterar a forma como interage com o sistema. 
+              Isso poderá afetar ou não permitir que faça logins em programas, sites ou fóruns da nossa e de 
             outras redes.</p>
 
             <p>Atenção, armazenaremos seus dados e histórico de utilização neste aplicativo.</p>
@@ -85,11 +85,10 @@
           <div class="panel-footer">
             <div class="col-md-12 pull-right btn-group">
               <form action="{{ route('PostUsersLgpd') }}" method="POST">
-                @csrf
                 <button class="btn btn-success pull-right">Concordar</button>
               </form>
               <form action="{{ route('logout') }}" method="POST">
-                <button type="submit" class="btn btn-danger pull-right">Sair</button>
+                <button type="submit" class="btn btn-danger pull-right">Sair</button>  
               </form>
             </div>
           </div>

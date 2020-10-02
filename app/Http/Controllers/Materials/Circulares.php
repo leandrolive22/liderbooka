@@ -32,24 +32,28 @@ class Circulares extends Controller
         if($types['tudo']) {
             $sql = "deleted_at IS NULL";
         } else if($types['carteira']) {
-            $or = '';
+            $or = 'OR ';
             $carteira = Auth::user()->carteira_id;
             // Seleiona carteiras
-            $setores = Ilha::select('id')
-                                ->join('book_usuarios.setores s','s.id','ilhas.setor_id')
-                                ->where('s.carteira_id',$carteira)
+            try {
+                $setores = Ilha::select('ilhas.id')
+                                ->join('book_usuarios.setores','setores.id','ilhas.setor_id')
+                                ->where('setores.carteira_id',$carteira)
                                 ->get();
+            } catch (Exception $e) {
+                $setores = [];
+            }
 
             // monta select
             foreach($setores as $item) {
-                $or .= $item->id.",";
+                $or .= "ilha_id LIKE '%".$item->id."%' OR ";
             }
             if(strlen($or) > 1) {
-                $or = substr($or,0,-1);
+                $or = substr($or,0,-3);
             } else if(strlen($or) < 1) {
-                $or = "ilha_id LIKE '%,1,%'";
+                unset($or);
+                $or = "";
             }
-
             $sql = "(ilha_id LIKE '%,1,%' $or) AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
 
         } else if($types['ilha']) {

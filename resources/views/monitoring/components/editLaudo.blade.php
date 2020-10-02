@@ -10,7 +10,7 @@
         <input autocomplete="off" class="tdInput" name="tdInput" id="sinal_{{$item->id}}" placeholder="Tipo de sinalização" type="text" value="{{$item->sinalizacao}}">
     </td>
     <td id="myTd">
-        <input autocomplete="off" class="tdInput" name="tdInput" id="value_{{$item->id}}" placeholder="0 Para CallCenter" type="number" value="{{round($item->valor*100,6)}}">
+        <input autocomplete="off" class="tdInput" name="tdInput" id="value_{{$item->id}}" placeholder="0 Para CallCenter" type="number" @if(Auth::user()->carteira_id == 1) value="0" @else value="{{round($item->valor*100,6)}}" @endif>
     </td>
     <td id="myTd">
         <button id="myBtn" class="btn btn-danger btn-block" onclick="deleteLine('id_{{$item->id}}')">

@@ -21,7 +21,7 @@ class Quizzes extends Controller
     public function getQuizFromUser($ilha,$user)
     {
         try {
-            return Quiz::selectRaw('quizzes.id, quizzes.title, quizzes.description, quizzes.num_responses, u.avatar')
+            return Quiz::selectRaw('quizzes.id, quizzes.title, quizzes.description, quizzes.num_responses')
             ->leftJoin('book_relatorios.logs AS l', 'quizzes.id', 'l.value')
             ->leftJoin('book_usuarios.users As u', 'quizzes.creator_id', 'u.id')
             ->where('quizzes.ilhas','%'.$ilha.'%')
@@ -110,17 +110,27 @@ class Quizzes extends Controller
             return back()->with(['errorAlert','Sessão expirada ou inválida, faça login novamente!']);
         }
 
-        $quizzes =  DB::select('SELECT quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses,
-                        (SELECT COUNT(id) FROM book_relatorios.logs WHERE user_id = '.$id.' AND action = "ANSWER_QUIZ" AND value = quizzes.id) as answered , users.name, users.avatar
-                    FROM book_quizzes.quizzes
-                    LEFT JOIN book_usuarios.users ON users.id = quizzes.creator_id
-                    LEFT JOIN book_relatorios.logs ON quizzes.id = logs.value AND users.id = logs.user_id
-                    WHERE  quizzes.deleted_at is null AND (quizzes.validity >= NOW()
-                    and quizzes.ilhas LIKE "%,'.$ilha.',%"
-                    or (IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.') or quizzes.creator_id = '.$id.')
-                    order by logs.user_id desc, quizzes.id desc
-                    limit '.$take.'
-                    offset '.$skip);
+        if(Auth::id() > 0) {
+            $quizzes = Quiz::whereRaw('(validity >= NOW() OR ISNULL(validity)) AND ilhas LIKE "%,'.$ilha.',%"')
+                            ->orWhere('creator_id',$id)
+                            ->skip($skip)
+                            ->take($take)
+                            ->orderBy('validity')
+                            ->orderBy('id')
+                            ->get();
+        } else {
+            $quizzes =  DB::select('SELECT quizzes.id, quizzes.creator_id, quizzes.title, quizzes.description, quizzes.num_responses,
+                            (SELECT COUNT(id) FROM book_relatorios.logs WHERE user_id = '.$id.' AND action = "ANSWER_QUIZ" AND value = quizzes.id) as answered , users.name, users.avatar
+                        FROM book_quizzes.quizzes
+                        LEFT JOIN book_usuarios.users ON users.id = quizzes.creator_id
+                        LEFT JOIN book_relatorios.logs ON quizzes.id = logs.value AND users.id = logs.user_id
+                        WHERE  quizzes.deleted_at is null AND (quizzes.validity >= NOW()
+                        and quizzes.ilhas LIKE "%,'.$ilha.',%"
+                        or (IF(quizzes.created_at <= DATE_SUB(NOW(), INTERVAL 90 DAY),1,0) = 1 AND logs.user_id = '.$id.') or quizzes.creator_id = '.$id.')
+                        order by logs.user_id desc, quizzes.id desc
+                        limit '.$take.'
+                        offset '.$skip);
+        }
 
         // Permissões
         $permissions = Session::get('permissionsIds');

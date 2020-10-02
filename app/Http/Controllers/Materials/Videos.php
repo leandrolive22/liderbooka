@@ -81,7 +81,8 @@ class Videos extends Controller
             'name' => 'required',
             'ilha_id' => 'required',
             'cargo_id' => 'required',
-            'video' => 'required'
+            'video' => 'required',
+            'tags' => 'required'
         ];
         $msgs = [
             'required' => 'O campo :attribute não pode estar vazio'
@@ -118,6 +119,7 @@ class Videos extends Controller
         $videos->file_path = $path;
         $videos->ilha_id = $ilha;
         $videos->sector = $setor;
+        $videos->tags = $request->input('tags');
         $videos->cargo_id = $cargo;
         $videos->user_id = $user;
         $videos->save();

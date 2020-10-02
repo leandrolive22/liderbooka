@@ -407,15 +407,8 @@ class Chats extends Controller
         // Permissões
         $permissions = Session::get('permissionsIds');
         $webMaster = in_array(1, $permissions);
-        $createGroup = in_array(6, $permissions);
-        $deleteGroup = in_array(7, $permissions);
-        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
-        if(Session::get('pwIsDf') == 1) {
-            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
-        }
-
-        return view('chats.chat', $compact);
+        return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
     //msgOperator
@@ -441,18 +434,11 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
-        // P// Permissões
+        // Permissões
         $permissions = Session::get('permissionsIds');
         $webMaster = in_array(1, $permissions);
-        $createGroup = in_array(6, $permissions);
-        $deleteGroup = in_array(7, $permissions);
-        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
-        if(Session::get('pwIsDf') == 1) {
-            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
-        }
-
-        return view('chats.chat', $compact);
+        return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
     //msg para analistas, técnicos, operadores que não sejam de cobrança
@@ -479,18 +465,11 @@ class Chats extends Controller
 
         $groups = $this->getGroupsByUser($id);
 
-        // P// Permissões
+        // Permissões
         $permissions = Session::get('permissionsIds');
         $webMaster = in_array(1, $permissions);
-        $createGroup = in_array(6, $permissions);
-        $deleteGroup = in_array(7, $permissions);
-        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
-        if(Session::get('pwIsDf') == 1) {
-            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
-        }
-
-        return view('chats.chat', $compact);
+        return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
     //msgSupervisor MSG
@@ -520,15 +499,8 @@ class Chats extends Controller
         // Permissões
         $permissions = Session::get('permissionsIds');
         $webMaster = in_array(1, $permissions);
-        $createGroup = in_array(6, $permissions);
-        $deleteGroup = in_array(7, $permissions);
-        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
-        if(Session::get('pwIsDf') == 1) {
-            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
-        }
-
-        return view('chats.chat', $compact);
+        return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
     //msgCoordenador MSG
@@ -556,18 +528,11 @@ class Chats extends Controller
                         ->get();
 
         $groups = $this->getGroupsByUser($id);
-        /// Permissões
+        // Permissões
         $permissions = Session::get('permissionsIds');
         $webMaster = in_array(1, $permissions);
-        $createGroup = in_array(6, $permissions);
-        $deleteGroup = in_array(7, $permissions);
-        $compact = compact('title', 'contacts','groups', 'permissions', 'webMaster', 'createGroup', 'deleteGroup');
 
-        if(Session::get('pwIsDf') == 1) {
-            return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
-        }
-
-        return view('chats.chat', $compact);
+        return view('chats.chat', compact('title', 'contacts','groups'));
     }
 
     //redireciona para criação de grupos

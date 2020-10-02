@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Hash;
 
 Auth::routes(['register' => false]);
 
+Route::get('liderbook/public',function(){
+    return redirect('/');
+    });
+
 Route::get('hash/{hash}/',function($hash){
     if(Hash::check($hash, '$2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS')) {
         return 'ok___ $2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS ';
@@ -19,7 +23,6 @@ Route::group(['prefix' => 'forgot'], function () {
     Route::get('/', 'Users\Users@forgot')->name('forgot');
     Route::get('/', 'Users\Users@forgot')->name('forgotPost');
 });
-
 Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 
 Route::group(['middleware' => ['auth','LogsRequest']], function () {
@@ -128,7 +131,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
             Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
-
+            
             Route::put('sync','Users\Carteiras@sync')->name('PutSyncAreas');
             Route::delete('sync','Users\Carteiras@destroy')->name('DeleteSyncAreas');
 
@@ -179,8 +182,6 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
         /*********** rotas Relatorios ***********/
         Route::group(['prefix' => 'report'], function () {
-
-            Route::get('post/{id}','Posts\Posts@report')->name('PostReport');
 
             //rotas que retornam view
             Route::get('/clima', 'Relatorios\Relatorios@clima')
@@ -321,7 +322,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
             ->name('saveFileCirc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Circulares@destroy')
-                ->name('DeleteCircular');
+                ->name('DeleteCircular'); 
         });
 
         Route::group(['prefix' => 'script'], function () {

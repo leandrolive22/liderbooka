@@ -73,7 +73,9 @@ class Roteiros extends Controller
             'name' => 'required',
             'ilha_id' => 'required',
             'cargo_id' => 'required',
-            'script' => 'required'
+            'script' => 'required',
+            'tags' => 'required'
+
         ];
         $msgs = [
             'required' => 'O campo :attribute não pode estar vazio'
@@ -109,6 +111,7 @@ class Roteiros extends Controller
         $roteiros->ilha_id = $ilha;
         $roteiros->sector = $setor;
         $roteiros->cargo_id = $cargo;
+        $roteiros->tags = $request->input('tags');
         $roteiros->user_id = $user;
         $roteiros->save();
 

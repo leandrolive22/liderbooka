@@ -131,6 +131,7 @@ elseif(strtoupper($type) === 'CIRCULAR'){
                                                 <tr>
                                                     <th>Nome</th>
                                                     <th>Numero</th>
+                                                    <th>Tags</th>
                                                     <th>Data (ano/mês/dia)</th>
                                                     @if($type === 'CIRCULAR')
                                                     <th>Ano</th>
@@ -165,6 +166,7 @@ elseif(strtoupper($type) === 'CIRCULAR'){
                                                     >
                                                     <td> {{ $item->name }}</td>
                                                     <td>{{ $item->id }}</td>
+                                                    <td>{{ $item->tags }}</td>
                                                     <td>{{ implode('/',(explode('-',explode(' ',$item->updated_at)[0]))) }}
                                                         @if($type === 'CIRCULAR')
                                                         <td>{{$item->year}}</td>
@@ -188,6 +190,7 @@ elseif(strtoupper($type) === 'CIRCULAR'){
                                                     </td>
                                                     <!-- Fim Modal  -->
                                                 </tr>
+                                                
                                                 @empty
                                                 <tr>
                                                     <td colspan="4" class="text-center">Nenhum dado Encontrado</td>

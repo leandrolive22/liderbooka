@@ -74,6 +74,11 @@
                                                 @endforelse
                                             </select>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="tags">HashTag</label>
+                                            <input required type="text" value="#" name="tags" class="form-control" id="tags"
+                                                placeholder="Hash Tag">
+                                        </div>
                                         <input required type="hidden" name="user" id="user" value="{{Auth::user()->id}}">
                                     </div>
                                     <div class="panel panel-default form-group">
@@ -141,6 +146,7 @@
             data.append('material',$('input[type=file]')[0].files[0]);
             data.append('cargo_id',cargo);
             data.append('ilha_id',ilha);
+            data.append('tags',$('#tags').val());
             data.append('user',$('#user').val());
 
             $.ajax({

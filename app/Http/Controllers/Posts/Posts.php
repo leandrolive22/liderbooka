@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use Session;
 use Illuminate\Support\Facades\Validator;
 use App\Posts\Post;
-use App\Posts\ReportPost;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
 use App\Logs\Log;
@@ -35,8 +34,10 @@ class Posts extends Controller
             ->orWhere('book_posts.posts.user_id',$user)
             ->orWhereRaw('book_posts.posts.cargo_id LIKE "%,'.$cargo.',"');
         })
+        // ->orWhere('id',453)
         ->skip($skip)
         ->take(env('PAGINATE_NUMBER'))
+        // ->orderByRaw('case when id = 453 then 0 else 1 end')
         ->orderBy('mesAno','DESC')
         ->orderBy('priority','ASC')
         ->orderBy('date','DESC')
@@ -134,76 +135,55 @@ class Posts extends Controller
 
         // Salvo o Arquivo do post no diretorio definido
         if(!empty($request->file('file_path'))) {
-             $path .= 'storage/' . $request->file('file_path')->store('posts','public');
-         }
+         $path .= 'storage/' . $request->file('file_path')->store('posts','public');
+     }
 
         //Verifica se cargo_id foi selecionado e trata para não haver erros
-        if( in_array($cargo_id,[0,'','undefined',' ',NULL,'null'])) {
-            unset($cargo_id);
-            $cargo_id = NULL;
-        }
-
-            //Verifica se ilha_id foi selecionado e trata para não haver erros
-        if( in_array($ilha_id,[0,'','undefined',' ',NULL,'null'])) {
-            unset($ilha_id);
-            $ilha_id = NULL;
-        }
-
-            // Insert no banco
-        $post = new Post();
-        $post->descript = nl2br($request->input('descript'));
-        $post->file_path = $path;
-        $post->comment_number = 0;
-        $post->reactions_number = 0;
-        $post->view_number = 0;
-        $post->priority = $request->input('priority');
-        $post->user_id = $user;
-        $post->ilha_id = ','.$ilha_id.',';
-        $post->cargo_id = ','.$cargo_id.',';
-        if($post->save()) {
-            $ilha = Ilha::select('name')->where('id',$ilha_id)->get();
-            return response()->json(['success' => TRUE, 'post' => $post, 'ilha_name' => $ilha], 201);
-        }
-
-        return response()->json(['success' => FALSE], 422);
-
+     if( in_array($cargo_id,[0,'','undefined',' ',NULL,'null'])) {
+        unset($cargo_id);
+        $cargo_id = NULL;
     }
 
-    public function delete($id,$user)
-    {
-        $ilha = User::find($user)['ilha_id'];
-
-        $delete = Post::find($id);
-        if($delete->delete()) {
-            return back()->with(['successAlert'=> 'Publicação excluída']);
-            $log = new Logs();
-            $log->post($id, $ilha, $user,'DELETE_POST');
-
-        } else {
-            return back()->with(['errorAlert' => $delete->error()->all()]);
-        }
-
+        //Verifica se ilha_id foi selecionado e trata para não haver erros
+    if( in_array($ilha_id,[0,'','undefined',' ',NULL,'null'])) {
+        unset($ilha_id);
+        $ilha_id = NULL;
     }
 
-    // relatório de publicações 
-    public function report(int $id)
-    {
-        $post = Post::find($id);
-        if(is_null($post)) {
-            return [];
-        }
-        $views = ReportPost::selectRaw('max(Data_Visualizacao) Data_Visualizacao, User_Name, count(User_Name) c')
-                        ->distinct()
-                        ->where('Post_id',$id)
-                        ->groupBy('User_Name')
-                        ->count();
-
-
-        $ilhas = $post->ilha_id;
-        $cargos = $post->cargo_id;
-
-        $users = User::whereRaw("ilha_id IN ($ilhas) OR cargo_id IN ($cargos)")->count();
-
-        return [$views, $users];
+        // Insert no banco
+    $post = new Post();
+    $post->descript = nl2br($request->input('descript'));
+    $post->file_path = $path;
+    $post->comment_number = 0;
+    $post->reactions_number = 0;
+    $post->view_number = 0;
+    $post->priority = $request->input('priority');
+    $post->user_id = $user;
+    $post->ilha_id = ','.$ilha_id.',';
+    $post->cargo_id = ','.$cargo_id.',';
+    if($post->save()) {
+        $ilha = Ilha::select('name')->where('id',$ilha_id)->get();
+        return response()->json(['success' => TRUE, 'post' => $post, 'ilha_name' => $ilha], 201);
     }
+
+    return response()->json(['success' => FALSE], 422);
+
+}
+
+public function delete($id,$user)
+{
+    $ilha = User::find($user)['ilha_id'];
+
+    $delete = Post::find($id);
+    if($delete->delete()) {
+        return back()->with(['successAlert'=> 'Publicação excluída']);
+        $log = new Logs();
+        $log->post($id, $ilha, $user,'DELETE_POST');
+
+    } else {
+        return back()->with(['errorAlert' => $delete->error()->all()]);
+    }
+
+}
+
 }

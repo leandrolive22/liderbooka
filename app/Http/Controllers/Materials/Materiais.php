@@ -22,8 +22,11 @@ class Materiais extends Controller
     {
         $title = 'Materiais';
         $cargo = Auth::user()->cargo_id;
+        $quantidade = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                            ->count();
         $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                            ->get();
+                            ->paginate($quantidade);
+
         $titlePage = $title;
         $type = 'MATERIAL';
 
@@ -80,7 +83,8 @@ class Materiais extends Controller
             'name' => 'required',
             'ilha_id' => 'required',
             'cargo_id' => 'required',
-            'material' => 'required'
+            'material' => 'required',
+            'tags' => 'required'
         ];
         $msgs = [
             'required' => 'O campo :attribute não pode estar vazio'
@@ -115,6 +119,7 @@ class Materiais extends Controller
         $materiais->file_path = $path;
         $materiais->ilha_id = $ilha;
         $materiais->sector = $setor;
+        $materiais->tags = $request->input('tags');
         $materiais->cargo_id = $cargo;
         $materiais->user_id = $user;
         $materiais->save();
@@ -143,7 +148,7 @@ class Materiais extends Controller
 
     public function allMaterials()
     {
-        $materiais = Material::all();//paginate(10);
+        $materiais = Material::paginate(1);
         return $materiais;
     }
 

@@ -148,26 +148,3 @@ $webMaster = in_array(1,$permissions);
 @section('PostsScript')
 @include('assets.js.homeJs')
 @endsection
-@section('modalPost')
-<div class="modal in" id="modalPost" tabindex="-1" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="display: none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="defModalHead">Posts</h4>
-                <button type="button" class="close" onclick="javascript:$('#modalPost').hide()" data-dismiss="modal">
-                    <span aria-hidden="true">×</span>
-                    <span class="sr-only">Close</span>
-                </button>
-            </div>
-            <input type="hidden" name="idPostReportHd" id="idPostReportHd">
-            <div class="modal-body" style="overflow-y: auto;">
-                <div class="row">
-                    <div id="modalPostData">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@endsection

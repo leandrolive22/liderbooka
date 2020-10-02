@@ -70,7 +70,7 @@
                     @forelse($quizzes as $quiz)
                     <div class="timeline-item-content bg-default" style="margin-bottom:1rem;" id="quiz{{$quiz->id}}">
                         <div class="timeline-heading padding-bottom-0">
-                            <img src="{{ asset(@$quiz->avatar) }}" style="background-color:black"/> Publicado Por <a>{{@$quiz->name}}</a>
+                            <img src="{{ asset(@$quiz->user->avatar) }}" style="background-color:black"/> Publicado Por <a>{{@$quiz->name}}</a>
 
                             @if($deleteQuiz || $exportQuiz || $webMaster)
                             <ul class="panel-controls">
@@ -117,7 +117,7 @@
                                 <div class="pull-left">
 
                                     <!-- if eu tiver respondido -->
-                                    @if($quiz->answered >= 1)
+                                    @if($quiz->logs->where('user_id',Auth::id())->where('action','LIKE','ANSWER_QUIZ')->count() >= 1)
                                     <a class="text-success">
                                         <i class="fa fa-check"></i>
                                         Respondido

@@ -89,6 +89,11 @@
                                                     <input required type="hidden" name="user" id="user"
                                                         value="{{Auth::user()->id}}">
                                             </div>
+                                            <div class="form-group">
+                                              <label for="tags">HashTag</label>
+                                              <input required type="text" value="#" name="tags" class="form-control" id="tags"
+                                              placeholder="Hash Tag">
+                                            </div>
                                             <div class="panel panel-default form-group">
                                                 <div class="panel-body">
                                                     <h3><span class="fa fa-mail-forward"></span> Selecionar Roteiro</h3>
@@ -156,6 +161,7 @@
             data.append('script',$('input[type=file]')[0].files[0]);
             data.append('cargo_id',cargo);
             data.append('ilha_id',ilha);
+            data.append('tags',$('#tags').val());
             data.append('user',$('#user').val());
 
             $.ajax({

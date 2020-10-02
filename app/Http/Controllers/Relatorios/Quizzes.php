@@ -31,8 +31,32 @@ class Quizzes extends Controller {
             $id = base64_decode($i);
             $ids = '';
             //$ids = 'a.id As answer_id, q.id AS quiz_id, questions.id AS question_id, o.id As option_id, a.user_id, a.option_id AS multiple_answer';
-            $result = DB::select('
-                SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
+            $result = DB::select(
+                // SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
+                // questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
+                // u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
+
+                // FROM book_quizzes.quizzes AS q
+                // LEFT JOIN book_quizzes.questions 
+                //     ON q.id = questions.quiz_id
+                // LEFT JOIN book_quizzes.options AS o
+                //     ON o.question_id = questions.id
+                // LEFT JOIN book_quizzes.answers AS a 
+                //     ON questions.id = a.question_id 
+                // LEFT JOIN book_usuarios.users AS creator 
+                //     ON q.creator_id = creator.id
+                // LEFT JOIN book_usuarios.users AS u 
+                //     ON u.id = a.user_id
+                // LEFT JOIN book_usuarios.users AS supervisor 
+                //     ON supervisor.id = u.supervisor_id
+                // LEFT JOIN book_usuarios.users AS coordenador 
+                //     ON coordenador.id = u.coordenador_id
+                // LEFT JOIN book_usuarios.users AS gerente 
+                //     ON gerente.id = u.gerente_id
+                // LEFT JOIN book_usuarios.users AS superintendente 
+                //     ON superintendente.id = u.superintendente_id
+                // WHERE q.id = ?
+                "SELECT distinct q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
                 questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
                 u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
 
@@ -41,8 +65,11 @@ class Quizzes extends Controller {
                     ON q.id = questions.quiz_id
                 LEFT JOIN book_quizzes.options AS o
                     ON o.question_id = questions.id
-                JOIN book_quizzes.answers AS a 
-                    ON o.id = a.option_id AND a.question_id = questions.id
+                    
+                LEFT JOIN book_quizzes.answers AS a 
+                    ON (questions.id = a.question_id AND a.option_id = o.id) OR (questions.id = a.question_id AND a.option_id IS NULL)
+                    
+                    
                 LEFT JOIN book_usuarios.users AS creator 
                     ON q.creator_id = creator.id
                 LEFT JOIN book_usuarios.users AS u 
@@ -55,8 +82,8 @@ class Quizzes extends Controller {
                     ON gerente.id = u.gerente_id
                 LEFT JOIN book_usuarios.users AS superintendente 
                     ON superintendente.id = u.superintendente_id
-                WHERE q.id = ?
-                ',[$id]);
+                WHERE q.id = ?"
+                ,[$id]);
 
             
             $data = collect($result)->map(function($x){ return (array) $x; })->toArray(); 

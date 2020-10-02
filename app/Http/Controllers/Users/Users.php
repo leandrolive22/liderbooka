@@ -513,6 +513,9 @@ class Users extends Controller
     {
 
         $user = User::find($id);
+        if(is_null($user)) {
+            return back()->with(['errorAlert' => 'Erro ao alterar avatar, contate o suporte (#ISNULL).']);
+        }
         $str = "storage/img/avatar/".strval($avatar).".png";
         $user->avatar = $str;
         if ($user->save()) {
@@ -520,7 +523,7 @@ class Users extends Controller
             return redirect('profile/' . base64_encode($id))->with(['successAlert' => 'Avatar alterado com sucesso!']);
         } else {
 
-            return back()->with(['errorAlert' => 'Erro ao alterar usuário, tente novamente mais tarde.']);
+            return back()->with(['errorAlert' => 'Erro ao alterar avatar, tente novamente mais tarde.']);
         }
     }
 
