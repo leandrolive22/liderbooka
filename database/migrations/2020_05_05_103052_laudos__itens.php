@@ -18,16 +18,15 @@ class LaudosItens extends Migration
     {
         Schema::connection($this->connection)->create('laudos_itens', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('titulo');
-            $table->string('numero',100);
-            $table->string('questao');
-            $table->string('sinalizacao');
-            $table->string('procedimento');
-            $table->float('valor',5,2);
-            $table->unsignedBigInteger('creator_id');
-            $table->foreign('creator_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
-            $table->unsignedBigInteger('modelo_id');
-            $table->foreign('modelo_id')->references('id')->on('laudos_modelos')->onDelete('no action')->onUpdate('no action');
+            $table->unsignedBigInteger('id_laudo_item');
+            $table->foreign('id_laudo_item')->references('id')->on('laudos_modelos')->onDelete('no action')->onUpdate('no action');
+            $table->string('value')->nullable();
+            $table->float('value_pct',8,6);
+            $table->string('pergunta',300);
+            $table->string('obs',300);
+            $table->integer('ncg',1)->nullable();
+            $table->unsignedBigInteger('monitoria_id');
+            $table->foreign('monitoria_id')->references('id')->on('monitorias')->onDelete('no action')->onUpdate('no action');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -5,20 +5,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Connection;
 
-class CreateQuestionsTable extends Migration
+class CreateMonitoriaItensTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
+    protected $connection = 'bookmonitoria';
+
     public function up()
     {
-        Schema::connection('bookquiz')->create('questions', function (Blueprint $table) {
+        Schema::connection($this->connection)->create('monitoria_itens', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('question');
-            $table->unsignedBigInteger('quiz_id');
-            $table->foreign('quiz_id')->references('id')->on('quizzes');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +30,6 @@ class CreateQuestionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('monitoria_itens');
     }
 }

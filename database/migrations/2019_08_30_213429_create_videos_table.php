@@ -1,24 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Connection;
 
-
-class CreateRoteirosTable extends Migration
+class CreateVideosTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    protected $connection = 'bookmateriais';
-
     public function up()
     {
-        Schema::connection('bookmateriais')->create('roteiros', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::connection('bookmateriais')->create('videos', function (Blueprint $table) {
+             $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_path');
             $table->string('sub_local_id')->nullable();
@@ -41,6 +38,6 @@ class CreateRoteirosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roteiros');
+        Schema::dropIfExists('videos');
     }
 }

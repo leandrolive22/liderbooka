@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Connection;
 
-class CreateMotivosContestarTable extends Migration
+class CreateMeasuresModelsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,14 @@ class CreateMotivosContestarTable extends Migration
      */
     public function up()
     {
-        Schema::connection('bookmonitoria')->create('motivos_contestar', function (Blueprint $table) {
+        Schema::connection('bookrelatorios')->create('measures_models', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name',100);
             $table->unsignedBigInteger('creator_id');
             $table->foreign('creator_id')->references('id')->on('book_usuarios.users')->onUpdate('no action')->onDelete('no action');
+            $table->string('title');
+            $table->text('description');
+            $table->string('obs')->nullable();
+            $table->integer('used')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +34,6 @@ class CreateMotivosContestarTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('motivos_contestar');
+        Schema::dropIfExists('measures_models');
     }
 }

@@ -21,12 +21,12 @@ class CreateMateriaisTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_path');
-            $table->unsignedBigInteger('sub_local_id')->nullable();
-            $table->foreign('sub_local_id')->references('id')->on('sub_locais')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('ilha_id');
-            $table->foreign('ilha_id')->references('id')->on(('book_usuarios.ilhas'))->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('sector');
-            $table->foreign('sector')->references('id')->on('book_usuarios.setores')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('sub_local_id')->nullable();
+            $table->text('ilha_id');
+            $table->text('sector');
+            $table->text('tags');
+            $table->unsignedInteger('view_number')->nullable();
+            $table->text('cargo_id')->nullalbe();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('book_usuarios.users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

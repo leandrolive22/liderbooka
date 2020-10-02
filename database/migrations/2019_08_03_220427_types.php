@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Connection;
 
-class CreateQuestionsTable extends Migration
+class Types extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +13,10 @@ class CreateQuestionsTable extends Migration
      */
     public function up()
     {
-        Schema::connection('bookquiz')->create('questions', function (Blueprint $table) {
+        Schema::create('types', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('question');
-            $table->unsignedBigInteger('quiz_id');
-            $table->foreign('quiz_id')->references('id')->on('quizzes');
+            $table->string('name');
+            $table->text('description');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +29,6 @@ class CreateQuestionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('types');
     }
 }

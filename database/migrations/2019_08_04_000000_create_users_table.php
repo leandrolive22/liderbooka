@@ -18,13 +18,14 @@ class CreateUsersTable extends Migration
             $table->integer('matricula',8)->unique()->nullable();
             $table->string('name');
             $table->string('username');
-            $table->string('password');
-            $table->string('cpf',16);
+            $table->string('password')->default('$2y$12$FQiayIoIgaxLnQ81lYY7QemihcutWiPap8R3zc8ZfMbjkP1UeUdya');
+            $table->unsignedBigInteger('cpf');
             $table->integer('ddd',2)->nullable();
-            $table->integer('phone',9)->nullable();
-            $table->string('avatar');
-            $table->string('css',8);
+            $table->integer('phone',10)->nullable();
+            $table->string('avatar')->default('storage/img/avatar/default.png   ');
+            $table->string('css',8)->default('white');
             $table->text('token')->nullable();
+            $table->integer('have_msg',11)->default(0);
             $table->date('have_humour')->nullable();
             $table->timestamp('last_login');
             $table->unsignedBigInteger('cargo_id');
@@ -42,7 +43,7 @@ class CreateUsersTable extends Migration
             $table->unsignedBigInteger('gerente_id')->nullable();
             $table->unsignedBigInteger('superintendente_id')->nullable();
             $table->timestamp('accept_lgpd')->nullable();
-            $table->string('another_config')->nullable();
+            $table->text('another_config')->nullable();
             $table->date('data_admissao')->nullable();
             $table->rememberToken();
             $table->timestamps();

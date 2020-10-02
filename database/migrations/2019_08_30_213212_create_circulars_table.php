@@ -23,12 +23,13 @@ class CreateCircularsTable extends Migration
             $table->integer('number');
             $table->year('year');
             $table->string('file_path');
+            $table->string('segment')->nullable();
             $table->string('status');
+            $table->unsignedInteger('view_number');
+            $table->text('ilha_id');
+            $table->text('setor_id');
+            $table->text('cargo_id')->nullable();
             $table->text('tags');
-            $table->unsignedBigInteger('setor_id');
-            $table->foreign('setor_id')->references('id')->on('book_usuarios.setores')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('ilha_id');
-            $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('book_usuarios.users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

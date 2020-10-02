@@ -17,7 +17,7 @@ class CreateMessagesTable extends Migration
         Schema::connection('bookchats')->create('messages', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->longText('content');
-            $table->unsignedBigInteger('interlocutor_id');
+            $table->unsignedBigInteger('interlocutor_id')->nullable();
             $table->foreign('interlocutor_id')->references('id')->on('book_usuarios.users')->onDelete('cascade')->onUpdate('cascade');;
             $table->unsignedBigInteger('speaker_id');
             $table->foreign('speaker_id')->references('id')->on('book_usuarios.users')->onDelete('cascade')->onUpdate('cascade');

@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Connection;
 
-class QuizLogs extends Migration
+class CreateLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +14,15 @@ class QuizLogs extends Migration
      */
     public function up()
     {
-         Schema::connection('bookrelatorios')->create('quiz_logs', function (Blueprint $table) {
+        Schema::connection('bookrelatorios')->create('logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('action');
-            $table->unsignedBigInteger('quiz_id')->nullable();
-            $table->foreign('quiz_id')->references('id')->on('book_quizzes.quizzes')->onDelete('no action')->onUpdate('no action');
+            $table->string('value')->nullable();
+            $table->text('page');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
+            $table->unsignedBigInteger('ilha_id');
+            $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('no action')->onUpdate('no action');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +35,6 @@ class QuizLogs extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('logs');
     }
 }

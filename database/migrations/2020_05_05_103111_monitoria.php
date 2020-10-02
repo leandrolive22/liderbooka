@@ -18,33 +18,41 @@ class Monitoria extends Migration
     {
         Schema::connection($this->connection)->create('monitorias', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('file_path');
             $table->unsignedBigInteger('monitor_id');
             $table->foreign('monitor_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('operador_id');
             $table->foreign('operador_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('supervisor_id');
             $table->foreign('supervisor_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
-            $table->string('usuario_cliente');
-            $table->string('produto');
-            $table->string('cliente');
-            $table->string('tipo_ligacao');
-            $table->bigInteger('cpf_cliente');
+            $table->text('usuario_cliente')->nullable();
+            $table->unsignedBigInteger('produto');
+            $table->foreign('produto')->references('id')->on('book_usuarios.ilhas')->onDelete('no action')->onUpdate('no action');
+            $table->text('cliente');
+            $table->text('tipo_ligacao');
+            $table->bigInteger('cpf_cliente')->nullable();
             $table->date('data_ligacao');
             $table->time('hora_ligacao');
             $table->text('id_audio');
             $table->time('tempo_ligacao');
-            $table->unsignedInteger('pontos_positivos');
-            $table->unsignedInteger('pontos_desenvolver');
-            $table->unsignedInteger('pontos_atencao');
-            $table->string('hash_monitoria');
-            $table->text('monitor_feedback');
+            $table->text('pontos_positivos');
+            $table->text('pontos_desenvolver');
+            $table->text('pontos_atencao');
+            $table->string('hash_monitoria')->index();
+            $table->string('hash_operator')->nullable();
+            $table->float('media',6,2)->index();
+            $table->integer('conf');
+            $table->integer('nConf');
+            $table->integer('nAv');
+            $table->integer('ncg');
+            $table->string('quartil',3);
             $table->unsignedBigInteger('modelo_id');
             $table->foreign('modelo_id')->references('id')->on('laudos_modelos')->onDelete('no action')->onUpdate('no action');
-            $table->text('itens_id');
-            $table->unsignedBigInteger('feedback_supervisor');
-            $table->unsignedBigInteger('feedback_operador');
+            $table->text('feedback_monitor')->nullable();
+            $table->text('feedback_supervisor')->nullable();
+            $table->text('feedback_operador')->nullable();
+            $table->integer('resp_operador',1)->nullable();
+            $table->timestamp('operador_at')->nullable();
+            $table->timestamp('supervisor_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -57,6 +65,6 @@ class Monitoria extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roteiros');
+        Schema::dropIfExists('monitorias');
     }
 }
