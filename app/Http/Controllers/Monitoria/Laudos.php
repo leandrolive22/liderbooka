@@ -224,13 +224,18 @@ class Laudos extends Controller
                                                 'updated_at' => date('Y-m-d H:i:s'),
                                             ]);
                     } else {
+                        if($array[4] === 0) {
+                            $valorArray = $valor;
+                        } else {
+                            $valorArray = ($array[4]/100);
+                        }
                         $up = new Item();
                         $up->modelo_id = $id;
                         $up->numero = $numberArray;
                         $up->questao = $perguntaArray;
                         $up->sinalizacao = $sinalArray;
                         $up->procedimento =  'Conforme;Não Conforme; Não Avaliado';
-                        $up->valor = $valor;
+                        $up->valor = $valorArray;
                         $up->creator_id = $user;
                         $up->save();
 

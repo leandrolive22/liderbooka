@@ -39,6 +39,67 @@ class Materiais extends Controller
         return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
 
+    public function index2($ilha)
+    {
+        $title = 'Materiais';
+        $cargo = Auth::user()->cargo_id;
+        $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                            ->paginate(10);
+
+        $titlePage = $title;
+        $type = 'MATERIAL';
+
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+
+        return view('wiki.viewteste',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
+    }
+
+    public function pesquisar($campo, $valor,Request $tipo ) {
+     $title = 'Materiais';
+     $titlePage = $title;
+     $ilha = "13";
+     $cargo = "1";
+     $type = 'MATERIAL';
+
+     $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+     ->paginate(10);
+
+     // Pega ilhas
+     $ilhas = Ilha::select('id','name','setor_id')->get();
+
+     // Cargos
+     $cargos = Cargo::select('id','description')->get();
+
+        // Atualizando no banco de dados
+            switch ($campo) {
+                case 'nome':
+                    return $resultado = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND name LIKE '%$valor%'")->get();
+                    break;
+                
+                case 'id':
+                    return $resultado = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                    AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND id LIKE '%?%'"
+                    ,[$valor])->get();
+                    break;
+        
+                case 'tags':
+                    return $resultado = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                    AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND tags LIKE '%#?%'"
+                    ,[$valor])->get();
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+
+    }
+ 
+
     public function usuarios()
     {
         $usuarios =  DB::select("SELECT * FROM book_relatorios.logs WHERE value LIKE '%VIDEO%'");

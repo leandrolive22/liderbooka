@@ -307,7 +307,12 @@
             }
 
             // calcula valores automáticos (0), descontando os definidos
-            valores = parseFloat(((((100-valoresDefinidos)/($("tbody#laudosCreate > tr").length-contagemDefinidos)))/100).toFixed(6))
+            if(($("tbody#laudosCreate > tr").length-contagemDefinidos) === 0) {
+                valores = 0
+            } else {
+                denominador = ($("tbody#laudosCreate > tr").length-contagemDefinidos)
+                valores = parseFloat(((( (100-valoresDefinidos) /  denominador) )/100).toFixed(6))
+            }
 
             // em caso de erro, lança notificação
             if(error > 0) {
@@ -321,7 +326,11 @@
                 $("#btnSave").html('Salvar')
             } else {
                 dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+valores
-                
+                {{-- IF IS TEST --}}
+                @if(Auth::id() == 0)
+                console.log(valores+ ' ' +valoresDefinidos+ ' ' +contagemDefinidos+ ' ' +$("tbody#laudosCreate > tr").length + ' ' +dados)
+                @else
+                console.log(dados)
                 $.ajax({
                     url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
                     data: dados,
@@ -364,6 +373,7 @@
                         }
                     }
                 })
+                @endif
             }
         }
 

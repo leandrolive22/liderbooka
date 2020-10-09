@@ -82,14 +82,10 @@
                                 <div class="form-group col-sm-6 col-md-6 col-lg-6">
                                     <label for="supervisor">Supervisor</label>
                                     @if(isset($operador))
-                                        @if(!is_null($operador->supervisor))
-                                        <p class="form-control">{{$operador->supervisor}}</p>
-                                        @else
-                                        <input type="text" name="supervisor" id="supervisor" validate="Supervisor" class="form-control monitoria" >
+                                        <input type="text" name="supervisor" id="supervisor" validate="Supervisor" @if(!is_null($operador->supervisor)) value="{{$operador->supervisor}}" @endif class="form-control monitoria" >
                                         <button class="btn btn-danger col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
                                             <span class="fa fa-pencil"></span>
                                         </button>
-                                        @endif
                                     @elseif(isset($monitoria))
                                         <input type="text" name="supervisor" validate="Supervisor" id="supervisor" @if(isset($monitoria) && isset($monitoria->supervisor)) value="{{$monitoria->supervisor->name}}" @else value="Selecione um Operador" @endif class="form-control col-sm-11 col-md-11 col-lg-11" readonly>
 
@@ -99,6 +95,9 @@
                                     @else
                                         <label for="supervisor">Supervisor</label>
                                         <input type="text" validate="Supervisor" name="supervisor" class="form-control monitoria" >
+                                        <button class="btn btn-danger col-sm-1 col-md-1 col-lg-1" type="button" onclick="$('#modalTrue').show()">
+                                            <span class="fa fa-pencil"></span>
+                                        </button>
                                     @endif
                                     <input required type="hidden" class="monitoria" name="monitor" id="monitor" value="{{Auth::id()}}">
                                 </div>

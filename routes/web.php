@@ -6,17 +6,6 @@ use Illuminate\Support\Facades\Hash;
 
 Auth::routes(['register' => false]);
 
-Route::get('liderbook/public',function(){
-    return redirect('/');
-    });
-
-Route::get('hash/{hash}/',function($hash){
-    if(Hash::check($hash, '$2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS')) {
-        return 'ok___ $2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS ';
-    }
-    return Hash::make($hash).'    '.$hash;
-});
-
 /*********** Login ***********/
 Route::get('/', 'Users\Users@index')->name('default');
 Route::group(['prefix' => 'forgot'], function () {
@@ -32,10 +21,10 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
     //Controller de redirecionamento - login backend
     Route::get('/home/{page}','HomeController@index')->name('home');
 
-    Route::get('about_blank/',function ()
-    {
-        return view('blank');
-    });
+    // Route::get('about_blank/',function ()
+    // {
+    //     return view('blank');
+    // });
 
     Route::get('/home', 'HomeController@index')->name('homeN');
     /*********** rotas do menu de navegação ***********/
@@ -62,7 +51,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         Route::get('/calculadoras/{ilha}/{cargo}', 'Materials\Calculadoras@getCount')->name('GetCountCalculadoras');
     });
 
-    Route::get('teste/{id}/{user}', 'Users\Superiors@register')->where('id', '[0-9]+')->where('user', '[0-9]+');
+    // Route::get('teste/{id}/{user}', 'Users\Superiors@register')->where('id', '[0-9]+')->where('user', '[0-9]+');
 
     /*********** Rotas de Monitoria ***********/
     Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
@@ -488,8 +477,11 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         });
 
         /*********** WIKI ***********/
+        Route::get('/pesquisar/{campo}/{valor}', 'Materials\Materiais@pesquisar')
+        ->name('pesquisarMaterials');
+        
         Route::get('/wikicirculares', 'Materials\Circulares@selecionarCircular')
-        ->name('Circulares Wiki');
+        ->name('CircularesWiki');
 
         Route::get('/circulares/{ilha}', 'Materials\Circulares@index')
         ->where('ilha', '[0-9]+')
@@ -518,6 +510,9 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
         Route::get('materials/{ilha}', 'Materials\Materiais@index')
         ->name('GetMateriaisIndex');
+
+        Route::get('materialsteste/{ilha}', 'Materials\Materiais@index2')
+        ->name('GetMateriaisIndexteste');
 
         Route::get('/materials/{segment}/{ilha}', 'Materials\Materiais@segment')
         ->name('MateriaisSegmentWiki');

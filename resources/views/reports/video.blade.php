@@ -330,7 +330,6 @@
   }
   #h3name{
     text-align:center;
-    padding-left:520px;
     font-family:Arial;
   }
   
@@ -367,6 +366,7 @@
               <div class="panel panel-default">
                   <div class="panel-heading">
                       <h2 id="h3name" class="panel-title" style="color:black;"><strong> Usuários  Que Vizualizaram </strong></h2>
+                      <button style="position:relative;margin-top:-15px; margin-left:280px;" class="btn striped-shadow dark"><span id="exportBtn">Exportar</span></button>
                   </div>
                 <div class="panel-body" style="max-height: 500px; overflow-y: auto">
                     <table id="exportTable" class="table table-dark">
@@ -395,7 +395,6 @@
                         @endforeach
                             </tbody>
                         </table>
-                        <button style="position:relative; left:500px; top:-35px;" class="btn striped-shadow dark"><span id="exportBtn">Exportar</span></button>
                     </div>
                 </div>
                <!-- END DEFAULT DATATABLE -->

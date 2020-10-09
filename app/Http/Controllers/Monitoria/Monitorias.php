@@ -122,7 +122,7 @@ class Monitorias extends Controller
 
                 // verifica qual carteira o monitor tem visualização
                 if($escobs) {
-                    $searchCarteira = 'users.carteira_id IN ('.$this->escobsStr().')';
+                    $searchCarteira = 'NOT users.carteira_id = 1';
                 } else if($all) {
                     $searchCarteira = '1';
                 } else if($carteira) {

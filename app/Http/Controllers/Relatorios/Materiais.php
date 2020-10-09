@@ -14,15 +14,17 @@ use App\Materials\Video;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Session;
+use DB;
+use Auth;
 
 class Materiais extends Controller
 {
     public function getReportMaterials($type,$id, Request $request) {
         $title = 'Relatórios Avançados';
-        $materials = MaterialLogs::selectRaw('material_logs.created_at, Month(material_logs.created_at) as mes, u.name, i.name as ilha, 
-                            u.ilha_id ,u.cargo_id, c.description as cargo, super.name as supervisor, g.name as gerente, coord.name as coordenador, 
+        if(Auth::id() > 0) {
+            $materials = MaterialLogs::selectRaw('max(material_logs.created_at) created_at, Month(material_logs.created_at) as mes, u.name, i.name as ilha,
+                            u.ilha_id ,u.cargo_id, c.description as cargo, super.name as supervisor, g.name as gerente, coord.name as coordenador,
                             sup.name as superintendente, s.name as setor')
                             ->leftJoin('book_usuarios.users as u','u.id','material_logs.user_id')
                             ->leftJoin('book_usuarios.ilhas as i','i.id','u.ilha_id')
@@ -33,6 +35,45 @@ class Materiais extends Controller
                             ->leftJoin('book_usuarios.users as coord','coord.id','u.coordenador_id')
                             ->leftJoin('book_usuarios.users as sup','sup.id','u.superintendente_id')
                             ->where('material_logs.action','VIEW_'.$type)
+                            ->distinct()
+                            ->when($type === 'VIDEO',function($query) use ($id){
+                                return $query->where('material_logs.video_id',$id);
+                            })
+                            ->when($type === 'CIRCULAR',function($query) use ($id){
+                                return $query->where('material_logs.circular_id',$id);
+                            })
+                            ->when($type === 'SCRIPT',function($query) use ($id){
+                                return $query->where('material_logs.roteiro_id',$id);
+                            })
+                            ->when($type === 'MATERIAL',function($query) use ($id){
+                                return $query->where('material_logs.material_id',$id);
+                            })
+                            ->groupBy('u.name')
+                            ->groupBy('i.name')
+                            ->groupBy('u.ilha_id')
+                            ->groupBy('u.cargo_id')
+                            ->groupBy('c.description')
+                            ->groupBy('super.name')
+                            ->groupBy('g.name')
+                            ->groupBy('coord.name')
+                            ->groupBy('sup.name')
+                            ->groupBy('s.name')
+                            ->groupBy(DB::raw('Month(material_logs.created_at)'))
+                            ->get();
+        } else {
+            $materials = MaterialLogs::selectRaw('material_logs.created_at, Month(material_logs.created_at) as mes, u.name, i.name as ilha,
+                            u.ilha_id ,u.cargo_id, c.description as cargo, super.name as supervisor, g.name as gerente, coord.name as coordenador,
+                            sup.name as superintendente, s.name as setor')
+                            ->leftJoin('book_usuarios.users as u','u.id','material_logs.user_id')
+                            ->leftJoin('book_usuarios.ilhas as i','i.id','u.ilha_id')
+                            ->leftJoin('book_usuarios.setores as s','s.id','u.setor_id')
+                            ->leftJoin('book_usuarios.cargos as c','c.id','u.cargo_id')
+                            ->leftJoin('book_usuarios.users as super','super.id','u.supervisor_id')
+                            ->leftJoin('book_usuarios.users as g','g.id','u.gerente_id')
+                            ->leftJoin('book_usuarios.users as coord','coord.id','u.coordenador_id')
+                            ->leftJoin('book_usuarios.users as sup','sup.id','u.superintendente_id')
+                            ->where('material_logs.action','VIEW_'.$type)
+                            ->distinct()
                             ->when($type === 'VIDEO',function($query) use ($id){
                                 return $query->where('material_logs.video_id',$id);
                             })
@@ -46,10 +87,11 @@ class Materiais extends Controller
                                 return $query->where('material_logs.material_id',$id);
                             })
                             ->get();
+        }
 
         // Grava dados na sessão
         Session::put('excelExportsData', (array) $materials);
-        
+
         // $bySetor = $this->treatChartData($materials, $materials->count(), 'setor_id',['ilha_id','ilha','mes']);
         // $byIlhas = $this->treatChartData($materials, $materials->count(), 'ilha_id',['ilha_id','ilha','mes']);
         return view('reports.video', compact('title','materials'));
@@ -62,7 +104,7 @@ class Materiais extends Controller
         $count = 0;
         $index0 = 0;
         $dados = [];
-        if($tamanho > 0) {    
+        if($tamanho > 0) {
             // monta dados do gráfico de visualizações por ilha
             for($i=0; $i < $tamanho; $i++) {
                 if( $i === 0 ) {
@@ -74,7 +116,7 @@ class Materiais extends Controller
                     $count++;
 
                 // caso a ilha seja diferente
-                } else {                    
+                } else {
                     // coloca itens e visualizações no array
                     $array = [];
                     foreach($itens as $indice) {
@@ -85,7 +127,7 @@ class Materiais extends Controller
 
                     //coloca usuários que visualizaram no array
                     $array['views'] = $count;
-                    
+
                     // coloca array em array principal
                     $dados[] = [$index => $array];
                     $index++;
@@ -105,10 +147,10 @@ class Materiais extends Controller
                 foreach($itens as $indice) {
                     $array[$indice] = $item[0][$indice];
                 }
-                
+
                 // Pega usuários que não viram o material
                 $array['views'] = $count;
-                
+
                 //coloca usuários que visualizaram no array
                 $array['nVistos'] = $nVistos = (User::where($delimitadorDeBusca,$item[0][$itens[0]])->count())-$count;
 

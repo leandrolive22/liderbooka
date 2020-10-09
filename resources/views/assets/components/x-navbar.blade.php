@@ -43,7 +43,7 @@ if(in_array(17, $permissions) || $webMaster) {
         $nivel = 2;
     }
     else if(in_array($cargo, [4,8])) {
-        $area = '2';
+        $area = '1,2';
         $nivel = 3;
     }
     else if(in_array($cargo, [7,9,2,3])) {
