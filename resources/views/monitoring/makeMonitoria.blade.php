@@ -72,10 +72,28 @@
                                         </select>
                                     @endif
                                 </div>
+                                @if(Auth::user()->carteira_id == 1)
                                 <div class="form-group col-sm-6 col-md-6 col-lg-6">
                                     <label for="monitor">Usuário-Cliente</label>
                                     <input required type="text" validate="Usuário-Cliente" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @elseif(isset($operador)) value="" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
                                 </div>
+                                @else 
+                                <div class="form-group col-sm-6 col-md-6 col-lg-6">
+                                    <label for="tp_call">Tipo da Ligação</label>
+                                    <select name="tp_call" validate="Tipo da Ligação" id="tp_call" class="form-control select monitoria ">
+                                        <option value="0" @if(isset($monitoria) && $monitoria->tipo_ligacao === '0') selected="true" @endif>Selecione o tipo da ligação</option>
+                                        <option value="sucesso" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'sucesso') selected="true" @endif>Sucesso</option>
+                                        <option value="insucesso" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'insucesso') selected="true" @endif>Insucesso</option>
+                                        <option value="recado" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'recado') selected="true" @endif>Recado</option>
+                                        <option value="Promessa de Pagamento" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Promessa de Pagamento') selected="true" @endif>Promessa de Pagamento</option>
+                                        <option value="Sem Condições" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Sem Condições') selected="true" @endif>Sem Condições</option>
+                                        <option value="Preventivo Positivo" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo Positivo') selected="true" @endif>Preventivo Positivo</option>
+                                        <option value="Manutenção Negativa" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Manutenção Negativa') selected="true" @endif>Manutenção Negativa</option>
+                                        <option value="Preventivo em Atraso Positiva" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Positiva') selected="true" @endif>Preventivo em Atraso Positiva</option>
+                                        <option value="Preventivo em Atraso Negativo" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Negativo') selected="true" @endif>Preventivo em Atraso Negativo</option>
+                                    </select>
+                                </div>
+                                @endif
                             </div>
                             {{-- Dados da Monitoria  --}}
                             <div class="form-row">
@@ -113,6 +131,7 @@
                                 </div>
                             </div>
                             {{-- Dados da Ligação  --}}
+                            @if(Auth::user()->carteira_id == 1)
                             <div class="form-row">
                                 <div class="form-group col-sm-5 col-md-5 col-lg-5">
                                     <label for="nome_cliente">Cliente</label>
@@ -138,6 +157,7 @@
                                     <input required type="number" validate="CPF" class="form-control" name="cpf_cliente" id="cpf_cliente" @if(isset($monitoria)) value="{{$monitoria->cpf_cliente}}" @endif>
                                 </div>
                             </div>
+                            @endif
                             <div class="form-row">
                                 <div class="form-group col-sm-2 col-md-2 col-lg-2">
                                     <label for="dt_call">Data da Ligação</label>
@@ -161,6 +181,7 @@
                                 </div>
                             </div>
                             {{-- Pontos Monitoria --}}
+                            @if(Auth::user()->carteira_id == 1)
                             <div class="form-row">
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
                                     <label for="pt_pos">
@@ -181,6 +202,7 @@
                                     <input required type="text" class="form-control monitoria" validate="Pontos a Atenção" name="pt_att" id="pt_att" placeholder="Descreva os Pontos de Atenção" @if(isset($monitoria)) value="{{$monitoria->pontos_atencao}}" @endif>
                                 </div>
                             </div>
+                            @endif
                             {{-- NCG btn & Feedback  --}}
                             <div class="form-row">
                                 <div class="form-row col-sm-8 col-md-8 col-lg-8">
@@ -581,12 +603,14 @@
                     if(value == 'Conforme') {
                         conf += Number(1)
                         valueTotal += valor
+                        console.log('considerar: '+valor)
                         valueConsiderar += valor
                     }
 
                     // conta não conformes
                     else if(value == 'Não Conforme') {
                         nConf += Number(1)
+                        console.log('total: '+valor)
                         valueTotal += valor
                     }
 
@@ -600,7 +624,15 @@
             });
 
             if(ncg === 0) {
+                if(valueTotal == 0) {
+                    valueTotal++
+                }
                 media += Number(parseFloat(((valueConsiderar/valueTotal)*100)).toFixed(2))
+                if(media > 0 || media < 0) {
+                    media = media
+                } else {
+                    media = 0
+                }
             }
 
             $("#resultConf").html(conf)

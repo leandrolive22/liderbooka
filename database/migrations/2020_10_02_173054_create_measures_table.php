@@ -23,7 +23,7 @@ class CreateMeasuresTable extends Migration
             $table->foreign('creator_id')->references('id')->on('book_usuarios.users')->onUpdate('no action')->onDelete('no action');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('book_usuarios.users')->onUpdate('no action')->onDelete('no action');
-            $table->unsignedInteger('accept_user',3)->default(2)->comment('0 - Não aceito 1 - Aceito 2 - Aguardando resposta');
+            $table->unsignedInteger('accept_user')->default(2)->comment('0 - Não aceito 1 - Aceito 2 - Aguardando resposta');
             $table->string('aceite_hash',40)->nullable();
             $table->timestamp('accept_timestamp')->nullable();
             $table->string('ip_client')->nullable();

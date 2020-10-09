@@ -16,10 +16,10 @@ class CreateBaseConsultaSaldoRemanescenteTable extends Migration
     {
         Schema::connection('bookmateriais')->create('base_consulta_saldo_remanescente', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bitInteger('Nr_Contrato_Origem');
+            $table->unsignedBigInteger('Nr_Contrato_Origem');
             $table->string('Escritorio');
-            $table->bitInteger('Tel_Escritorio_1');
-            $table->bitInteger('Tel_Escritorio_2');
+            $table->unsignedBigInteger('Tel_Escritorio_1');
+            $table->unsignedBigInteger('Tel_Escritorio_2');
             $table->text('Endereco_Escritorio');
             $table->string('Cidade_Escritorio');
             $table->string('UF_Escritorio',2);

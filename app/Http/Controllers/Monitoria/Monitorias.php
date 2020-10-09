@@ -82,11 +82,12 @@ class Monitorias extends Controller
                     $models = Laudo::select('titulo','id')
                                     ->orderBy('utilizacoes','DESC')
                                     ->orderBy('id','DESC')
-                                    ->when(($carteira || $escobs), function($q) use($all,$escobs){
+                                    ->when(($carteira || $escobs), function($q) use($all,$escobs,$id){
                                             if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                return $q->whereIn('carteira_id',$this->escobsArr());
+                                                    return $q->whereRaw('NOT carteira_id = 1');
+                                                // return $q->whereIn('carteira_id',$this->escobsArr());
                                             }
                                             return $q->where('carteira_id',Auth::user()->carteira_id);
                                     })
@@ -107,11 +108,11 @@ class Monitorias extends Controller
                     $monitorias = Monitoria::selectRaw('monitorias.*, users.name')
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
-                                        ->when(($carteira || $escobs), function($q) use($all,$escobs){
+                                        ->when(($carteira || $escobs), function($q) use($all,$escobs,$id){
                                             if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                return $q->whereIn('users.carteira_id',$this->escobsArr());
+                                                return $q->where('users.id',$id);
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
@@ -241,13 +242,7 @@ class Monitorias extends Controller
             'operador' => 'required',
             'hr_call' => 'required',
             'hr_tp_call' => 'required',
-            'userCli' => 'required',
-            'nome_cliente' => 'required',
             'tp_call' => 'required',
-            'id_audio' => 'required',
-            'pt_pos' => 'required',
-            'pt_dev' => 'required',
-            'pt_att' => 'required',
             'hash' => 'required',
             'modelo_id' => 'required',
             'dt_call' => 'required',

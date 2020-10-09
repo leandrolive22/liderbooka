@@ -16,7 +16,7 @@ class CreateBaseDadosTable extends Migration
     {
         Schema::connection('bookmateriais')->create('base_dados', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('cpf');
+            $table->unsignedBigInteger('cpf');
             $table->string('CIC_DVR');
             $table->string('Politica_pega');
             $table->string('flag_unif');

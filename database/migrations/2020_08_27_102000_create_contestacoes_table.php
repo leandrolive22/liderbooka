@@ -17,9 +17,9 @@ class CreateContestacoesTable extends Migration
         Schema::connection('bookmonitoria')->create('contestacoes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('motivo_id');
-            $table->foreign('motivo_id')->references('id')->on('book_monitoria.motivos_contestar')->onUpdate('no action')->onDelete('no action');
+            // $table->foreign('motivo_id')->references('id')->on('book_monitoria.motivos_contestar')->onUpdate('no action')->onDelete('no action');
             $table->string('obs')->nullable();
-            $table->integer('passo',1);
+            $table->integer('passo');
             $table->string('status');            
             $table->unsignedBigInteger('monitoria_id');
             $table->foreign('monitoria_id')->references('id')->on('book_monitoria.monitorias')->onUpdate('no action')->onDelete('no action');

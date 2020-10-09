@@ -21,7 +21,6 @@ class CreateQuizzesTable extends Migration
             $table->unsignedBigInteger('creator_id');
             $table->foreign('creator_id')->references('id')->on('book_usuarios.users');
             $table->text('ilhas')->nullable();
-            $table->string('ilhas')->nullable();
             $table->unsignedInteger('num_responses')->default(0);
             $table->timestamp('validity');
             $table->timestamps();

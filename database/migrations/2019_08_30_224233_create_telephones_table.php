@@ -25,7 +25,7 @@ class CreateTelephonesTable extends Migration
             $table->string('days')->nullable();
             $table->string('obs')->nullable();
             $table->unsignedBigInteger('setor_id');
-            $table->foreign('setor_id')->references('id')->on('setores')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('setor_id')->references('id')->on('book_usuarios.setores')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
