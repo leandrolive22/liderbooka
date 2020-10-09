@@ -120,7 +120,7 @@ class Users extends Controller
     public function registerUserView()
     {
         // Gravas Setores em cache
-        if(Cache::has('getSetores'))
+        if(is_null(Cache::get('getSetores')))
         {
             $setores = Cache::get('getSetores');
         } else {
@@ -130,7 +130,7 @@ class Users extends Controller
         }
 
         // grava cargos em cache
-        if(Cache::has('getCargos'))
+        if(is_null(Cache::get('getCargos')))
         {
             $cargos = Cache::get('getCargos');
         } else {
@@ -140,7 +140,7 @@ class Users extends Controller
         }
 
         // grava carteiras em cache
-        if(Cache::has('getCarteiras'))
+        if(is_null(Cache::get('getCarteiras')))
         {
             $carteiras = Cache::get('getCarteiras');
         } else {
@@ -150,7 +150,7 @@ class Users extends Controller
         }
 
         // grava superintendentes em cache
-        if(Cache::has('getSuperintendentes'))
+        if(is_null(Cache::get('getSuperintendentes')))
         {
             $superintendentes = Cache::get('getSuperintendentes');
         } else {
@@ -159,7 +159,7 @@ class Users extends Controller
         }
 
         // grava gerentes em cache
-        if(Cache::has('getGerentes'))
+        if(is_null(Cache::get('getGerentes')))
         {
             $gerentes = Cache::get('getGerentes');
         } else {
@@ -255,7 +255,7 @@ class Users extends Controller
         ->paginate(15);
 
         // grava cargos em cache
-        if(Cache::has('getCargos'))
+        if(is_null(Cache::get('getCargos')))
         {
             $cargos = Cache::get('getCargos');
         } else {
@@ -265,7 +265,7 @@ class Users extends Controller
         }
 
         // grava superintendentes em cache
-        if(Cache::has('getSuperintendentes'))
+        if(is_null(Cache::get('getSuperintendentes')))
         {
             $superintendentes = Cache::get('getSuperintendentes');
         } else {
@@ -274,7 +274,7 @@ class Users extends Controller
         }
 
         // grava gerentes em cache
-        if(Cache::has('getGerentes'))
+        if(is_null(Cache::get('getGerentes')))
         {
             $gerentes = Cache::get('getGerentes');
         } else {
@@ -283,7 +283,7 @@ class Users extends Controller
         }
 
         // grava coordenadores em cache
-        if(Cache::has('getCoordenadores'))
+        if(is_null(Cache::get('getCoordenadores')))
         {
             $coordenadores = Cache::get('getCoordenadores');
         } else {
@@ -292,7 +292,7 @@ class Users extends Controller
         }
 
         // grava getSupervisores em cache
-        if(Cache::has('getSupervisores'))
+        if(is_null(Cache::get('getSupervisores')))
         {
             $supervisores = Cache::get('getSupervisores');
         } else {

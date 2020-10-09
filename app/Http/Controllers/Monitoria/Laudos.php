@@ -55,7 +55,7 @@ class Laudos extends Controller
             return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
         }
 
-        if(Cache::has('modelosMonitoria'.$model)) {
+        if(is_null(Cache::get('modelosMonitoria'.$model))) {
             $laudoItens = Cache::get('modelosMonitoria'.$model);
         } else {
             $laudoItens = $laudo->itens;

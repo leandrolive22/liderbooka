@@ -54,7 +54,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         $now = date('Y-m-d');
-        if(Cache::has('day')) {
+        if(Cache::has('day') || is_null(Cache::get('day'))) {
             if($now > Cache::get('day')) {
                 Cache::flush();
             }

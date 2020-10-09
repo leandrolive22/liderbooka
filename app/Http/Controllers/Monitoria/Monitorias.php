@@ -85,7 +85,7 @@ class Monitorias extends Controller
 
                 // Laudos
                 if($aplicarLaudo || $editarLaudo || $webMaster) {
-                    if(Cache::has($laudosCacheName)) {
+                    if(is_null(Cache::get($laudosCacheName))) {
                         $models = Cache::get($laudosCacheName);
                     } else {
                         $models = Laudo::select('titulo','id')
@@ -144,12 +144,16 @@ class Monitorias extends Controller
                 }
 
                 // Se cache existir, usa ele, se não, troca
-                $usersCache = Cache::has($usersCacheName);
-                if($usersCache) {
-                    $usersFiltering = Cache::get($usersCacheName);
+                $usersCache = is_null(Cache::get($usersCacheName));
+                if(Auth::id() > 0) {
+                    if($usersCache) {
+                        $usersFiltering = Cache::get($usersCacheName);
+                    } else {
+                        $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                        Cache::put($usersCacheName,$usersFiltering,720);
+                    }
                 } else {
-                    $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 1 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
-                    Cache::put($usersCacheName,$usersFiltering,720);
+                    $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
                 }
 
             } else {

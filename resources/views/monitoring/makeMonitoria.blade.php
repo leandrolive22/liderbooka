@@ -277,9 +277,11 @@
                                                         <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Conforme" /> {{-- <span class="fa fa-times"></span> --}} Não Conforme
                                                     </label>
                                                     @endif
+                                                    @if($item->valor == 1 || Auth::user()->carteira_id == 1)
                                                     <label class="check btn btn-danger">
                                                         <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="NCG_{{$item->id}}" title="NCG" /> {{-- <span class="fa fa-times"></span> --}} NCG
                                                     </label>
+                                                    @endif
                                                     <label class="check btn btn-secondary">
                                                         <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Avaliado" /> {{-- <span class="fa fa-times"></span> --}} Não Avaliado
                                                     </label>
@@ -423,7 +425,31 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="$('#modalConfirm').hide()">Cancelar</button>
-                <button class="btn btn-success" id="btnConfirmModal">@if (isset($monitoria)) <span class="fa fa-pencil"> Editar @else <span class="fa fa-save"> Gravar @endif</span></button>
+                <button class="btn btn-success" id="btnConfirmModal" onclick="$('#modalConfirm').hide()">@if (isset($monitoria)) <span class="fa fa-pencil"> Editar @else <span class="fa fa-save"> Gravar @endif</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- CONFIRMAÇÃO --}}
+<div class="modal in" id="modalConfirmacao" tabindex="-1" z-index="999" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="defModalHead">Sucesso!</div>
+                <button type="button" class="pull-right btn btn-outline-default" onclick="$('#modalConfirmacao').hide()" data-dismiss="modal"><span class="fa fa-times"></span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="alert alert-success" id="response">Sucesso!</div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-12">
+                        <a href="{{ asset('monitoring/manager') }}" class="btn btn-block btn-dark">
+                            <span class="fa fa-home"></span>
+                            Voltar ao Menu Monitoria
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -658,6 +684,7 @@
 
     // Salva monitoria
     function storeMonitoring(type) {
+        $('#modalConfirm').hide()
         data = $("input#dataStoreMonitoring").val()
         $("button#btnConfirmModal").prop('disabled',true)
         if(type === 0) {
@@ -673,7 +700,8 @@
                 data: data,
                 method: method,
                 success: function (response) {
-
+                        $("div#response").html(response.msg)
+                        $("#modalConfirmacao").show()
                         noty({
                             text: response.msg,
                             timeout: 3000,
