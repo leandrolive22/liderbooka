@@ -244,8 +244,13 @@
                             </thead>
                             <tbody>
                                 {{-- Se não é edição --}}
+                                @php
+                                if(!isset($laudoItens) || (isset($laudoItens) && !is_null($laudoItens))) {
+                                    $laudoItens = $laudo->itens;
+                                } 
+                                @endphp
                                 @if(!isset($itens))
-                                    @forelse ($laudo->itens as $item)
+                                    @forelse ($laudoItens as $item)
                                         @if(is_null($item->deleted_at))
                                             <tr id="trAplicarLaudos">
                                                 <td>

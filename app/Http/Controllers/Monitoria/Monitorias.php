@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Session;
+use Cache;
 
 class Monitorias extends Controller
 {
@@ -68,30 +69,40 @@ class Monitorias extends Controller
             $carteira = in_array(23, $permissions);
             $escobs = in_array(64, $permissions);
 
-            // DEBUG
-            // if(Auth::id() === 37) {
-            //     return var_dump($escobs);
-            // }
+            // Verifica caches de usuários
+            if($escobs) {
+                $usersCacheName = 'usersMonitoriaEscobs';
+                $laudosCacheName = 'modelosMonitoriaEscobs';
+            } else {
+                $usersCacheName = 'usersMonitoriaCallCenter';
+                $laudosCacheName = 'modelosMonitoriaCallCenter';
+            }
 
+            // Verifica se usuário é monitor ou dev
             if($isMonitor || $webMaster) {
                 $dataArray = [];
                 $lastMonth = date('Y-m-1 00:00:00');
 
                 // Laudos
                 if($aplicarLaudo || $editarLaudo || $webMaster) {
-                    $models = Laudo::select('titulo','id')
-                                    ->orderBy('utilizacoes','DESC')
-                                    ->orderBy('id','DESC')
-                                    ->when(($carteira || $escobs), function($q) use($all,$escobs,$id){
+                    if(Cache::has($laudosCacheName)) {
+                        $models = Cache::get($laudosCacheName);
+                    } else {
+                        $models = Laudo::select('titulo','id')
+                                        ->orderBy('utilizacoes','DESC')
+                                        ->orderBy('id','DESC')
+                                        ->when(($carteira || $escobs), function($q) use($all,$escobs,$id){
                                             if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                    return $q->whereRaw('NOT carteira_id = 1');
-                                                // return $q->whereIn('carteira_id',$this->escobsArr());
+                                                return $q->whereRaw('NOT carteira_id = 1');
                                             }
                                             return $q->where('carteira_id',Auth::user()->carteira_id);
-                                    })
-                                    ->get();
+                                        })
+                                        ->get();
+                        Cache::put($laudosCacheName, $models, 720);
+                    }
+
                 } else {
                     $models = [];
                 }
@@ -132,8 +143,14 @@ class Monitorias extends Controller
                     $searchCarteira = 'users.carteira_id = '.Auth::user()->carteira_id;
                 }
 
-                // dados do Cards
-                $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                // Se cache existir, usa ele, se não, troca
+                $usersCache = Cache::has($usersCacheName);
+                if($usersCache) {
+                    $usersFiltering = Cache::get($usersCacheName);
+                } else {
+                    $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 1 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                    Cache::put($usersCacheName,$usersFiltering,720);
+                }
 
             } else {
                 $ncgs = 0;

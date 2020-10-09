@@ -9,6 +9,7 @@ use App\Users\Ilha;
 use App\Users\Setor;
 use App\Http\Controllers\Users\Setores;
 use Auth;
+use Cache;
 
 class Carteiras extends Controller
 {
@@ -24,9 +25,27 @@ class Carteiras extends Controller
     {
 
         $title = 'Áreas';
-        $carteiras = Carteira::all();
-        $setores = Setor::all();
-        $ilhas = Ilha::all();
+        if(Cache::has('getCarteiras')) {
+            $carteiras = Cache::get('getCarteiras');
+        } else {
+            $carteiras = Carteira::all();
+            Cache::put('getCarteiras',$carteiras,720);
+        }
+
+        if(Cache::has('getSetores')) {
+            $setores = Cache::get('getSetores');
+        } else {
+            $setores = Setor::all();
+            Cache::put('getSetores',$setores,720);
+        }
+
+        if(Cache::has('getIlhas')) {
+            $ilhas = Cache::get('getIlhas');
+        } else {
+            $ilhas = Ilha::all();
+            Cache::put('getIlhas',$ilhas,720);
+        }
+        
         $compact = compact('type','title','carteiras','setores','ilhas');
 
         return view('gerenciamento.areas.index',$compact);
@@ -74,6 +93,7 @@ class Carteiras extends Controller
             }
 
             if(Setor::whereIn('id',$setores)->update(['carteira_id' => $c])) {
+                $this->forgetCache();
                 return response()->json(['successAlert' => 'Sincronizado com sucesso!'],201);
             }
 
@@ -146,6 +166,17 @@ class Carteiras extends Controller
             return back()->with('errorAlert','Erro ao inserir, contate o suporte!');
         } catch (Exception $e) {
             return back()->with('errorAlert',$e->getMessage());
+        }
+    }
+
+    public function forgetCache()
+    {
+        try {
+            Cache::forget('getSetores');
+            Cache::forget('getIlhas');
+            Cache::forget('getCarteiras');
+        } catch (Exception $e) {
+            return 0;
         }
     }
 

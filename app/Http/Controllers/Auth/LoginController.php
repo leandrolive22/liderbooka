@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Session;
 use Hash;
 use App\Users\Cargo;
+use Cache;
 
 class LoginController extends Controller
 {
@@ -52,6 +53,14 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        $now = date('Y-m-d');
+        if(Cache::has('day')) {
+            if($now > Cache::get('day')) {
+                Cache::flush();
+            }
+        } else {
+            Cache::add('day',$now,(60*24));
+        }
         // Dados de usuário
         $ilha = $user->ilha_id;
         $lgpd = $user->accept_lgpd;
@@ -94,3 +103,4 @@ class LoginController extends Controller
         }
     }
 }
+?>

@@ -12,6 +12,7 @@ use App\Http\Controllers\Logs\Logs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Cache;
 
 class Laudos extends Controller
 {
@@ -50,6 +51,17 @@ class Laudos extends Controller
         $carteira = Auth::user()->carteira_id;
 
         $laudo = Laudo::find($model);
+        if(is_null($laudo)) {
+            return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
+        }
+
+        if(Cache::has('modelosMonitoria'.$model)) {
+            $laudoItens = Cache::get('modelosMonitoria'.$model);
+        } else {
+            $laudoItens = $laudo->itens;
+            Cache::put('modelosMonitoria'.$model,$laudoItens,720);
+        }
+
         $users = User::select('id','name','supervisor_id')
                     ->whereIn('cargo_id',[5])
                     ->where('carteira_id',Auth::user()->carteira_id)
@@ -72,7 +84,7 @@ class Laudos extends Controller
         $id = 0;
 
         if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
-            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador'));
+            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','laudoItens'));
         }
 
         return redirect()->route('GetMonitoriasIndex')->with('errorAlert','Erro ao carregar informações do laudo, contato o suporte.');
@@ -149,6 +161,7 @@ class Laudos extends Controller
             //insere
             $itens = Item::insert($itensInsert);
             if($itens) {
+                $this->forgetCache();
                 return response()->json(['success' => TRUE, 'msg' => 'Laudos salvo com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();
@@ -249,6 +262,7 @@ class Laudos extends Controller
 
             if($error === 0) {
                 Item::whereNotIn('id',explode(',',$ids))->where('modelo_id',$id)->delete();
+                $this->forgetCache($id);
                 return response()->json(['success' => TRUE, 'msg' => 'Laudo alterado com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();
@@ -271,5 +285,19 @@ class Laudos extends Controller
         }
 
         return response()->json($delete->errors()->all(), 500);
+    }
+
+    public function forgetCache($id=0)
+    {
+        try {
+            if(in_array($id,[0,null])) {
+                Cache::forget('modelosMonitoriaCallCenter');
+                Cache::forget('modelosMonitoriaEscobs');
+            } else {
+                Cache::forget('modelosMonitoria'.$id);
+            }
+        } finally {
+            return 0;
+        }
     }
 }

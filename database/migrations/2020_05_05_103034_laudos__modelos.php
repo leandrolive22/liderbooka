@@ -20,7 +20,8 @@ class LaudosModelos extends Migration
         Schema::connection($this->connection)->create('laudos_modelos', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('titulo');
-            $table->integer('utilizacoes');
+            $table->string('tipo_monitoria');
+            $table->integer('utilizacoes')->default(0);
             $table->unsignedBigInteger('carteira_id');
             $table->foreign('carteira_id')->references('id')->on('book_usuarios.carteiras')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('creator_id');

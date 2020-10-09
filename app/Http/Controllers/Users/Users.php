@@ -740,17 +740,18 @@ class Users extends Controller
         $insert->username = $username;
         $insert->password = $pass;
         $insert->cpf = $cpf;
-        $insert->cargo_id = $cargo;
-        $insert->ilha_id = $ilha;
-        $insert->carteira_id = $carteira;
-        $insert->supervisor_id = $supervisor;
-        $insert->coordenador_id = $coordenador;
-        $insert->gerente_id = $gerente;
-        $insert->superintendente_id = $superintendente;
+        $insert->cargo_id = $cargo == '-' ? NULL : $cargo;
+        $insert->ilha_id = $ilha == '-' ? NULL : $ilha;
+        $insert->carteira_id = $carteira == '-' ? NULL : $carteira;
+        $insert->supervisor_id = $supervisor == '-' ? NULL : $supervisor;
+        $insert->coordenador_id = $coordenador == '-' ? NULL : $coordenador;
+        $insert->gerente_id = $gerente == '-' ? NULL : $gerente;
+        $insert->superintendente_id = $superintendente == '-' ? NULL : $superintendente;
         $insert->another_config;
 
         // salva e configura retornos
         if ($insert->save()) {
+            $this->forgetCache();
             $log = new Log();
             $log->action = 'NEW_USER:';
             $log->value = $insert->id;
@@ -968,6 +969,20 @@ class Users extends Controller
         ->orderBy('name')
         ->get();
         return $coordenadors;
+    }
+
+    public function forgetCache()
+    {
+        // Cache::forget('getSetores');
+        // Cache::forget('getCargos');
+        // Cache::forget('getCarteiras');
+        // users cache
+        Cache::forget('getSuperintendentes');
+        Cache::forget('getGerentes');
+        Cache::forget('getCoordenadores');
+        Cache::forget('getSupervisores');
+        Cache::forget('usersMonitoriaEscobs');
+        Cache::forget('usersMonitoriaCallCenter');
     }
 
 }
