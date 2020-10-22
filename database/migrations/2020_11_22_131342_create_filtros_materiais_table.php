@@ -18,9 +18,9 @@ class CreateFiltrosMateriaisTable extends Migration
             $table->unsignedBigInteger('material_id');
             $table->foreign('material_id')->references('id')->on('book_materiais.materiais_apoio')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('ilha_id')->nullable();
-            // $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('cargo_id')->nullable();
-            // $table->foreign('cargo_id')->references('id')->on('book_usuarios.cargos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('cargo_id')->references('id')->on('book_usuarios.cargos')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
