@@ -24,7 +24,9 @@ class Videos extends Controller
         $titlePage = $title;
         $type = 'VIDEO';
 
-        $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")->get();
+        $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->orderBy('created_at','desc') 
+        ->paginate(10);
 
         // Pega ilhas
         $ilhas = Ilha::select('id','name','setor_id')->get();
@@ -35,6 +37,67 @@ class Videos extends Controller
         return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
 
+    public function pesquisar($campo, $valor,Request $tipo ) {
+        $title = 'Videos';
+        $titlePage = $title;
+        $ilha = "13";
+        $cargo = "1";
+        $type = 'VIDEO';
+   
+        $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->paginate(10);
+   
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+   
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+   
+           // Atualizando no banco de dados
+               switch ($campo) {
+                   case 'nome':
+                    return $resultado = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                    AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND name LIKE ? "
+                    ,[$valor])->get();
+                       break;
+                   
+                   case 'id':
+                       return $resultado = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                       AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND id LIKE ? "
+                       ,[$valor])->get();
+                       break;
+           
+                   case 'tags':
+                       return $resultado = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                       AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND tags LIKE '%#?%'"
+                       ,[$valor])->get();
+                       break;
+   
+                   default:
+                       # code...
+                       break;
+               }
+   
+       }
+
+    public function filtros($valor) {
+        $title = 'Videos';
+        $titlePage = $title;
+        $ilha = "13";
+        $cargo = "1";
+        $type = 'VIDEO';
+   
+        $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->paginate(10);
+   
+        // Pega ilhas
+        $ilhas = Video::select('id','name','setor_id')->get();
+   
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+   
+        return $resultado = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND name LIKE '%$valor%'")->get();
+       }       
 
     public function relatorio()
     {

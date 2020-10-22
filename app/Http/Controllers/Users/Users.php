@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Users;
 use App\User AS UserDefault;
-use App\Chats\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Cookie;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
-use App\Http\Controllers\Users\Superiors;
 use App\Http\Controllers\Materials\Calculadoras;
 use App\Http\Controllers\Materials\Circulares;
 use App\Http\Controllers\Materials\Materiais;
@@ -32,7 +29,6 @@ use App\Materials\Circular;
 use App\Materials\Material;
 use App\Materials\Roteiro;
 use App\Materials\Video;
-use App\Users\Superior;
 use Cache;
 use DB;
 
@@ -40,7 +36,7 @@ class Users extends Controller
 {
     public function saveLogin($id)
     {
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         $user->last_login = date('Y-m-d H:i:s');
         $user->save();
 
@@ -111,7 +107,7 @@ class Users extends Controller
     public function profile($id)
     {
         $title = 'Profile';
-        $user = User::find(base64_decode($id));
+        $user = UserDefault::find(base64_decode($id));
 
         return view('profile.user', compact('title', 'user'));
     }
@@ -120,7 +116,7 @@ class Users extends Controller
     public function registerUserView()
     {
         // Gravas Setores em cache
-        if(is_null(Cache::get('getSetores')))
+        if(!is_null(Cache::get('getSetores')))
         {
             $setores = Cache::get('getSetores');
         } else {
@@ -130,7 +126,7 @@ class Users extends Controller
         }
 
         // grava cargos em cache
-        if(is_null(Cache::get('getCargos')))
+        if(!is_null(Cache::get('getCargos')))
         {
             $cargos = Cache::get('getCargos');
         } else {
@@ -140,7 +136,7 @@ class Users extends Controller
         }
 
         // grava carteiras em cache
-        if(is_null(Cache::get('getCarteiras')))
+        if(!is_null(Cache::get('getCarteiras')))
         {
             $carteiras = Cache::get('getCarteiras');
         } else {
@@ -150,7 +146,7 @@ class Users extends Controller
         }
 
         // grava superintendentes em cache
-        if(is_null(Cache::get('getSuperintendentes')))
+        if(!is_null(Cache::get('getSuperintendentes')))
         {
             $superintendentes = Cache::get('getSuperintendentes');
         } else {
@@ -159,7 +155,7 @@ class Users extends Controller
         }
 
         // grava gerentes em cache
-        if(is_null(Cache::get('getGerentes')))
+        if(!is_null(Cache::get('getGerentes')))
         {
             $gerentes = Cache::get('getGerentes');
         } else {
@@ -255,7 +251,7 @@ class Users extends Controller
         ->paginate(15);
 
         // grava cargos em cache
-        if(is_null(Cache::get('getCargos')))
+        if(!is_null(Cache::get('getCargos')))
         {
             $cargos = Cache::get('getCargos');
         } else {
@@ -265,7 +261,7 @@ class Users extends Controller
         }
 
         // grava superintendentes em cache
-        if(is_null(Cache::get('getSuperintendentes')))
+        if(!is_null(Cache::get('getSuperintendentes')))
         {
             $superintendentes = Cache::get('getSuperintendentes');
         } else {
@@ -274,7 +270,7 @@ class Users extends Controller
         }
 
         // grava gerentes em cache
-        if(is_null(Cache::get('getGerentes')))
+        if(!is_null(Cache::get('getGerentes')))
         {
             $gerentes = Cache::get('getGerentes');
         } else {
@@ -283,7 +279,7 @@ class Users extends Controller
         }
 
         // grava coordenadores em cache
-        if(is_null(Cache::get('getCoordenadores')))
+        if(!is_null(Cache::get('getCoordenadores')))
         {
             $coordenadores = Cache::get('getCoordenadores');
         } else {
@@ -292,7 +288,7 @@ class Users extends Controller
         }
 
         // grava getSupervisores em cache
-        if(is_null(Cache::get('getSupervisores')))
+        if(!is_null(Cache::get('getSupervisores')))
         {
             $supervisores = Cache::get('getSupervisores');
         } else {
@@ -333,7 +329,7 @@ class Users extends Controller
                         $q->orderByRaw($orderBy);
 
                         return $q;
-                    })->when(!is_null($request->deleted_at), function($q) {
+                    })->when(!!is_null($request->deleted_at), function($q) {
                         return $q->onlyTrashed();
                     })
                     ->get();
@@ -466,7 +462,7 @@ class Users extends Controller
     {
         $option = $request->input('option');
 
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         $user->css = $option;
         if ($user->save()) {
 
@@ -481,7 +477,7 @@ class Users extends Controller
     {
         $option = $request->input('name');
 
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         $user->name = $option;
         if ($user->save()) {
 
@@ -497,7 +493,7 @@ class Users extends Controller
     {
         $option = $request->input('username');
 
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         $user->username = $option;
         if ($user->save()) {
 
@@ -512,7 +508,7 @@ class Users extends Controller
     public function setAvatar($id, $avatar)
     {
 
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         if(is_null($user)) {
             return back()->with(['errorAlert' => 'Erro ao alterar avatar, contate o suporte (#ISNULL).']);
         }
@@ -537,7 +533,7 @@ class Users extends Controller
         if($pass == env("DEFAULT_PASSWORD")) {
             return response()->json(['errorAlert', 'Senha Padrão ('.env("DEFAULT_PASSWORD").') não permitida, altere a senha!'],422);
         } else if ($pass === $word) {
-            $change = User::find($id);
+            $change = UserDefault::find($id);
 
             //
             if(is_null($change)) {
@@ -550,18 +546,22 @@ class Users extends Controller
                 return response()->json(['successAlert', 'Senha Alterada com Sucesso!']);
             } else {
 
-                return response()->json(['errorAlert', 'Senha não registrada!']);
+                return response()->json(['errorAlert', 'Senha não registrada!'],422);
             }
         } else {
 
-            return response()->json(['errorAlert', 'As senhas são diferentes!']);
+            return response()->json(['errorAlert', 'As senhas são diferentes!',422]);
         }
     }
 
-    //redefine senha para padrão (function makePass())
+    //redefine senha para padrão
     public function resetPass($id, $u, $i)
     {
-        $user = User::find($id);
+        $user = UserDefault::find($id);
+        if(is_null($user)) {
+            return back()->with('errorAlert', 'usuário não encontrado!');
+        }
+
         $user->password = Hash::make('Book2020@lidera');
         if ($user->save()) {
             $log = new Logs();
@@ -598,7 +598,7 @@ class Users extends Controller
         $log->ilha_id = $ilha;
         if ($log->save()) {
 
-            $user = User::find($id);
+            $user = UserDefault::find($id);
             $user->have_humour = date('Y-m-d');
             $user->save();
 
@@ -693,7 +693,7 @@ class Users extends Controller
             "name" => "required|min:3",
             "matricula" => "required|unique:users",
             "username" => "required|unique:users,username,NULL,id,deleted_at,NULL",
-            "cpf" => "required|max:11|unique:users,cpf,NULL,id,deleted_at,NULL",
+            // "cpf" => "required|max:11|unique:users,cpf,NULL,id,deleted_at,NULL",
             "ilha_id" => "required|int",
             "cargo_id" => "required|int",
             "carteira_id" => "required|int",
@@ -702,7 +702,7 @@ class Users extends Controller
             "required" => "Este campo não pode ser vazio",
             "min" => "Este campo deve ser maior do que 3 caracteres",
             "max" => "Este campo deve ser menor do que 14 caracteres",
-            "cpf.unique" => "CPF já registrado",
+            // "cpf.unique" => "CPF já registrado",
             "username.unique" => "Nome de Usuário (Username) já registrado",
             "cpf.cpf" => "CPF inválido",
             "matricula.required" => "Matricula já registrada!"
@@ -711,7 +711,7 @@ class Users extends Controller
 
         // dados do form
         $name = $request->input("name");
-        $cpf = trim($request->input("cpf"));
+        // $cpf = trim($request->input("cpf"));
         $id = $request->input('id');
         $cargo = $request->input("cargo_id");
         $matricula = $request->input("matricula");
@@ -739,7 +739,7 @@ class Users extends Controller
         $insert->matricula = $matricula;
         $insert->username = $username;
         $insert->password = $pass;
-        $insert->cpf = $cpf;
+        // $insert->cpf = $cpf;
         $insert->cargo_id = $cargo == '-' ? NULL : $cargo;
         $insert->ilha_id = $ilha == '-' ? NULL : $ilha;
         $insert->carteira_id = $carteira == '-' ? NULL : $carteira;
@@ -796,8 +796,8 @@ class Users extends Controller
         $id = $request->input('id');
         $sup = $request->input('supSelection');
 
-	    $super = User::find($sup);
-        $user = User::find($id);
+	    $super = UserDefault::find($sup);
+        $user = UserDefault::find($id);
         $user->supervisor_id = $super->id;
         if($user->save()) {
             $m = new Monitorias();
@@ -834,7 +834,7 @@ class Users extends Controller
         $supervisor_id = $request->input('supervisor_id');
 
 
-        $update = User::find($id);
+        $update = UserDefault::find($id);
 
         if($update->count() == 0) {
             return response()->json(['success' => FALSE, 'msg' => 'Usuário não encontrado'], 404);
@@ -869,7 +869,7 @@ class Users extends Controller
     }
 
     public function editIlha($id, Request $request) {
-        $user = User::find($id);
+        $user = UserDefault::find($id);
         $user->ilha_id = $request->ilha_id;
         if($user->save()) {
             return redirect(url()->previous());
@@ -887,7 +887,7 @@ class Users extends Controller
 
         // pega usuario para ser deletado
         $user = User::withTrashed()->find($id);
-        if(!is_null($user)) {
+        if(!!is_null($user)) {
             $ilha = $user->ilha_id;
 
             $deleted = new DeletedUser();
@@ -898,7 +898,7 @@ class Users extends Controller
             $deleted->cpf = $user->cpf;
             $deleted->save();
 
-            if(!is_null($user->deleted_at)) {
+            if(!!is_null($user->deleted_at)) {
                 if($user->forceDelete()) {
                     //Registra log
                     $log = new Logs();

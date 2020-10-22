@@ -8,6 +8,7 @@ Route::post('/logout/{user}/{ilha}/','Logs\Logs@logout')
 Route::group(['prefix' => 'data'],function(){
     Route::get('cargo/{id}','Users\Cargos@nameCargo')->name('GetCargoData');
     Route::post('clickLink/','Logs\Logs@clickLink')->name('PostLogsClicklink');
+    Route::post('clickTag/','Logs\Logs@clickTag')->name('PostLogsClickTag');
     Route::get('ilha/{id}','Users\Ilhas@nameIlha')->name('GetIlhaName');
     Route::get('reaction/{id}/{user}','Posts\Reactions@view');
     Route::get('setores/json/byCarteira/{id}', 'Users\Setores@byCarteiraJSON')->name('GetSetoresByCarteira');
@@ -32,7 +33,7 @@ Route::group(['prefix' => 'data'],function(){
     Route::get('ilha/getBy/{setor}','Users\Ilhas@getIlhas')->name('getIlhasEditBySetor');
     Route::post('ilha/edit/{id}','Users\Users@editIlha')->name('PostEditIlha');
     Route::get('searchInTable/user','Users\Users@searchInTable')->name('searchInTableUser');
-    Route::get('searchInTable/monitoring','Monitoria\Monitorias@searchInTable')->name('searchInTableMonitoring'); 
+    Route::get('searchInTable/monitoring','Monitoria\Monitorias@searchInTable')->name('searchInTableMonitoring');
 });
 
 //download materials

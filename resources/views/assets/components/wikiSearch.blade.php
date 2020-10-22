@@ -33,7 +33,7 @@
                         class="list-group-item selectIlha py-1 @if($titlePage == 'Roteiros') active @endif ">Roteiros <span id="RoteirosBtn"
                         class="badge badge-danger"></span></a>
                     <a href="{{ route('CircularesWiki', [ 'ilha' => Auth::user()->ilha_id ]) }}"
-                        class="list-group-item selectIlha py-1 @if($titlePage == 'Circulares') active @endif ">Circulares <span id="CircularesBtn"
+                        class="list-group-item selectIlha py-1 @if($titlePage == 'Circulares') active @endif ">Comunicados <span id="CircularesBtn"
                         class="badge badge-danger"></span></a>
                     <a  href="{{ route('GetMateriaisIndex', [ 'ilha' => Auth::user()->ilha_id ]) }}"
                         class="list-group-item selectIlha py-1 @if($titlePage == 'Materiais') active @endif ">Materiais <span id="MateriaisBtn"

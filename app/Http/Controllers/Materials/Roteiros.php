@@ -21,7 +21,7 @@ class Roteiros extends Controller
         $title = 'Roteiros';
         $cargo = Auth::user()->cargo_id;
         $result = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                            ->get();
+                            ->paginate(10);
 
         $titlePage = $title;
         $type = 'SCRIPT';
@@ -34,6 +34,47 @@ class Roteiros extends Controller
 
         return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
+
+    public function pesquisar($campo, $valor,Request $tipo ) {
+        $title = 'Roteiros';
+        $titlePage = $title;
+        $ilha = "13";
+        $cargo = "1";
+        $type = 'SCRIPT';
+   
+        $result = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->paginate(10);
+   
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+   
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+   
+           // Atualizando no banco de dados
+               switch ($campo) {
+                   case 'nome':
+                       return $resultado = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND name LIKE '%$valor%'")->get();
+                       break;
+                   
+                   case 'id':
+                       return $resultado = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                       AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND id LIKE ?"
+                       ,[$valor])->get();
+                       break;
+           
+                   case 'tags':
+                       return $resultado = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
+                       AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND tags LIKE '%#?%'"
+                       ,[$valor])->get();
+                       break;
+   
+                   default:
+                       # code...
+                       break;
+               }
+   
+       }
 
     //pega numero dos roteiros
     public function getCount($ilha,$cargo) {

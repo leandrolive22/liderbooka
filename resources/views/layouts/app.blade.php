@@ -24,16 +24,20 @@
     @include('assets.css.scroll')
 
     <style type="text/css">
-     @if(Auth::user()->css === 'black')
-     body {
-         text-color: #ffffff;
-     }
-      @endif
+        @if(Auth::user()->css === 'black')
+        body {
+            text-color: #ffffff;
+        }
+        @endif
         .myParagraph{
             min-height: 20px;
             padding: 2px;
             border: solid 0.5px gray;
             border-radius: 5px;
+        }
+
+        .label-group {
+            margin:0;
         }
     </style>
 
@@ -166,9 +170,15 @@
     };
 
     //Pesquisa tudo o que possui a mesma HashTag
-    function clickTag(argument) {
-        // criar função em PHP que busca todos os dados do book que possuem a mesma tag
-        return 1;
+    function clickTag(tag) {
+        $.ajax({
+            url: "{{ route('PostLogsClickTag') }}",
+            data: "ilha={{Auth::user()->ilha_id}}&user={{Auth::id()}}&page={{ Request::url() }}&tag="+tag,
+            method: 'POST',
+            error: function(xhr) {
+                console.log(xhr)
+            }
+        })
     }
 
     // Salva cliques no link
@@ -177,6 +187,9 @@
             url: "{{ route('PostLogsClicklink') }}",
             data: "ilha={{Auth::user()->ilha_id}}&user={{Auth::id()}}&page={{ Request::url() }}&url="+url,
             method: 'POST',
+            error: function(xhr) {
+                console.log(xhr)
+            }
         })
     }
 

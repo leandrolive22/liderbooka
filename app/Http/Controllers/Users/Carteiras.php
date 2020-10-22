@@ -25,27 +25,27 @@ class Carteiras extends Controller
     {
 
         $title = 'Áreas';
-        if(is_null(Cache::get('getCarteiras'))) {
+        if(!is_null(Cache::get('getCarteiras'))) {
             $carteiras = Cache::get('getCarteiras');
         } else {
             $carteiras = Carteira::all();
             Cache::put('getCarteiras',$carteiras,720);
         }
 
-        if(is_null(Cache::get('getSetores'))) {
+        if(!is_null(Cache::get('getSetores'))) {
             $setores = Cache::get('getSetores');
         } else {
             $setores = Setor::all();
             Cache::put('getSetores',$setores,720);
         }
 
-        if(is_null(Cache::get('getIlhas'))) {
+        if(!is_null(Cache::get('getIlhas'))) {
             $ilhas = Cache::get('getIlhas');
         } else {
             $ilhas = Ilha::all();
             Cache::put('getIlhas',$ilhas,720);
         }
-        
+
         $compact = compact('type','title','carteiras','setores','ilhas');
 
         return view('gerenciamento.areas.index',$compact);
@@ -72,7 +72,7 @@ class Carteiras extends Controller
         ];
 
         $message = [
-            'carteira.required' => 'Selecione uma :attribute!',            
+            'carteira.required' => 'Selecione uma :attribute!',
             'setores.required' => 'Selecione os :attribute corretamente!',
         ];
         try {
@@ -118,7 +118,7 @@ class Carteiras extends Controller
         ];
 
         $message = [
-            'carteira.required' => 'Selecione uma :attribute!',            
+            'carteira.required' => 'Selecione uma :attribute!',
             'setores.required' => 'Selecione os :attribute corretamente!',
         ];
         try {

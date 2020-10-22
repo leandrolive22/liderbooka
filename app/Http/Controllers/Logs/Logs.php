@@ -50,7 +50,7 @@ class Logs extends Controller
     {
         $log = new Log();
         $log->action= 'CLICK_TAG';
-        $log->value = $request->input('url');
+        $log->value = $request->input('tag');
         $log->page = $request->input('page');
         $log->user_id = $request->input('user');
         $log->ilha_id = $request->input('ilha');

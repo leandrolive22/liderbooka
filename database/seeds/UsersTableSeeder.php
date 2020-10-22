@@ -16,38 +16,34 @@ class UsersTableSeeder extends Seeder
     {
 
     	DB::table('carteiras')->insert([
-    		'id' => NULL,
     		'name' => 'ADMIN',
     		'created_at' => now(),
     		'updated_at' => now()
     	]);
     	DB::table('setores')->insert([
-    		'id' => NULL,
     		'name' => 'ADMIN',
     		'carteira_id' => 1,
     		'created_at' => now(),
     		'updated_at' => now()
     	]);
     	DB::table('ilhas')->insert([
-    		'id' => NULL,
     		'name' => 'ADMIN',
     		'setor_id' => 1,
     		'created_at' => now(),
     		'updated_at' => now()
     	]);
 		DB::table('cargos')->insert([
-    		'id' => NULL,
     		'description' => 'ADMIN',
     		'created_at' => now(),
     		'updated_at' => now()
     	]);
         //Cria Usuário
         $insert = new User();
-        $insert->name = 'ADMIN';
-        $insert->matricula = '123456';
-        $insert->username = 'userteste';
+        $insert->name = 'dev';
+        $insert->matricula = '123450';
+        $insert->username = 'userdev';
         $insert->password = Hash::make('secret');
-        $insert->cpf = '12345678910';
+        $insert->cpf = '12345678912';
         $insert->cargo_id = '1';
         $insert->ilha_id = '1';
         $insert->carteira_id = '1';
@@ -69,6 +65,25 @@ class UsersTableSeeder extends Seeder
         	'permission_id' => 1,
         	'created_at' => now(),
     		'updated_at' => now()
+        ]);
+
+        DB::table('book_materiais.tipos_materiais')->insert([
+            [
+                'name' => 'Comunicado',
+                'created_at' => now(),
+            ],
+            [
+                'name' => 'Roteiro',
+                'created_at' => now(),
+            ],
+            [
+                'name' => 'Material de Apoio',
+                'created_at' => now(),
+            ],
+            [
+                'name' => 'Videos',
+                'created_at' => now(),
+            ],
         ]);
 
     }

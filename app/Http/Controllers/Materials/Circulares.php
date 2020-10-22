@@ -63,8 +63,9 @@ class Circulares extends Controller
         }
 
         //query
-        $result = Circular::whereRaw($sql)
-                            ->get();
+        $result = Circular::whereRaw("$sql")
+                            ->orderBy('created_at','desc')
+                            ->paginate(10);
         // Pega ilhas
         $ilhas = Ilha::select('id','name','setor_id')->get();
 
@@ -73,6 +74,78 @@ class Circulares extends Controller
 
         return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
+
+    public function pesquisar($campo, $valor, $ilha, $cargo, Request $tipo ) {
+        $p = new Permissions();
+        $types = $p->wikiSearchType();
+        $title = 'Circulares';
+        $titlePage = $title;
+        $type = 'CIRCULAR';
+        $result = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->paginate(10);
+   
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+   
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+
+        if($types['tudo']) {
+            $sql = "deleted_at IS NULL";
+        } else if($types['carteira']) {
+            $or = 'OR ';
+            $carteira = Auth::user()->carteira_id;
+            // Seleiona carteiras
+            try {
+                $setores = Ilha::select('ilhas.id')
+                                ->join('book_usuarios.setores','setores.id','ilhas.setor_id')
+                                ->where('setores.carteira_id',$carteira)
+                                ->get();
+            } catch (Exception $e) {
+                $setores = [];
+            }
+
+            // monta select
+            foreach($setores as $item) {
+                $or .= "ilha_id LIKE '%".$item->id."%' OR ";
+            }
+            if(strlen($or) > 1) {
+                $or = substr($or,0,-3);
+            } else if(strlen($or) < 1) {
+                unset($or);
+                $or = "";
+            }
+            $sql = "(ilha_id LIKE '%,1,%' $or) AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+        } else if($types['ilha']) {
+            $sql = "(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%')";
+        } else {
+            $sql = "(ilha_id LIKE '%,1,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL";
+        }
+   
+           // Atualizando no banco de dados
+               switch ($campo) {
+                   case 'nome':
+                       return $resultado = Circular::whereRaw("$sql AND name LIKE '%$valor%' ")
+                       ->orderBy('created_at','desc')
+                       ->get();
+                       break;
+
+                   case 'id':
+                       return $resultado = Circular::whereRaw("$sql AND id LIKE ?"
+                       ,[$valor])->get();
+                       break;
+           
+                   case 'tags':
+                       return $resultado = Circular::whereRaw("$sql AND tags LIKE '%#?%'"
+                       ,[$valor])->get();
+                       break;
+   
+                   default:
+                       # code...
+                       break;
+               }
+   
+       }
 
     public function year($year,$ilha)
     {

@@ -96,7 +96,7 @@
                                 </ul>
                             </div>
                             <div class="panel-body">
-                                <incode></incode> <code> Breve </code>
+                                <incode></incode> <code> #Jornadadocliente #Atendimento #PromessadePagamento</code>
                             </div>
                         </div>
 
@@ -108,16 +108,20 @@
 
                         <div id="card1" class="card text-black bg-black mb-3" style="max-width: 18rem; height: 115px;">
                             <a href="{{ route('CircularesWiki', [ 'ilha' => Auth::user()->ilha_id ]) }}" class="selectIlha">
-                                <div style="color:white; font-size:19px; text-align: center " class="card-header">Circulares</div>
+                                <div style="color:white; font-size:19px; text-align: center " class="card-header">Comunicados</div>
                             </a>
                             <div class="card-body">
-                                <select name="text-center right: 12rem;" id="" onchange="redirectToCircular(this)" class="form-control">
-                                    <option value="0">Selecione um Ano</option>
-                                    <option value="2017">2017</option>
-                                    <option value="2018">2018</option>
-                                    <option value="2019">2019</option>
-                                    <option value="2020">2020</option>
-                                </select>
+                                <select name="text-center right: 12rem;" id="" onchange="redirectToSegment(this,'circular')" class="form-control">
+                                    <option value="0">Pesquise por segmento</option>
+                                @if($segmentos == 0)
+                                @else
+                                @forelse ([] as $segmento)
+                                    <option value="{{$segmento->id}}">{{$segmento->name}}</option>
+                                @empty
+                                    <option value="0">Nenhum segmento encontrado</option>
+                                @endforelse
+                                @endif
+                           </select>
 
                                 <div id="card2" class="card text-black bg-black mb-3" style="max-width: 18rem;">
                                     {{-- Roteiros  --}}

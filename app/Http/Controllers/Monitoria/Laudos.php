@@ -27,7 +27,7 @@ class Laudos extends Controller
         return view('monitoring.makeModels',compact('title','carteiras'));
     }
 
-    // view que Cria Laudos de monitoria
+    // view que edita Laudos de monitoria
     public function edit($i)
     {
         $id = base64_decode($i);
@@ -55,12 +55,21 @@ class Laudos extends Controller
             return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
         }
 
-        if(is_null(Cache::get('modelosMonitoria'.$model))) {
-            $laudoItens = Cache::get('modelosMonitoria'.$model);
-        } else {
-            $laudoItens = $laudo->itens;
-            Cache::put('modelosMonitoria'.$model,$laudoItens,720);
-        }
+        // if(Auth::id() == 37) {
+        //     if(!is_null(Cache::get('modelosMonitoria'.$model))) {
+        //         $laudoItens = Cache::get('modelosMonitoria'.$model);
+        //         $itens = NULL;
+        //     } else {
+        //         $laudoItens = $laudo->itens;
+        //         $itens = NULL;
+        //         Cache::put('modelosMonitoria'.$model,$laudoItens,720);
+        //     }
+        // } else {
+        //     $laudoItens = $laudo->itens;
+        //     $itens = NULL;
+        // }
+        $laudoItens = $laudo->itens;
+        $itens = NULL;
 
         $users = User::select('id','name','supervisor_id')
                     ->whereIn('cargo_id',[5])
@@ -84,7 +93,7 @@ class Laudos extends Controller
         $id = 0;
 
         if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
-            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','laudoItens'));
+            return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','itens','laudoItens'));
         }
 
         return redirect()->route('GetMonitoriasIndex')->with('errorAlert','Erro ao carregar informações do laudo, contato o suporte.');
@@ -162,6 +171,8 @@ class Laudos extends Controller
             $itens = Item::insert($itensInsert);
             if($itens) {
                 $this->forgetCache();
+                $log = new Logs();
+                $log->log("INSERT_LAUDO", NULL, 'INSERT_LAUDO', $user, '1');
                 return response()->json(['success' => TRUE, 'msg' => 'Laudos salvo com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();
@@ -263,6 +274,10 @@ class Laudos extends Controller
             if($error === 0) {
                 Item::whereNotIn('id',explode(',',$ids))->where('modelo_id',$id)->delete();
                 $this->forgetCache($id);
+                // grava log
+                $log = new Logs();
+                $log->log("UPDATE_LAUDO", NULL, 'UPDATE_LAUDO', $user, '1');
+
                 return response()->json(['success' => TRUE, 'msg' => 'Laudo alterado com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();
@@ -278,10 +293,7 @@ class Laudos extends Controller
             $log = new Logs();
             $log->log("DELETE_MONITORIA", $id, 'delete_monitoria', $user, intval(@User::find($user)->ilha_id));
 
-            if(Item::where('modelo_id',$id)->delete()) {
-                return response()->json(['success' => TRUE, 'msg' => 'Modelo e Itens Excluídos com sucesso!'], 200);
-            }
-            return response()->json(['success' => TRUE, 'msg' => 'Modelo Excluído com sucesso!<br>Entre em contato com o desenvolvimento para excluir os itens da monitoria'], 200);
+            return response()->json(['success' => TRUE, 'msg' => 'Modelo e Itens Excluídos com sucesso!'], 200);
         }
 
         return response()->json($delete->errors()->all(), 500);

@@ -22,10 +22,9 @@ class Materiais extends Controller
     {
         $title = 'Materiais';
         $cargo = Auth::user()->cargo_id;
-        $quantidade = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                            ->count();
         $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                            ->paginate($quantidade);
+        ->orderBy('created_at','desc') 
+        ->paginate(10);
 
         $titlePage = $title;
         $type = 'MATERIAL';
@@ -39,32 +38,13 @@ class Materiais extends Controller
         return view('wiki.view',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
     }
 
-    public function index2($ilha)
-    {
-        $title = 'Materiais';
-        $cargo = Auth::user()->cargo_id;
-        $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                            ->paginate(10);
 
-        $titlePage = $title;
-        $type = 'MATERIAL';
 
-        // Pega ilhas
-        $ilhas = Ilha::select('id','name','setor_id')->get();
-
-        // Cargos
-        $cargos = Cargo::select('id','description')->get();
-
-        return view('wiki.viewteste',compact('result','title','titlePage','type', 'cargos', 'ilhas'));
-    }
-
-    public function pesquisar($campo, $valor,Request $tipo ) {
+    public function pesquisar($campo, $valor,$ilha, Request $tipo ) {
      $title = 'Materiais';
      $titlePage = $title;
-     $ilha = "13";
      $cargo = "1";
      $type = 'MATERIAL';
-
      $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
      ->paginate(10);
 
@@ -82,7 +62,7 @@ class Materiais extends Controller
                 
                 case 'id':
                     return $resultado = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') 
-                    AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND id LIKE '%?%'"
+                    AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND id LIKE ?"
                     ,[$valor])->get();
                     break;
         
@@ -98,6 +78,26 @@ class Materiais extends Controller
             }
 
     }
+
+    
+    public function filtros($valor) {
+        $title = 'Materiais';
+        $titlePage = $title;
+        $ilha = "13";
+        $cargo = "1";
+        $type = 'MATERIAL';
+   
+        $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+        ->paginate(10);
+   
+        // Pega ilhas
+        $ilhas = Ilha::select('id','name','setor_id')->get();
+   
+        // Cargos
+        $cargos = Cargo::select('id','description')->get();
+   
+        return $resultado = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL AND tags LIKE '%$valor%'")->get();
+       }
  
 
     public function usuarios()

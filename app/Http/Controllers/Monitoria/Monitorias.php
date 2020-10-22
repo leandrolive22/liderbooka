@@ -33,6 +33,7 @@ class Monitorias extends Controller
     public function index()
     {
         try {
+            // Cache::flush();
             if(Session::get('pwIsDf') == 1) {
                 return redirect('profile/'.base64_encode(Auth::id()))->with('errorAlert','Altere sua senha');
             }
@@ -85,7 +86,7 @@ class Monitorias extends Controller
 
                 // Laudos
                 if($aplicarLaudo || $editarLaudo || $webMaster) {
-                    if(is_null(Cache::get($laudosCacheName))) {
+                    if(!is_null(Cache::get($laudosCacheName)) && TRUE == TRUE) {
                         $models = Cache::get($laudosCacheName);
                     } else {
                         $models = Laudo::select('titulo','id')
@@ -100,7 +101,7 @@ class Monitorias extends Controller
                                             return $q->where('carteira_id',Auth::user()->carteira_id);
                                         })
                                         ->get();
-                        Cache::put($laudosCacheName, $models, 720);
+                        // Cache::put($laudosCacheName, $models, 720);
                     }
 
                 } else {
@@ -120,10 +121,12 @@ class Monitorias extends Controller
                                         ->where('monitorias.created_at', '>=', date("Y-m-01 00:00:00",strtotime('-2 Months')))
                                         ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
                                         ->when(($carteira || $escobs), function($q) use($all,$escobs,$id){
-                                            if($all) {
+                                            if($id = 5528) {
+                                                return $q->whereRaw('NOT users.carteira_id = 1');
+                                            }else if($all) {
                                                 return $q;
                                             } else if($escobs) {
-                                                return $q->where('users.id',$id);
+                                                return $q->where('monitorias.monitor_id',$id);
                                             }
                                             return $q->where('users.carteira_id',Auth::user()->carteira_id);
                                         })
@@ -144,9 +147,8 @@ class Monitorias extends Controller
                 }
 
                 // Se cache existir, usa ele, se não, troca
-                $usersCache = is_null(Cache::get($usersCacheName));
                 if(Auth::id() > 0) {
-                    if($usersCache) {
+                    if(!is_null(Cache::get($usersCacheName)) && FALSE == TRUE) {
                         $usersFiltering = Cache::get($usersCacheName);
                     } else {
                         $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
@@ -639,6 +641,8 @@ class Monitorias extends Controller
 
             // grava laudos
             if($error === 0) {
+                $log = new Logs();
+                $log->log("INSERT_MONITORIA", NULL, 'INSERT_MONITORIA', $user, '1');
                 return response()->json(['success' => TRUE, 'msg' => 'Monitoria Alterada!'], 201);
             } else {
                 return response()->json($monitoriaLaudos->errors()->all(), 500);

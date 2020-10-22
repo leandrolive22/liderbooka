@@ -9,8 +9,9 @@
                 <li><a href="#" class="panel-collapse"><span class="fa fa-angle-up"></span></a></li>
             </ul>
         </div>
-        <div class="panel-body" >
-            <form class="form-horizontal" id="newPOSTForm" onsubmit="return false">
+   @if(Auth::user()->css == "black") <div style="background-color:black; color:white;" class="panel-body">
+             @else <div class="panel-body">  @endif
+                <form class="form-horizontal" id="newPOSTForm" onsubmit="return false">
                 @csrf
                 <div class="form-group">
                     <div class="col-md-12">

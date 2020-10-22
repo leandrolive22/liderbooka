@@ -77,7 +77,7 @@
                                     <label for="monitor">Usuário-Cliente</label>
                                     <input required type="text" validate="Usuário-Cliente" class="form-control monitoria" @if(isset($monitoria)) value="{{$monitoria->usuario_cliente}}" @elseif(isset($operador)) value="" @endif name="userCli" id="userCli" placeholder="Ex: Usuário X">
                                 </div>
-                                @else 
+                                @else
                                 <div class="form-group col-sm-6 col-md-6 col-lg-6">
                                     <label for="tp_call">Tipo da Ligação</label>
                                     <select name="tp_call" validate="Tipo da Ligação" id="tp_call" class="form-control select monitoria ">
@@ -91,6 +91,9 @@
                                         <option value="Manutenção Negativa" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Manutenção Negativa') selected="true" @endif>Manutenção Negativa</option>
                                         <option value="Preventivo em Atraso Positiva" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Positiva') selected="true" @endif>Preventivo em Atraso Positiva</option>
                                         <option value="Preventivo em Atraso Negativo" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Preventivo em Atraso Negativo') selected="true" @endif>Preventivo em Atraso Negativo</option>
+                                        <option value="Negócio" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Negócio') selected="true" @endif>Negócio</option>
+                                        <option value="Não Negócio" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Não Negócio') selected="true" @endif>Não Negócio</option>
+                                        <option value="Recado" @if(isset($monitoria) && $monitoria->tipo_ligacao === 'Recado') selected="true" @endif>Recado</option>
                                     </select>
                                 </div>
                                 @endif
@@ -131,7 +134,6 @@
                                 </div>
                             </div>
                             {{-- Dados da Ligação  --}}
-                            @if(Auth::user()->carteira_id == 1)
                             <div class="form-row">
                                 <div class="form-group col-sm-5 col-md-5 col-lg-5">
                                     <label for="nome_cliente">Cliente</label>
@@ -157,7 +159,6 @@
                                     <input required type="number" validate="CPF" class="form-control" name="cpf_cliente" id="cpf_cliente" @if(isset($monitoria)) value="{{$monitoria->cpf_cliente}}" @endif>
                                 </div>
                             </div>
-                            @endif
                             <div class="form-row">
                                 <div class="form-group col-sm-2 col-md-2 col-lg-2">
                                     <label for="dt_call">Data da Ligação</label>
@@ -169,10 +170,12 @@
                                         <input required type="time" validate="Hora da Ligação" step="1" max="23:59:59" name="hr_call" id="hr_call" class="form-control col-sm-12 col-md-12 col-lg-12" @if(isset($monitoria)) value="{{ $monitoria->hora_ligacao }}" @else value="{{ date('H:i') }}:53" @endif>
                                     </div>
                                 </div>
+                                @if(Auth::user()->carteira_id === 1)
                                 <div class="form-group col-sm-4 col-md-4 col-lg-4">
                                     <label for="id_audio">ID do Áudio</label>
                                     <input required type="text" class="form-control monitoria" validate="ID do Áudio" name="id_audio" id="id_audio" placeholder="Digite o código do audio" @if(isset($monitoria)) value="{{$monitoria->id_audio}}" @endif>
                                 </div>
+                                @endif
                                 <div class="form-group col-sm-3 col-md-3 col-lg-3">
                                     <label for="tempo_ligacao">Tempo da Ligação</label>
                                     <div class="input-group input-group-md col-sm-12 col-md-12 col-lg-12" id="tempo_ligacao">
@@ -244,12 +247,7 @@
                             </thead>
                             <tbody>
                                 {{-- Se não é edição --}}
-                                @php
-                                if(!isset($laudoItens) || (isset($laudoItens) && !is_null($laudoItens))) {
-                                    $laudoItens = $laudo->itens;
-                                } 
-                                @endphp
-                                @if(!isset($itens))
+                                @if(is_null($itens))
                                     @forelse ($laudoItens as $item)
                                         @if(is_null($item->deleted_at))
                                             <tr id="trAplicarLaudos">
@@ -269,24 +267,31 @@
                                                     </p>
                                                 </td>
                                                 <td class="procedimentos" id="{{$item->id}}">
-                                                    <label class="check btn btn-success">
+                                                    <label class="check btn btn-success label-group">
                                                         <input required type="radio" value="Conforme" @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Conforme" /> {{-- <span class="fa fa-check"></span> --}} Conforme
                                                     </label>
                                                     @if($item->valor < 1)
-                                                    <label class="check btn btn-dark">
+                                                    <label class="check btn btn-dark label-group">
                                                         <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Conforme" /> {{-- <span class="fa fa-times"></span> --}} Não Conforme
                                                     </label>
                                                     @endif
                                                     @if($item->valor == 1 || Auth::user()->carteira_id == 1)
-                                                    <label class="check btn btn-danger">
+                                                    <label class="check btn btn-danger label-group">
                                                         <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="NCG_{{$item->id}}" title="NCG" /> {{-- <span class="fa fa-times"></span> --}} NCG
                                                     </label>
                                                     @endif
-                                                    <label class="check btn btn-secondary">
+                                                    <label class="check btn btn-secondary label-group">
                                                         <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Avaliado" /> {{-- <span class="fa fa-times"></span> --}} Não Avaliado
                                                     </label>
                                                 </td>
                                             </tr>
+                                            @if(Auth::id() === 37)
+                                            <tr>
+                                                <td colspan="4">
+
+                                                </td>
+                                            </tr>
+                                            @endif
                                         @endif
                                     @empty
                                         <td colspan="4" class="text-center">Nenhum dado encontrado</td>

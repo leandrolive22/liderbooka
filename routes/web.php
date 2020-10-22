@@ -6,6 +6,17 @@ use Illuminate\Support\Facades\Hash;
 
 Auth::routes(['register' => false]);
 
+Route::get('liderbook/public',function(){
+    return redirect('/');
+    });
+
+Route::get('hash/{hash}/',function($hash){
+    if(Hash::check($hash, '$2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS')) {
+        return 'ok___ $2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS ';
+    }
+    return Hash::make($hash).'    '.$hash;
+});
+
 /*********** Login ***********/
 Route::get('/', 'Users\Users@index')->name('default');
 Route::group(['prefix' => 'forgot'], function () {
@@ -21,10 +32,10 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
     //Controller de redirecionamento - login backend
     Route::get('/home/{page}','HomeController@index')->name('home');
 
-    // Route::get('about_blank/',function ()
-    // {
-    //     return view('blank');
-    // });
+    Route::get('about_blank/',function ()
+    {
+        return view('blank');
+    });
 
     Route::get('/home', 'HomeController@index')->name('homeN');
     /*********** rotas do menu de navegação ***********/
@@ -51,7 +62,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         Route::get('/calculadoras/{ilha}/{cargo}', 'Materials\Calculadoras@getCount')->name('GetCountCalculadoras');
     });
 
-    // Route::get('teste/{id}/{user}', 'Users\Superiors@register')->where('id', '[0-9]+')->where('user', '[0-9]+');
+    Route::get('teste/{id}/{user}', 'Users\Superiors@register')->where('id', '[0-9]+')->where('user', '[0-9]+');
 
     /*********** Rotas de Monitoria ***********/
     Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
@@ -477,8 +488,24 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         });
 
         /*********** WIKI ***********/
-        Route::get('/pesquisar/{campo}/{valor}', 'Materials\Materiais@pesquisar')
+      
+        Route::get('/pesquisarscript/{campo}/{valor}', 'Materials\Roteiros@pesquisar')
+        ->name('pesquisarScripts');
+
+        Route::get('/pesquisarcircular/{campo}/{valor}/{ilha}/{cargo}', 'Materials\Circulares@pesquisar')
+        ->name('pesquisarCirculares');
+
+        Route::get('/pesquisarvideo/{campo}/{valor}', 'Materials\Videos@pesquisar')
+        ->name('pesquisarVideos');
+
+        Route::get('/filtrosvideo/{valor}', 'Materials\Videos@filtros')
+        ->name('filtrosVideo');
+
+        Route::get('/pesquisar/{campo}/{valor}/{ilha}', 'Materials\Materiais@pesquisar')
         ->name('pesquisarMaterials');
+
+        Route::get('/filtros/{valor}', 'Materials\Materiais@filtros')
+        ->name('filtros');
         
         Route::get('/wikicirculares', 'Materials\Circulares@selecionarCircular')
         ->name('CircularesWiki');
@@ -546,6 +573,9 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         Route::get('/siape', 'Materials\Calculadoras@Siape')
         ->name('CalculadoraSiape');
 
+        Route::get('/cartoes', 'Materials\Calculadoras@Cartoes')
+        ->name('CalculadoraCartoes');
+
         Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
             ->name('CalculadoraDilatacao');
 
@@ -598,6 +628,9 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
         Route::get('/dilatacao', 'Materials\Calculadoras@Dilatacao')
         ->name('CalculadoraDilatacao');
+
+        Route::get('/cartoes', 'Materials\Calculadoras@Cartoes')
+        ->name('CalculadoraCartoes');
 
     });
 

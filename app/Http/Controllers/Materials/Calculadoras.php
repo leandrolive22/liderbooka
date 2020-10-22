@@ -275,4 +275,8 @@ class Calculadoras extends Controller
         $title = 'Calculadora Siape';
         return view('calculadoras.Dilatacao', compact('title'));
     }
+    public function Cartoes() {
+        $title = 'Calculadora Cartões';
+        return view('calculadoras.cartoes', compact('title'));
+    }
 }

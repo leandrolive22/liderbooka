@@ -46,10 +46,10 @@
                                     <label class="col-md-2 control-label">Data de Admissão</label>
                                     <input class="form-control col-md-8" type="date" id="data_admissao" name="data_admissao">
                                 </div>
-                                <div class="form-group col-md-12">
+{{--                                 <div class="form-group col-md-12">
                                     <label class="col-md-2 control-label">CPF</label>
                                     <input type="number" class="form-control col-md-8" maxlength="11" id="cpf" name="cpf">
-                                </div>
+                                </div> --}}
                                 <div class="form-group col-md-12">
                                     <label class="col-md-2 control-label">Carteira</label>
                                     <select data-live-search="true" class="form-control col-md-8" name="carteira_id" id="carteira_id" onchange="getSetores(this)">
