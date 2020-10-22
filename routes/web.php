@@ -698,6 +698,13 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
     });
 });
 
+Route::group(['prefix' => 'newWiki'], function () {
+    Route::get('/', function() {
+        return 'ok';
+    });
+    Route::get('/manager','Materiais\MaterialController@manager');
+});
+
 //ADMINS ROUTES
 Route::group(['prefix' => 'admin', 'middleware' => 'SetPermissions'], function(){
     Route::get('permissions/by/user/','Permissions\Permissions@getUserPermissions')
