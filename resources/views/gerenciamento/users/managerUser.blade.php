@@ -62,7 +62,7 @@
                                 <tr>
                                     <th>Nome</th>
                                     <th>Usuário</th>
-                                    <th>CPF</th>
+                                    <th>Matrícula</th>
                                     @if(in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                     <th>Ações</th>
                                     @endif
@@ -84,7 +84,7 @@
                                         </td>
                                         <td>
                                             <!-- Formata CPF  -->
-                                            {{ preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", str_pad($user->cpf,'11','0',STR_PAD_LEFT)) }}
+                                            {{ $user->matricula }}
                                         </td>
                                         @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
                                         <td>

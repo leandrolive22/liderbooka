@@ -387,19 +387,11 @@
             // Busca Ilhas
             $.getJSON(url, function(data){
                 len = data.length
-                if(len > 0) {
-                    linhas = ''
-                    for(i=0; i<len; i++) {
-                        $("input[setor="+data[i].setor_id+"]").prop('checked',true)
-                    }
-                    $("#modalAdd").show()
-                } else {
-                    noty({
-                        text: 'Nenhuma ilha encontrada!',
-                        layout: 'topRight',
-                        type: 'warning',
-                    });
+                linhas = ''
+                for(i=0; i<len; i++) {
+                    $("input[setor="+data[i].setor_id+"]").prop('checked',true)
                 }
+                $("#modalAdd").show()
             });
         } catch (e) {
             console.log('Error: '+e)

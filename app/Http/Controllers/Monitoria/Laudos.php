@@ -147,7 +147,7 @@ class Laudos extends Controller
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
                     // $array[3] - Não utilizado na inserção, apenas edição
-                    if($array[4] === 0) {
+                    if($array[4] == 0) {
                         $valorArray = $valor;
                     } else {
                         $valorArray = (str_replace('|','.',$array[4])/100);
@@ -228,7 +228,7 @@ class Laudos extends Controller
                     $perguntaArray = $array[1];
                     $sinalArray = $array[2];
                     $idArray = $array[3];
-                    if($array[4] === 0) {
+                    if($array[4] == 0) {
                         $valorArray = $valor;
                     } else {
                         $valorArray = ($array[4]/100);

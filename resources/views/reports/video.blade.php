@@ -365,7 +365,7 @@
               <!-- START DEFAULT DATATABLE -->
               <div class="panel panel-default">
                   <div class="panel-heading">
-                      <h2 id="h3name" class="panel-title" style="color:black;"><strong> Usuários  Que Vizualizaram </strong></h2>
+                      <h2 id="h3name" class="panel-title" style="color:black;"><strong> Usuários  Que Visualizaram </strong></h2>
                       <button style="position:relative;margin-top:-15px; margin-left:280px;" class="btn striped-shadow dark"><span id="exportBtn">Exportar</span></button>
                   </div>
                 <div class="panel-body" style="max-height: 500px; overflow-y: auto">

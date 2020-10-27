@@ -12,7 +12,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Tools\Tools;
 use App\Http\Controllers\Users\Users;
 use App\Users\Ilha;
-use App\Users\User;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -146,16 +146,29 @@ class Monitorias extends Controller
                     $searchCarteira = 'users.carteira_id = '.Auth::user()->carteira_id;
                 }
 
-                // Se cache existir, usa ele, se não, troca
+                // bloco para testes
                 if(Auth::id() > 0) {
-                    if(!is_null(Cache::get($usersCacheName)) && FALSE == TRUE) {
-                        $usersFiltering = Cache::get($usersCacheName);
+                    if($escobs) {
+                        // Cache::forget($usersCacheName);
+                        if(!is_null(Cache::get($usersCacheName))) {
+                            $usersFiltering = Cache::get($usersCacheName);
+                        } else {
+                            $usersFiltering = User::selectRaw('users.id, users.username, users.cpf, users.name, users.matricula')->whereRaw('NOT carteira_id = 1 AND cargo_id IN (5,13)')->get();
+                            Cache::put($usersCacheName,$usersFiltering,720);
+                        }
+
                     } else {
-                        $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
-                        Cache::put($usersCacheName,$usersFiltering,720);
+
+                        if(!is_null(Cache::get($usersCacheName)) && FALSE) {
+                            $usersFiltering = Cache::get($usersCacheName);
+                        } else {
+                            $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, users.matricula, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id AND deleted_at IS NULL) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                            Cache::put($usersCacheName,$usersFiltering,720);
+                        }
                     }
                 } else {
-                    $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                    $usersFiltering = DB::select('SELECT users.id, users.username, users.cpf, users.name, users.matricula, (SELECT COUNT(monitorias.id) FROM book_monitoria.monitorias WHERE created_at >= "'.date("Y-m-01 00:00:00").'" AND operador_id = users.id AND deleted_at IS NULL) AS ocorrencias FROM book_usuarios.users LEFT JOIN book_monitoria.monitorias ON users.id = monitorias.operador_id WHERE '.$searchCarteira.' AND users.cargo_id = 5 AND ISNULL(users.deleted_at) GROUP BY users.id, users.name , users.username, users.cpf ORDER BY ocorrencias, name;');
+                    Cache::put($usersCacheName,$usersFiltering,720);
                 }
 
             } else {
@@ -282,7 +295,7 @@ class Monitorias extends Controller
 
         // trata variáveis para salvar
         $operador = $request->input('operador');
-        $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
+        $supervisor = User::select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
         // Dados do Monitor
         $monitor = User::find($user);

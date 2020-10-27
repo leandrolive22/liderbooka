@@ -21,4 +21,9 @@ class Ilha extends Model
     public function setor() {
         return $this->belongsTo('App\Users\Setor','setor_id','id');
     }
+
+    public function filtroMateriais()
+    {
+        return hasMany('App\Materiais\Ilha');
+    }
 }

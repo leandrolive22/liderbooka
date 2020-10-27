@@ -243,7 +243,7 @@ class Users extends Controller
         }
 
         // grava usuários em Cache
-        $users = User::select('id','name','username','cpf','ilha_id')
+        $users = User::select('id','name','username','matricula','ilha_id')
         ->when(!in_array($carteira,[1,2,9]),function($q,$carteira) {
             return $q->where('carteira_id',$carteira);
         })
@@ -856,6 +856,7 @@ class Users extends Controller
         $update->supervisor_id = in_array($supervisor_id,['null','',' ',0]) ? NULL : $supervisor_id;
 
         if ($update->save()) {
+            $this->forgetCache();
             $m = new Monitorias();
             $m->changeAllSupers($id,in_array($supervisor_id,['null','',' ',0]) ? NULL : $supervisor_id);
 

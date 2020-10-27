@@ -7,7 +7,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title" id="defModalHead">
-						Editar 
+						Editar
 						<b id="tipeEdit"></b>
 					</h4>
 				</div>
@@ -35,7 +35,7 @@
 									</label>
 									<input class="tagsinput" id="tagsEdit" name="tagsEdit" placeholder="HashTags do material">
 								</div>
-								
+
 								@if(strtoupper($type) === 'CIRCULAR')
 								<div class="form-group">
 									<label class="form-label" for="yearEdit">
@@ -77,7 +77,7 @@
 									<select class="form-control select" data-live-search="true" multiple="true" id="islandEdit" name="islandEdit">
 										<option value="N_A" selected="">Não Alterar</option>
 										@forelse ($ilhas as $ilha)
-										<option class="island_{{ $ilha->id }}" value="{{ $ilha->setor_id }}|{{ $ilha->id }}">{{ $ilha->setor->name }} | {{ $ilha->name }}</option>
+										<option class="island_{{ $ilha->id }}" value="{{ $ilha->setor_id }}|{{ $ilha->id }}">{{ @$ilha->setor->name }} | {{ @$ilha->name }}</option>
 										@empty
 										<option value="0">Nenhuma ilha encontrada</option>
 										@endforelse

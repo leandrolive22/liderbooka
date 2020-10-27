@@ -698,17 +698,25 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
     });
 });
 
-Route::group(['prefix' => 'newWiki'], function () {
-    Route::get('/', function() {
-        return 'ok';
-    });
-    Route::get('/manager','Materiais\MaterialController@manager');
-});
-
 //ADMINS ROUTES
 Route::group(['prefix' => 'admin', 'middleware' => 'SetPermissions'], function(){
     Route::get('permissions/by/user/','Permissions\Permissions@getUserPermissions')
         ->name('GetPermissionsByUser');
     Route::post('permissions/sync','Permissions\Permissions@store')
         ->name('PostPermissionsStore');
+});
+
+
+Route::group(['prefix' => 'newWiki'], function () {
+    Route::get('/', function() {
+        return 'ok';
+    });
+
+    Route::get('/wikinew','Materiais\MaterialController@indexnew')->name('wikinew');
+
+    Route::group(['prefix' => 'manager', 'middleware' => 'ManagerWiki'], function () {
+        Route::get('/','Materiais\MaterialController@manager')->name('newWiki');
+        Route::post('sync','Materiais\MaterialController@syncMaterial')->name('syncMaterial');
+        Route::put('sync','Materiais\MaterialController@syncFiltros')->name('syncFiltros');
+    });
 });

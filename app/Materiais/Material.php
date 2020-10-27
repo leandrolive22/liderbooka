@@ -19,9 +19,14 @@ class Material extends Model
     	return belongsTo('App\Users\User');
     }
 
-    public function filtros()
+    public function ilhas()
     {
-    	return $this->hasMany('App\Materiais\Filtro');
+    	return $this->hasMany('App\Materiais\Ilha');
+    }
+
+    public function cargos()
+    {
+        return $this->hasMany('App\Materiais\Cargo');
     }
 
     public function tags()

@@ -36,6 +36,7 @@ class HomeController extends Controller
         //     return Session::all();
         // }
         //Verifica se usuário foi apagado
+        // Auth::logout();
         if(!is_null(Auth::user()->deleted_at)) {
             Auth::logout();
             return redirect('/')->withErrors(['username' => 'Usuário não encontrado ou desativado.']);
