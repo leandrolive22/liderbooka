@@ -136,7 +136,7 @@
         opacity: 1;
     }
     .btn.btn-dark.btn-lg.active{
-        width:240px;
+        width:200px;
         border-radius: 30px 10px;
     }
     button{
@@ -144,10 +144,22 @@
         border-radius: 30px 10px;
     }
     .btn.btn-danger.btn-lg{
+        width:200px;
+
         border-radius: 30px 10px;
     }
     .btn.btn-primary.btn-lg{
         border-radius: 30px 10px;
+    }
+    .card-header{
+        height: 5rem; text-align:center;font-size:20px;
+    }
+    h4{
+        text-align:center;
+        font-size:20px;
+    }
+    h5{
+        font-size:20px;
     }
 </style>
 @endsection
@@ -183,65 +195,85 @@
 			<!-- END CONTENT FRAME RIGHT -->
 
 			<!-- START CONTENT FRAME LEFT -->
+
 			<div class="content-frame-body content-frame-body-left">
-				{{-- cabeçalho --}}
-				<div class="row">
 					<div class="panel panel-colorful">
-						<div class="panel-body col-md-1">
-							<button class="btn btn-block btn-primary"><span class="fa fa-plus"> </span></button>
-						</div>
-                        <div style="width:700px;" class="container text-center my-3">
-                        <h3>Colaboradores Em Destaque Outubro</h3>
-                        <div id="recipeCarousel" class="carousel slide w-100" data-ride="carousel">
-                            <div class="carousel-inner w-100" role="listbox">
-                                <div class="carousel-item row no-gutters active">
-                                    <div class="col-3 float-left"><img class="img-fluid" src="{{ asset(Auth::user()->avatar) }}" ><h4>{{ Auth::user()->name }}</h4></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/444?text=2"></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/888?text=3"></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/111/fff?text=4"></div>
-                                </div>
-                                <div class="carousel-item row no-gutters">
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280?text=5"></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/555?text=6"></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/333/fff?text=7"></div>
-                                    <div class="col-3 float-left"><img class="img-fluid" src="http://placehold.it/350x280/bbb?text=8"></div>
-                                </div>
-                            </div>
-                            <a class="carousel-control-prev" href="#recipeCarousel" role="button" data-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="sr-only">Previous</span>
-                            </a>
-                            <a class="carousel-control-next" href="#recipeCarousel" role="button" data-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="sr-only">Next</span>
-                            </a>
-                        </div>
+                     {{-- Inicio Grupo Hashtags e Destaque Mes --}}
+                        <div class="card-group">
+                                          {{-- Inicio Hashtags --}}
+                          <div style=" border-radius: 5px 10px 20px 30px; width:410px; height:200px;" class="form-control" >
+                           <a>  #preventivo </a> 
+                          </div>
+                                        {{-- Fim Hashtags --}}
 
-                    <br>
-	                         
-                   <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Roteiros</a>
-				   <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Comunicados</a>
-                   <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Vídeos</a>
-				   <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Materiais</a>
+                                         {{-- Inicio Destaque Mes --}}
+                           <div style="width:330px;" class="container text-center my-3">
+                               <h5>Colaboradores Em Destaque Outubro</h5>
+                                <div id="recipeCarousel" class="carousel slide w-100" data-ride="carousel">
+                                    <div class="carousel-inner w-100" role="listbox">
+                                        <div class="carousel-item row no-gutters active p-1">
+                                            
+                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset(Auth::user()->avatar) }}" > 
+                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/1medalha.png" > 
+                                             <h5>{{ Auth::user()->name }}</h5> 
+                                            </div>
+                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset(Auth::user()->avatar) }}" > 
+                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/2medalha.png" > 
+                                             <h5>{{ Auth::user()->name }}</h5> 
+                                            </div>
+                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset(Auth::user()->avatar) }}" > 
+                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/3medalha.png" > 
+                                             <h5>{{ Auth::user()->name }}</h5> 
+                                            </div>
+                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset(Auth::user()->avatar) }}" > 
+                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/medalhabronze.png" > 
+                                             <h5>{{ Auth::user()->name }}</h5> 
+                                            </div>
+                                       </div>
+                            
+                                    </div>
+                                    <a class="carousel-control-prev" href="#recipeCarousel" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#recipeCarousel" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>                  
+                           </div>
+                           {{-- Fim Destaque Mes --}}
 
-                </div>
-			</div>
-		</div>
-        <h3 style="text-align:center;font-size:20px;"><strong>  Categorias  </strong></h3>
+                  </div>
+			  </div>
+                                  {{-- Fim Grupo Hashtags e Destaque Mes --}}
 
-        <div style="padding-top:40px;" class="col-md-16">
-				{{-- Categorias --}}
+
+            {{-- Inicio Materiais --}}
+         <div class="row">
+            <div style="padding-top:40px;" class="panel panel-colorful text-center">
+                <h3 style="text-align:center;font-size:20px;"><strong>  Tipos de Materiais  </strong></h3>
+                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Roteiros</a>
+                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Comunicados</a>
+                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Vídeos</a>
+                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">Materiais</a>
+            </div>
+
+            {{-- Fim Materiais --}}
+
+            {{-- Inicio Categorias --}}
+
+            <div style="padding-top:40px;" class="panel panel-colorful text-center">
+                <h3 style="text-align:center;font-size:20px;"><strong>  Categorias  </strong></h3>
                 <button type="button" class="btn btn-primary btn-lg">Unificado</button>
                 <button type="button" class="btn btn-primary btn-lg">Cartões</button>
                 <button type="button" class="btn btn-danger btn-lg">Próspera</button>
                 <button type="button" class="btn btn-danger btn-lg">Atendimento</button>
-                
+            </div>
 
-		</div>
-		<!-- END CONTENT FRAME LEFT -->
+            {{-- Fim Categorias --}}
+
 	</div>
-	<!-- START CONTENT FRAME -->
-
 </div>
 <!-- END PAGE CONTENT -->
 </div>
@@ -251,6 +283,9 @@
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+
+
 
 </script>
 

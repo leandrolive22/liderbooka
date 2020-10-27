@@ -18,6 +18,7 @@ class CreateMateriaisApoioTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('file_path');
+            $table->text('description')->nullable();
             $table->integer('view_number')->default(0)->nullable();
             $table->unsignedBigInteger('tipo_id');
             $table->foreign('tipo_id')->references('id')->on('book_materiais.tipos_materiais')->onDelete('restrict')->onUpdate('restrict');

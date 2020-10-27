@@ -210,9 +210,23 @@
 							</div>
 						</div>
 						<div class="panel-body">
-							@forelse($item->materiais as $material)
+                            <div class="list-group">
+							@forelse($item->materiais->take(10) as $material)
+                            @php
+                            $actions =  '<div class="list-group">';
+                            $actions =      "<button onclick='seeMaterial(".$material->id.")' title='Visualizar' class='list-group-item btn-primary col-md-12'> <span class='fa fa-eye'></span></button>";
+                            $actions .=     "<button onclick='editInfoMaterial(".$material->id.")' title='Editar Informações' class='list-group-item btn-warning col-md-12'> <span class='fa fa-warning'></span></button>";
+                            $actions .=     "<button onclick='editFilterMaterial(".$material->id.")' title='Editar Filtros' class='list-group-item btn-warning col-md-12'> <span class='fa fa-filter'></span></button>";
+                            $actions .=     "<button onclick='editFileMaterial(".$material->id.")' title='Editar Tags' class='list-group-item btn-warning col-md-12'> <span class='fa fa-file'></span></button>";
+                            $actions .=     "<button onclick='deleteMaterial(".$material->id.")' title='Excluir' class='list-group-item btn-danger  col-md-12'> <span class='fa fa-trash-o'></span></button>";
+                            $actions .= '</div>';
+                            @endphp
+                            <button class="list-group-item text-left" data-toggle="popover" title="Ações" data-content="@php echo $actions @endphp" data-html="true">
+                                <b>#{{$material->id}}</b> - {{$material->name}}
+                            </button>
 							@empty
-							@endforelse()
+							@endforelse
+                            </div>
 						</div>
 					</div>
                     </div>
@@ -244,45 +258,39 @@
 		$("div#insertUpdateMaterial").show()
 	}
 
-    //
-    // function syncMaterial() {
-    //     // altera botão
-    //     $("#insertUpdateMaterialBtn").html('<span class="fa fa-spinner fa-spin"></span>')
-    //     $("#insertUpdateMaterialBtn").prop('disabled',true)
-    //     $("#insertUpdateMaterialBtn").prop('enabled',false)
+    function seeMaterial(id) {
+        $.getJSON(url, function(data) {
+            
+        })
+    }
+    
 
-    //     // pega dados
-    //     formdata = new FormData();
-    //     formdata.append('_token', $("input[name=_token").val())
-    //     formdata.append('id', $("input#insertUpdateMaterialId").val())
-    //     formdata.append('tipo_id', $("input#insertUpdatetipo_id").val())
-    //     formdata.append('title', $("input#title").val())
-    //     formdata.append('tags', $("input#tags").val())
-    //     formdata.append('file', $('input#material_file')[0].files)
+    function editInfoMaterial(id) {
+        $.getJSON(url, function(data) {
+            
+        })
+    }
+    
+    
+    function editFilterMaterial(id) {
+        $.getJSON(url, function(data) {
+            
+        })
+    }
 
-    //     console.log(formdata)
+    
+    function editFileMaterial(id) {
+        $.getJSON(url, function(data) {
+            
+        })
+    }
 
-    //     // Envia dados para o controller
-    //     $.ajax({
-    //         url: '{{ route("syncMaterial") }}',
-    //         data: formdata,
-    //         method: "POST",
-    //         processData: false,
-    //         contentType: false,
-    //         success: function(data) {
-    //             console.log(data)
-    //         },
-    //         error: function(xhr) {
-    //             console.log(xhr)
-    //         }
-    //     });
-
-    //     // Restaura botão e mostra modal
-    //     $("#insertUpdateMaterialBtn").html('Salvar')
-    //     $("div#insertUpdateMaterial").hide()
-    //     $("#insertUpdateMaterialBtn").prop('disabled',false)
-    //     $("#insertUpdateMaterialBtn").prop('enabled',true)
-    // }
+    
+    function deleteMaterial(id) {
+        $.getJSON(url, function(data) {
+            
+        })
+    }
 
     function syncFiltros(id) {
         // altera botão
@@ -418,7 +426,6 @@
     // Datalist
     $('.flexdatalist').flexdatalist({
         selectionRequired: false,
-        // searchDisabled: 1,$("form#insertUpdateMaterialForm").attr('action'),
         minLength: 1
     });
 
@@ -457,8 +464,12 @@
 						<label for="title">Título / Assunto</label>
 						<input required required type="text" name="title" class="form-control" id="title" placeholder="Título / Assunto">
 					</div>
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <input required required type="text" name="description" class="form-control" id="description" placeholder="Descrição / use '#' para hashtags">
+                    </div>
 					<div class="form-group">
-						<label for="tags">Tags</label>
+						<label for="tags">Categorias em Tags</label>
 						<input required type='text'
                             placeholder='Tags'
                             class='flexdatalist'

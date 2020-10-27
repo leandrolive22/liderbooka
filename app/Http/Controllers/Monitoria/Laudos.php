@@ -76,6 +76,7 @@ class Laudos extends Controller
                     ->where('carteira_id',Auth::user()->carteira_id)
                     ->orderBy('name')
                     ->get();
+
         $supers = User::select('id','name')
                     ->whereIn('cargo_id',[4])
                     ->orderBy('name')
@@ -85,9 +86,11 @@ class Laudos extends Controller
                     // ->where('deleted_at','IS','NULL')
                     ->orderBy('name')
                     ->get();
+
         $operador = User::selectRaw('users.ilha_id, users.id, users.name, s.name AS supervisor')
                         ->leftJoin('users As s','s.id','users.supervisor_id')
                         ->where('users.id',$request->userToApply)
+                        ->withTrashed()
                         ->first();
         // não é update
         $id = 0;

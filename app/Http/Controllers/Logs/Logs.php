@@ -125,13 +125,15 @@ class Logs extends Controller
     // MaterialLogs //
 
     //salva assinatura digital
-    public function signature($hash = NULL, $user, $ilha, $id, $type) : bool
+    public function signature($hash = NULL, $user, $ilha, $id, $type, $newType = NULL) : bool
     {
         //Salva visualização de wiki
         $log = new MaterialLogs();
         $log->action = "VIEW_".$type;
         $log->value = $hash;
-        if($type === 'VIDEO') {
+        if(!is_null($newType)) {
+            $log->id_material = $id;
+        } else if($type === 'VIDEO') {
             $log->video_id = $id;
         } else if($type === 'MATERIAL') {
             $log->material_id = $id;
@@ -164,6 +166,15 @@ class Logs extends Controller
         } else {
             return response()->json(['success' => FALSE, 'errors' => $log->errors()->all()], 500);
         }
+    }
+
+    public function logMaterial($user, $material_id, $tipo_id, $action = 'NEW_INSERT_MATERIAL')
+    {
+        $log = new MaterialLogs();
+        $log->action = $action;
+        $log->id_material = $material_id;
+        $log->tipo_id = $tipo_id;
+        $log->user_id = $user;
     }
 
     // checa assinatura de material individualmente e retorna um JSON
@@ -358,6 +369,7 @@ class Logs extends Controller
 
         return FALSE;
     }
+    
     public function calculator($id, $ilha, $user, $action = 'NEW_CALCULATOR') : bool {
         $log = new MaterialLogs();
         $log->calculadora_id = $id;

@@ -11,6 +11,7 @@ use App\Materiais\Tag;
 use App\Materiais\Tipo;
 use App\Users\Ilha;
 use App\Users\Cargo;
+use App\User;
 use Auth;
 use Cache;
 use DB;
@@ -21,28 +22,108 @@ class MaterialController extends Controller
     /* ROTAS */
     public function index()
     {
-        $title = 'Wiki';
-        $ilhas = $this->getIlhas();
-        $cargos = $this->getCargos();
-        $tipos = $this->getTipos();
-        $tags = $this->getTags();
+        $ilha = Auth::user()->ilha_id;
+        $cargo = Auth::user()->cargo_id;
 
-    	return view('wiki.wiki');
-    }
-
-    public function indexnew()
-    {
         $title = 'Wiki';
-        $ilhas = $this->getIlhas();
-        $cargos = $this->getCargos();
         $tipos = $this->getTipos();
-        $tags = $this->getTags();
+        $categorias = $this->getUserTags($ilha, $cargo);
+        $tagsClicadas = $this->tags_mais_clicadas_10_min($ilha, $cargo);
+        $materiaisClicados = $this->materiais_mais_clicados_10_min($ilha, $cargo);
+        $users = $this->getUsersEngagement();
+
+        $compact = compact('title', 'tipos', 'categorias', 'tagsClicadas', 'materiaisClicados', 'users');
         
-    	return view('wiki.viewnew');
+        return view('wiki.viewnew', $compact);
     }
 
-	
+    /* Pega tags mais clicadas nos ultimos 10 minutos
+    *
+    * @return DB|Exception;
+    */
+    public function tags_mais_clicadas_10_min()
+    {   
+        try {
+            return DB::table('book_relatorios.tags_mais_clicadas_10_min')->get();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
 
+    /* Pega materiais mais visualizados nos ultimos 10 minutos
+    *
+    * @param int|null $ilha_id
+    * @param int|null $ilha_id
+    * @return Material|Exception;
+    */
+    public function materiais_mais_clicados_10_min($ilha_id = NULL, $cargo_id = NULL)
+    {
+        try {
+            $select = "COUNT(l.id) views, l.id_material, max(l.created_at) recente, materiais_apoio.name as name, materiais_apoio.file_path AS file, 
+            CONCAT(',',(SELECT CONCAT(ilha_id) FROM book_materiais.filtros_ilhas WHERE material_id = materiais_apoio.id AND deleted_at IS NULL),',') ilhas,
+            CONCAT(',',(SELECT CONCAT(cargo_id) FROM book_materiais.filtros_cargos WHERE material_id = materiais_apoio.id AND deleted_at IS NULL),',') cargos";
+
+            return Material::selectRaw($select)
+                ->join('book_relatorios.`material_logs` AS l', 'l.id_material', 'materiais_apoio.id')
+                ->where('l.action', 'LIKE', DB::raw("VIEW_%"))
+                ->where('l.created_at','>=', DB::raw('DATE_SUB(CURRENT_TIMESTAMP, INTERVAl 10 MINUTE)'))
+                ->whereRaw("ilhas LIKE ',%$ilha_id%,' OR ilhas IS NULL")
+                ->whereRaw("cargos LIKE ',%$cargo_id%,' OR cargos IS NULL")
+                ->groupBy('l.material_id')
+                ->orderBy(DB::raw('recente'),'DESC')
+                ->limit(10);
+
+            } catch (Exception $e) {
+                return $e->getMessage();
+            }
+    }
+
+    /* Seleciona as categorias que o usuário pode ver
+    *
+    * @param int $cargo_id
+    * @param int $ilha_id
+    * @return Tag
+    */
+    public function getUserTags(int $ilha_id, int $cargo_id)
+    {
+        return Tag::select("tags.name")
+            ->distinct()
+            ->join('materiais_apoio AS m', 'm.id', 'tags.material_id')
+            ->leftJoin('filtros_ilhas AS i','i.material_id','m.id')
+            ->leftJoin('filtros_cargos AS c','c.material_id','m.id')
+            ->whereRaw("m.deleted_at IS NULL
+                AND (ilha_id = $ilha_id OR ilha_id IS NULL)
+                AND (cargo_id = $cargo_id OR cargo_id IS NULL)")
+            ->get();
+    }
+
+    /* Pega usuários que mais viram materiais baseado em data 
+    *
+    * @param string|null $date
+    * @return App\User
+    */
+    public function getUsersEngagement($date = NULL)
+    {
+        if(is_null($date)) {
+            $dateSearch = date("Y-m-01 00:00:00");
+        } else {
+            $dateSearch = date("Y-m-d 00:00:00", strtotime($date));
+        }
+
+        return User::select('users.name', 'users.avatar', DB::raw('count(m.id) views'))
+                ->join('book_relatorios.material_logs AS m', 'users.id', 'm.user_id')
+                ->whereRaw("m.action LIKE 'VIEW%' AND ISNULL(m.deleted_at)")
+                ->where('m.created_at', '>=', $dateSearch)
+                ->groupBy('users.name')
+                ->groupBy('users.avatar')
+                ->get();
+    }
+
+    
+    /* Retorna view de gerenciamento de materiais
+    *
+    * @return View
+    */
     public function manager()
     {
         $title = 'Wiki';
@@ -54,13 +135,31 @@ class MaterialController extends Controller
         return view('wiki.manager', compact('tipos', 'tags', 'title', 'ilhas', 'cargos'));
     }
 
-    //
+    public function deleteMaterial($id)
+    {
+        $user = Auth::id();
+        if($material = $this->checkIfMaterialExists($id)) {
+            Material::find($id)->delete();
+            $log = new Logs();
+            $log->logMaterial(Auth::id(), $id, $material->tipo_id, 'NEW_DELETE_MATERIAL');
+            return response()->json(['successAlert' => 'Material excluído!'],201);
+        }
+
+        return response()->json(['errorAlert' => 'Material Não encontrado!'],500);
+    }
+
+    /* Salva ou altera material e sincroniza mudanças
+    *
+    * @param Illuminate\Http\Request
+    * @return Response
+    */
     public function syncMaterial(Request $request)
     {
         $rules = [
             'id' => 'required|int|min:0',
             'tipo_id' => 'required|int|min:1',
             'title' => 'required|min:1',
+            'description' => 'required',
             'tags' => 'required',
             'material_file' => 'required|file'
         ];
@@ -74,7 +173,8 @@ class MaterialController extends Controller
             'tipo_id.min' => 'Dados inválidos! Recarregue a página e tente novamente! (tipo_id)',
             'title.required' => 'O nome do material deve ser preenchido!',
             'title.int' => 'Quantidade de carateres inválidas para o nome do material!',
-            'tags.required' => 'Selecione ao menos uma tag!',
+            'description' => 'O campo Descrição não pode ser inválido',
+            'tags.required' => 'Selecione ao menos uma Categoria!',
             'material_file.required' => 'Submeta um arquivo válido!',
             'material_file.file' => 'Submeta um arquivo!',
         ];
@@ -87,6 +187,7 @@ class MaterialController extends Controller
         $id = $request->id;
         $tipo_id = $request->tipo_id;
         $title = $request->title;
+        $description = $request->description;
         $tags = explode(',',$request->tags);
         $file = $request->file('material_file');
 
@@ -107,6 +208,7 @@ class MaterialController extends Controller
                 $material =  new Material();
             }
             $material->name = $title;
+            $material->description = $description;
             $material->file_path = $file_path;
             $material->tipo_id  = $tipo_id;
             $material->user_id = Auth::id();

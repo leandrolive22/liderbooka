@@ -10,13 +10,6 @@ Route::get('liderbook/public',function(){
     return redirect('/');
     });
 
-Route::get('hash/{hash}/',function($hash){
-    if(Hash::check($hash, '$2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS')) {
-        return 'ok___ $2y$10$TrFpsB1/231332/ZH3dlon7noQmvuFNPF5hm44btv8kFYPoOwSlSt2b1mhzS ';
-    }
-    return Hash::make($hash).'    '.$hash;
-});
-
 /*********** Login ***********/
 Route::get('/', 'Users\Users@index')->name('default');
 Route::group(['prefix' => 'forgot'], function () {
@@ -696,6 +689,17 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
                 ->name('GetTabsBackOffice');
         });
     });
+
+    // NOVO WIKI
+    Route::group(['prefix' => 'newWiki'], function () {
+        Route::get('/', 'Materiais\MaterialController@index')->name('wikinew');
+
+        Route::group(['prefix' => 'manager', 'middleware' => 'ManagerWiki'], function () {
+            Route::get('/','Materiais\MaterialController@manager')->name('newWiki');
+            Route::post('sync','Materiais\MaterialController@syncMaterial')->name('syncMaterial');
+            Route::put('sync','Materiais\MaterialController@syncFiltros')->name('syncFiltros');
+        });
+    });
 });
 
 //ADMINS ROUTES
@@ -704,19 +708,4 @@ Route::group(['prefix' => 'admin', 'middleware' => 'SetPermissions'], function()
         ->name('GetPermissionsByUser');
     Route::post('permissions/sync','Permissions\Permissions@store')
         ->name('PostPermissionsStore');
-});
-
-
-Route::group(['prefix' => 'newWiki'], function () {
-    Route::get('/', function() {
-        return 'ok';
-    });
-
-    Route::get('/wikinew','Materiais\MaterialController@indexnew')->name('wikinew');
-
-    Route::group(['prefix' => 'manager', 'middleware' => 'ManagerWiki'], function () {
-        Route::get('/','Materiais\MaterialController@manager')->name('newWiki');
-        Route::post('sync','Materiais\MaterialController@syncMaterial')->name('syncMaterial');
-        Route::put('sync','Materiais\MaterialController@syncFiltros')->name('syncFiltros');
-    });
 });

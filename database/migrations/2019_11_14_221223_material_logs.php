@@ -17,6 +17,10 @@ class CreateMaterialLogsTable extends Migration
         Schema::connection('bookrelatorios')->create('material_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('action');
+            $table->unsignedBigInteger('tipo_id')->nullable();
+            $table->foreign('tipo_id')->references('id')->on('book_materiais.tipos_materiais')->onDelete('no action')->onUpdate('no action');
+            $table->unsignedBigInteger('id_material')->nullable();
+            $table->foreign('id_material')->references('id')->on('book_materiais.materiais_apoio')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('material_id')->nullable();
             $table->foreign('material_id')->references('id')->on('book_materiais.materiais')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('video_id')->nullable();
@@ -29,8 +33,8 @@ class CreateMaterialLogsTable extends Migration
             $table->foreign('roteiro_id')->references('id')->on('book_materiais.roteiros')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('post_id')->nullable();
             $table->foreign('post_id')->references('id')->on('book_posts.posts')->onDelete('no action')->onUpdate('no action');
-            $table->unsignedBigInteger('ilha_id');
-            $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('no action')->onUpdate('no action');
+            // $table->unsignedBigInteger('ilha_id');
+            // $table->foreign('ilha_id')->references('id')->on('book_usuarios.ilhas')->onDelete('no action')->onUpdate('no action');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('book_usuarios.users')->onDelete('no action')->onUpdate('no action');
             $table->timestamps();
