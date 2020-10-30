@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Materiais;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Permissions\Permissions;
 use Illuminate\Http\Request;
 use App\Materiais\Cargo As FiltroCargo;
 use App\Materiais\Ilha As FiltroIlha;
-use App\Materiais\Material;
+use App\Materials\Material;
+use App\Materials\Circular;
+use App\Materials\Roteiro;
+use App\Materials\Video;
 use App\Materiais\Tag;
 use App\Materiais\Tipo;
 use App\Users\Ilha;
@@ -19,7 +23,7 @@ use Storage;
 
 class MaterialController extends Controller
 {
-    /* ROTAS */
+    /** ROTAS */
     public function index()
     {
         $ilha = Auth::user()->ilha_id;
@@ -33,16 +37,57 @@ class MaterialController extends Controller
         $users = $this->getUsersEngagement();
 
         $compact = compact('title', 'tipos', 'categorias', 'tagsClicadas', 'materiaisClicados', 'users');
-        
+
         return view('wiki.viewnew', $compact);
     }
 
-    /* Pega tags mais clicadas nos ultimos 10 minutos
-    *
-    * @return DB|Exception;
-    */
+    public function hashtags(){
+        $title = "Hash Tags";
+        return view('wiki.hashtags',compact('title'));
+    }
+
+    public function categorias($type, $ilha){
+        $title = "Categorias";
+        return view('wiki.categorias',compact('title','type'));
+    }
+
+    public function materiais($type, $ilha){
+        $title = "Materiais";
+        $cargo = Auth::user()->cargo_id;
+
+        switch ($type) {
+            case "Videos":
+                $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                ->orderBy('created_at','desc') 
+                ->paginate(9);
+                break;
+            case "Material de Apoio":
+                $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                ->orderBy('created_at','desc') 
+                ->paginate(9);                
+                break;
+            case "Roteiro":
+                $result = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                ->orderBy('created_at','desc') 
+                ->paginate(9);     
+                break;
+            case "Comunicado":
+                $result = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
+                ->orderBy('created_at','desc') 
+                ->paginate(9);     
+                break;    
+        }
+                
+        
+        return view('wiki.viewmateriais',compact('title','type','result'));
+    }
+
+    /** Pega tags mais clicadas nos ultimos 10 minutos
+     *
+     * @return DB|Exception;
+     */
     public function tags_mais_clicadas_10_min()
-    {   
+    {
         try {
             return DB::table('book_relatorios.tags_mais_clicadas_10_min')->get();
         } catch (Exception $e) {
@@ -50,16 +95,16 @@ class MaterialController extends Controller
         }
     }
 
-    /* Pega materiais mais visualizados nos ultimos 10 minutos
-    *
-    * @param int|null $ilha_id
-    * @param int|null $ilha_id
-    * @return Material|Exception;
-    */
+    /** Pega materiais mais visualizados nos ultimos 10 minutos
+     *
+     * @param int|null $ilha_id
+     * @param int|null $ilha_id
+     * @return Material|Exception;
+     */
     public function materiais_mais_clicados_10_min($ilha_id = NULL, $cargo_id = NULL)
     {
         try {
-            $select = "COUNT(l.id) views, l.id_material, max(l.created_at) recente, materiais_apoio.name as name, materiais_apoio.file_path AS file, 
+            $select = "COUNT(l.id) views, l.id_material, max(l.created_at) recente, materiais_apoio.name as name, materiais_apoio.file_path AS file,
             CONCAT(',',(SELECT CONCAT(ilha_id) FROM book_materiais.filtros_ilhas WHERE material_id = materiais_apoio.id AND deleted_at IS NULL),',') ilhas,
             CONCAT(',',(SELECT CONCAT(cargo_id) FROM book_materiais.filtros_cargos WHERE material_id = materiais_apoio.id AND deleted_at IS NULL),',') cargos";
 
@@ -78,12 +123,12 @@ class MaterialController extends Controller
             }
     }
 
-    /* Seleciona as categorias que o usuário pode ver
-    *
-    * @param int $cargo_id
-    * @param int $ilha_id
-    * @return Tag
-    */
+    /** Seleciona as categorias que o usuário pode ver
+     *
+     * @param int $cargo_id
+     * @param int $ilha_id
+     * @return Tag
+     */
     public function getUserTags(int $ilha_id, int $cargo_id)
     {
         return Tag::select("tags.name")
@@ -97,11 +142,11 @@ class MaterialController extends Controller
             ->get();
     }
 
-    /* Pega usuários que mais viram materiais baseado em data 
-    *
-    * @param string|null $date
-    * @return App\User
-    */
+    /** Pega usuários que mais viram materiais baseado em data
+     *
+     * @param string|null $date
+     * @return App\User
+     */
     public function getUsersEngagement($date = NULL)
     {
         if(is_null($date)) {
@@ -116,14 +161,15 @@ class MaterialController extends Controller
                 ->where('m.created_at', '>=', $dateSearch)
                 ->groupBy('users.name')
                 ->groupBy('users.avatar')
+                ->limit(4)
                 ->get();
     }
 
-    
-    /* Retorna view de gerenciamento de materiais
-    *
-    * @return View
-    */
+
+    /** Retorna view de gerenciamento de materiais
+     *
+     * @return View
+     */
     public function manager()
     {
         $title = 'Wiki';
@@ -148,11 +194,11 @@ class MaterialController extends Controller
         return response()->json(['errorAlert' => 'Material Não encontrado!'],500);
     }
 
-    /* Salva ou altera material e sincroniza mudanças
-    *
-    * @param Illuminate\Http\Request
-    * @return Response
-    */
+    /** Salva ou altera material e sincroniza mudanças
+     *
+     * @param Illuminate\Http\Request
+     * @return Response
+     */
     public function syncMaterial(Request $request)
     {
         $rules = [
@@ -252,11 +298,11 @@ class MaterialController extends Controller
         $todos = $request->todos;
         $type = $request->type;
         $data = substr($request->ids,0,-1);
-        $material_id = $request->material_id; 
+        $material_id = $request->material_id;
 
         if($todos > 0) {
             if($this->todosFiltros($type, $material_id)) {
-                return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!'],201);    
+                return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!'],201);
             }
 
             return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!','warningAlert' => 'Filtros antigos não excluídos'],201);
@@ -267,22 +313,23 @@ class MaterialController extends Controller
         // return $this->insertSync($type,$filtro, $material_id);
         if($this->insertSync($type,$filtro, $material_id)) {
             if($this->syncDelete($type,$filtro, $material_id)) {
-                return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!'],201);    
+                return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!'],201);
             }
-            
+
             return response()->json(['successAlert' => 'Filtros sincronizado com sucesso!','warningAlert' => 'Filtros antigos não excluídos'],201);
         }
 
         return response()->json(['errorAlert' => 'Erro ao sincronizar filtros!'],422);
     }
 
-    /* Coloca todos os filtros para material
-    *
-    */
+    /** Coloca todos os filtros para material
+     *
+     */
     public function todosFiltros($type, $material_id) : bool
     {
         if($type === 'ilhas') {
             $column = 'ilha_id';
+            $model = 'App\Materiais\Ilha';
         } else if($type === 'cargos') {
             $model = 'App\Materiais\Cargo';
             $column = 'cargo_id';
@@ -297,9 +344,9 @@ class MaterialController extends Controller
         return $select->update([$column => NULL]);
     }
 
-    /** Deleta os filtros do material que foram desmarcados
-    *
-    */
+    /*** Deleta os filtros do material que foram desmarcados
+     *
+     */
     public function syncDelete(string $type, array $ids, int $material_id) : bool
     {
         if($type === 'ilhas') {
@@ -309,12 +356,12 @@ class MaterialController extends Controller
         }
     }
 
-    /** Grava filtros no banco de dados
-    *
-    */
+    /*** Grava filtros no banco de dados
+     *
+     */
     public function insertSync(string $type, array $ids, int $material_id) : bool
     {
-        
+
         if($type === 'ilhas') {
             $model = 'App\Materiais\Ilha';
             $column = 'ilha_id';
@@ -325,13 +372,13 @@ class MaterialController extends Controller
 
         foreach($ids as $id){
                     $insert[] = [
-                        'material_id' => $material_id,  
+                        'material_id' => $material_id,
                         $column => $id,
-                        'created_at' => now(),  
-                        'updated_at' => now(),  
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
         }
-        
+
         return $model::insert($insert);
 
     }
@@ -426,4 +473,113 @@ class MaterialController extends Controller
         return $cargos;
     }
 
+    // permissões
+    /** pega ilhas por carteira e transforma em string para consulta
+     *
+     * @param int $carteira
+     * @return string $carteiras
+     */
+    public function ilhasByCarteira(int $carteira)
+    {
+        $carteiras = '';
+        $getCarteiras = DB::select("SELECT id FROM ilhas WHERE setor_id IN (SELECT id FROM setores WHERe carteira_id = ? AND ISNULL(deleted_at)) AND ISNULL(deleted_at)", [$carteira]);
+        foreach ($getCarteiras as $item) {
+            $carteiras .= $item->id.',';
+        }
+        return $carteiras = substr($carteiras, 0, -1);
+    }
+
+    /** Configura filtros de busca de materiais
+     * @param int $ilha
+     * @param int $cargo
+     * @param int $carteira_id
+     * @return string
+     */
+    public function setWhere($ilha, $cargo, $carteira_id)
+    {
+        $p = new Permissions();
+        $types = $p->wikiSearchType();
+
+        // Acesso à todas
+        if($types['tudo']) {
+            return 'materiais_apoio.id > 0';
+        } else if($types['carteira']) {
+            // Acesso às carteiras
+            $carteiras = $this->ilhasByCarteira($carteira_id);
+
+            if(is_null($carteiras) || $carteiras == '') {
+                $carteiras = 0;
+            }
+            return '(i.ilha_id IN ('.$carteiras.') OR ISNULL(i.ilha_id)) AND (c.cargo_id = '.$cargo.' OR ISNULL(c.cargo_id))';
+        } else if($types['ilha']) {
+            // Acesso à ilhas
+            return '(i.ilha_id = '.$ilha.' OR ISNULL(i.ilha_id)) AND (c.cargo_id = '.$cargo.' OR ISNULL(c.cargo_id))';
+
+        } else {
+            return 'ISNULL(i.ilha_id) AND (c.cargo_id = '.$cargo.' OR ISNULL(c.cargo_id))';
+        }
+    }
+
+    /** Faz consulta por materiais
+     *
+     * @param string $where
+     * @param null|string $filter
+     * @return App\Materiais\Material
+     */
+    public function getMaterial($where, $type, $filter = NULL)
+    {
+        return Material::selectRaw('materiais_apoio.id AS id_material, materiais_apoio.name, materiais_apoio.file_path, materiais_apoio.created_at AS data_criacao')
+        ->leftJoin('filtros_ilhas AS i', 'i.material_id', 'materiais_apoio.id')
+        ->leftJoin('filtros_cargos AS c', 'c.material_id', 'materiais_apoio.id')
+        ->whereRaw($where)
+        ->when(!is_null($filter), function($q) use ($filter){
+            return $q->whereRaw($filter);
+        })
+        ->where('materiais_apoio.tipo_id','=',$type)
+        ->get();
+    }
+
+    /**
+     *
+     * @param string $filter
+     * @param string $text
+     * @return string $newFilter
+     */
+    public function setFilter(string $filter, string $text)
+    {
+        if($filter === 'id') {
+            $newFilter = ' '.$filter.' = '.$text;
+        } else {
+            $newFilter = ' '.$filter.' LIKE "%'.$text.'%"';
+        }
+        return $newFilter;
+    }
+
+    /** Filtra materiais
+     *
+     * @param int $type
+     * @param Illuminate\Http\Request;
+     * @param bool $haveFilter
+     * @return string $json
+     */
+    public function search(int $type, Request $request, bool $haveFilter = FALSE)
+    {
+        // Configura filtros
+        $setFilter = NULL;
+        if($haveFilter) {
+            $request->validate(['filter' => 'required', 'text' => 'required'],['filter.required' => 'Selecione um filtro', 'text' => 'Preencha o campo de pesquisa!']);
+
+            $filter = $request->filter;
+            $text = $request->text;
+
+            $setFilter = $this->setFilter($filter, $text);
+        }
+
+        // Configura consulta
+        $where = $this->setWhere(Auth::user()->ilha_id, Auth::user()->cargo_id, Auth::user()->carteira_id);
+
+        // Executa consulta
+        $materiais = $this->getMaterial($where, $type, $setFilter);
+        return $materiais;
+    }
 }

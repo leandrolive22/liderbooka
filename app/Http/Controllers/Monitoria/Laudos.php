@@ -55,19 +55,6 @@ class Laudos extends Controller
             return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
         }
 
-        // if(Auth::id() == 37) {
-        //     if(!is_null(Cache::get('modelosMonitoria'.$model))) {
-        //         $laudoItens = Cache::get('modelosMonitoria'.$model);
-        //         $itens = NULL;
-        //     } else {
-        //         $laudoItens = $laudo->itens;
-        //         $itens = NULL;
-        //         Cache::put('modelosMonitoria'.$model,$laudoItens,720);
-        //     }
-        // } else {
-        //     $laudoItens = $laudo->itens;
-        //     $itens = NULL;
-        // }
         $laudoItens = $laudo->itens;
         $itens = NULL;
 
@@ -90,10 +77,10 @@ class Laudos extends Controller
         $operador = User::selectRaw('users.ilha_id, users.id, users.name, s.name AS supervisor')
                         ->leftJoin('users As s','s.id','users.supervisor_id')
                         ->where('users.id',$request->userToApply)
-                        ->withTrashed()
+                        // ->withTrashed()
                         ->first();
         // não é update
-        $id = 0;
+        $id = 0; 
 
         if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
             return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','itens','laudoItens'));

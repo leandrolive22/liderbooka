@@ -185,7 +185,7 @@
 			<div class="content-frame-top">
 				<div class="page-title">
 					<a href="{{ url()->previous() }}">
-                    <h2><span class="fa fa-arrow-circle-o-left"></span>  Wiki</h2>
+                    <h2><span class="fa fa-arrow-circle-o-left"></span>  Hash Tags</h2>
 					</a>
 				</div>
 			
@@ -194,10 +194,7 @@
 			</div>
 			<!-- END CONTENT FRAME TOP-->
 
-			<!-- START CONTENT FRAME RIGHT -->
-			@component('assets.components.emalta', ['materiaisClicados' => $materiaisClicados])
-            @endcomponent
-            <!-- END CONTENT FRAME RIGHT -->
+	
 
 			<!-- START CONTENT FRAME LEFT -->
 
@@ -220,20 +217,7 @@
                                 <div id="recipeCarousel" class="carousel slide w-100" data-ride="carousel">
                                     <div class="carousel-inner w-100" role="listbox">
                                         <div class="carousel-item row no-gutters active p-1">
-                                            @php $c =0; @endphp
-                                    @foreach ($users as $user)
-                                            @php 
-                                            if($c == 0) {$foto = '1medalha';}
-                                            else if($c == 1){$foto = '2medalha';}
-                                            else if($c== 2){$foto = '3medalha';}
-                                            else{$foto  = 'medalhabronze';}
-                                             @endphp
-                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset($user->avatar) }}" > 
-                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/{{$foto}}.png" > 
-                                             <h5>{{ $user->name}}</h5> 
-                                            </div>
-                                            @php $c++; @endphp
-                                    @endforeach
+                          
                                        </div>
                             
                                     </div>
@@ -254,27 +238,7 @@
                                   {{-- Fim Grupo Hashtags e Destaque Mes --}}
 
 
-            {{-- Inicio Materiais --}}
-         <div class="row">
-            <div style="padding-top:40px;" class="panel panel-colorful text-center">
-                <h3 style="text-align:center;font-size:20px;"><strong>  Tipos de Materiais  </strong></h3>
-                @foreach ($tipos as $tipo)
-                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">{{$tipo->name}}</a>
-                @endforeach
-            </div>
-
-            {{-- Fim Materiais --}}
-
-            {{-- Inicio Categorias --}}
-
-            <div style="padding-top:40px;" class="panel panel-colorful text-center">
-                <h3 style="text-align:center;font-size:20px;"><strong>  Categorias  </strong></h3>
-                @foreach ($categorias as $categoria)
-                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">{{$categoria->name}}</a>
-                @endforeach
-            </div>
-
-            {{-- Fim Categorias --}}
+       
 
 	</div>
 </div>

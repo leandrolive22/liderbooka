@@ -21,7 +21,7 @@
             <!-- START PAGE CONTENT WRAP -->
             <div class="page-content-wrap" style="padding: 2rem">
                 <div class="page-title">
-                    <a href="{{ route('GetMonitoriasIndex') }}">
+                    <a href="{{ asset('monitoring/manager') }}">
                         <h2 class="page-title">
                             <span class="fa fa-arrow-circle-o-left">
                             </span>

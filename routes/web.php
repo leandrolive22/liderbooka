@@ -124,7 +124,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
             Route::get('/{area_type}','Users\Carteiras@areas')->name('GetAreasIndex');
             Route::get('carteira/{carteira}','Users\Carteiras@getSetoresIlhasByCart')->name('GetAreasgetSetoresIlhasByCart');
-            
+
             Route::put('sync','Users\Carteiras@sync')->name('PutSyncAreas');
             Route::delete('sync','Users\Carteiras@destroy')->name('DeleteSyncAreas');
 
@@ -315,7 +315,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
             ->name('saveFileCirc');
 
             Route::delete('/delete/{id}/{user}', 'Materials\Circulares@destroy')
-                ->name('DeleteCircular'); 
+                ->name('DeleteCircular');
         });
 
         Route::group(['prefix' => 'script'], function () {
@@ -481,7 +481,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         });
 
         /*********** WIKI ***********/
-      
+
         Route::get('/pesquisarscript/{campo}/{valor}', 'Materials\Roteiros@pesquisar')
         ->name('pesquisarScripts');
 
@@ -499,7 +499,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
 
         Route::get('/filtros/{valor}', 'Materials\Materiais@filtros')
         ->name('filtros');
-        
+
         Route::get('/wikicirculares', 'Materials\Circulares@selecionarCircular')
         ->name('CircularesWiki');
 
@@ -689,16 +689,22 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
                 ->name('GetTabsBackOffice');
         });
     });
-
+ 
     // NOVO WIKI
     Route::group(['prefix' => 'newWiki'], function () {
         Route::get('/', 'Materiais\MaterialController@index')->name('wikinew');
+        Route::get('/hashtags', 'Materiais\MaterialController@hashtags')->name('hashtags');
+        Route::get('/categorias', 'Materiais\MaterialController@categorias')->name('categorias');
 
         Route::group(['prefix' => 'manager', 'middleware' => 'ManagerWiki'], function () {
             Route::get('/','Materiais\MaterialController@manager')->name('newWiki');
             Route::post('sync','Materiais\MaterialController@syncMaterial')->name('syncMaterial');
             Route::put('sync','Materiais\MaterialController@syncFiltros')->name('syncFiltros');
         });
+
+
+        Route::get('fetch/{type}/{haveFilter?}','Materiais\MaterialController@search')
+            ->name('GetMaterialsWiki');
     });
 });
 

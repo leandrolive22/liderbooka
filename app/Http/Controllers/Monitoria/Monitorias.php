@@ -386,7 +386,7 @@ class Monitorias extends Controller
         $monitoria->ncg = $ncg;
         $monitoria->feedback_monitor = $request->input('feedback');
         $monitoria->modelo_id = $modelo;
-        if(@in_array($monitor->carteira_id,$this->escobsArr())) {
+        if($monitor->carteira_id > 1) {
             $monitoria->supervisor_at = date('Y-m-d H:i:s');
             $monitoria->feedback_supervisor = $request->input('feedback');
         }
@@ -528,7 +528,7 @@ class Monitorias extends Controller
 
         // trata variáveis para salvar
         $operador = $request->input('operador');
-        $supervisor = User::withTrashed()->select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
+        $supervisor = User::select('supervisor_id')->where('id',$operador)->first('supervisor_id')['supervisor_id'];
 
         // Dados do Monitor
         $monitor = User::find($user);

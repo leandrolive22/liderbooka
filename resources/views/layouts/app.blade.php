@@ -132,6 +132,10 @@
         @yield('menuJs')
     @endif
 
+    @hasSection('JavascriptSearchWiki')
+        @yield('JavascriptSearchWiki')
+    @endif
+
     {{-- Medidas Disciplinares  --}}
     @include('gerenciamento.measures.view')
 

@@ -200,38 +200,38 @@
 
 				{{-- materiais --}}
 				<div class="row text-center">
-					@forelse($tipos as $item)
-                    <div class="col-sm-3 p-1">
-					<div class="panel panel-light">
-						<div class="panel-heading">
-							<div class="panel-title">
-								{{$item->name}}
-								{{-- <button class="btn btn-sm btn-primary"><span class="fa fa-plus"> </span></button> --}}
-							</div>
-						</div>
-						<div class="panel-body">
-                            <div class="list-group">
-							@forelse($item->materiais->take(10) as $material)
-                            @php
-                            $actions =  '<div class="list-group">';
-                            $actions =      "<button onclick='seeMaterial(".$material->id.")' title='Visualizar' class='list-group-item btn-primary col-md-12'> <span class='fa fa-eye'></span></button>";
-                            $actions .=     "<button onclick='editInfoMaterial(".$material->id.")' title='Editar Informações' class='list-group-item btn-warning col-md-12'> <span class='fa fa-warning'></span></button>";
-                            $actions .=     "<button onclick='editFilterMaterial(".$material->id.")' title='Editar Filtros' class='list-group-item btn-warning col-md-12'> <span class='fa fa-filter'></span></button>";
-                            $actions .=     "<button onclick='editFileMaterial(".$material->id.")' title='Editar Tags' class='list-group-item btn-warning col-md-12'> <span class='fa fa-file'></span></button>";
-                            $actions .=     "<button onclick='deleteMaterial(".$material->id.")' title='Excluir' class='list-group-item btn-danger  col-md-12'> <span class='fa fa-trash-o'></span></button>";
-                            $actions .= '</div>';
-                            @endphp
-                            <button class="list-group-item text-left" data-toggle="popover" title="Ações" data-content="@php echo $actions @endphp" data-html="true">
-                                <b>#{{$material->id}}</b> - {{$material->name}}
-                            </button>
-							@empty
-							@endforelse
+					@foreach($tipos as $item)
+                    <div class="col p-1">
+                        <div class="panel panel-light">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    {{$item->name}}
+                                    @component('wiki.components.search', ['tipo_id' => $item->id, 'tipo_visualizacao' => 'manager'])
+                                    @endcomponent
+                                </div>
                             </div>
-						</div>
-					</div>
+                            <div class="panel-body">
+                                <div class="list-group" id="list_material_{{$item->id}}">
+                                @forelse($item->materiais->take(10) as $material)
+                                @php
+                                $actions =  "<div class='list-group'>";
+                                $actions .=     "<button onclick='seeMaterial(".$material->id.")' title='Visualizar' class='list-group-item btn-primary col-md-12'> <span class='fa fa-eye'></span></button>";
+                                $actions .=     "<button onclick='editInfoMaterial(".$material->id.")' title='Editar Informações' class='list-group-item btn-warning col-md-12'> <span class='fa fa-warning'></span></button>";
+                                $actions .=     "<button onclick='editFilterMaterial(".$material->id.")' title='Editar Filtros' class='list-group-item btn-warning col-md-12'> <span class='fa fa-filter'></span></button>";
+                                $actions .=     "<button onclick='editFileMaterial(".$material->id.")' title='Editar Tags' class='list-group-item btn-warning col-md-12'> <span class='fa fa-file'></span></button>";
+                                $actions .=     "<button onclick='deleteMaterial(".$material->id.")' title='Excluir' class='list-group-item btn-danger  col-md-12'> <span class='fa fa-trash-o'></span></button>";
+                                $actions .= "</div>";
+                                @endphp
+                                <button class="list-group-item text-left default_page" data-toggle="popover" title="Ações" data-content="@php echo $actions @endphp" data-html="true">
+                                    <b>#{{$material->id}}</b> - {{$material->name}}
+                                </button>
+                                @empty
+                                @endforelse
+                                </div>
+                            </div>
+                        </div>
                     </div>
-					@empty
-					@endforelse
+					@endforeach
 				</div>
 			</div>
 		</div>
@@ -260,35 +260,35 @@
 
     function seeMaterial(id) {
         $.getJSON(url, function(data) {
-            
+
         })
     }
-    
+
 
     function editInfoMaterial(id) {
         $.getJSON(url, function(data) {
-            
+
         })
     }
-    
-    
+
+
     function editFilterMaterial(id) {
         $.getJSON(url, function(data) {
-            
+
         })
     }
 
-    
+
     function editFileMaterial(id) {
         $.getJSON(url, function(data) {
-            
+
         })
     }
 
-    
+
     function deleteMaterial(id) {
         $.getJSON(url, function(data) {
-            
+
         })
     }
 
@@ -319,7 +319,7 @@
                         layout: 'topRight',
                         type: 'success'
                     });
-                    
+
 
                     noty({
                         text: msg.errorAlert,
@@ -361,7 +361,7 @@
             idAll = 'cargo'
         }
 
-        
+
         if(typeof todos !== 'undefined') {
             $("input[name="+type+"]:checked").prop('checked',false)
             $("input#"+idAll+"_0").prop('checked',true)
@@ -370,7 +370,7 @@
             data='todos=0'
             ids = '&ids='
 
-            // Pega ids das ilhas 
+            // Pega ids das ilhas
             $.each($("input[name="+type+"]:checked"), (i,v) => {
                 value = v.value
                 console.log(value)
@@ -378,7 +378,7 @@
             })
 
             data += ids
-        }   
+        }
 
         data += '&type='+type
         data += '&material_id='+id
