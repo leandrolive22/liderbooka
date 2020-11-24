@@ -32,61 +32,72 @@ class Quizzes extends Controller {
             $ids = '';
             //$ids = 'a.id As answer_id, q.id AS quiz_id, questions.id AS question_id, o.id As option_id, a.user_id, a.option_id AS multiple_answer';
             $result = DB::select(
-                // SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
+                // SELECT '.$ids.' q.title, q.description, q.num_responses, q.validity, creator.id, creator.name,
                 // questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
                 // u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
 
                 // FROM book_quizzes.quizzes AS q
-                // LEFT JOIN book_quizzes.questions 
+                // LEFT JOIN book_quizzes.questions
                 //     ON q.id = questions.quiz_id
                 // LEFT JOIN book_quizzes.options AS o
                 //     ON o.question_id = questions.id
-                // LEFT JOIN book_quizzes.answers AS a 
-                //     ON questions.id = a.question_id 
-                // LEFT JOIN book_usuarios.users AS creator 
+                // LEFT JOIN book_quizzes.answers AS a
+                //     ON questions.id = a.question_id
+                // LEFT JOIN book_usuarios.users AS creator
                 //     ON q.creator_id = creator.id
-                // LEFT JOIN book_usuarios.users AS u 
+                // LEFT JOIN book_usuarios.users AS u
                 //     ON u.id = a.user_id
-                // LEFT JOIN book_usuarios.users AS supervisor 
+                // LEFT JOIN book_usuarios.users AS supervisor
                 //     ON supervisor.id = u.supervisor_id
-                // LEFT JOIN book_usuarios.users AS coordenador 
+                // LEFT JOIN book_usuarios.users AS coordenador
                 //     ON coordenador.id = u.coordenador_id
-                // LEFT JOIN book_usuarios.users AS gerente 
+                // LEFT JOIN book_usuarios.users AS gerente
                 //     ON gerente.id = u.gerente_id
-                // LEFT JOIN book_usuarios.users AS superintendente 
+                // LEFT JOIN book_usuarios.users AS superintendente
                 //     ON superintendente.id = u.superintendente_id
                 // WHERE q.id = ?
-                "SELECT distinct q.title, q.description, q.num_responses, q.validity, creator.id, creator.name, 
-                questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
-                u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
+                // "SELECT distinct q.title, q.description, q.num_responses, q.validity, creator.id, creator.name,
+                // questions.question, o.text AS question_text, a.text AS text_answer, o.is_correct,
+                // u.name AS answer_user, supervisor.name As supervisor, coordenador.name As coordenador, gerente.name AS gerente, superintendente.name AS superintendente
 
-                FROM book_quizzes.quizzes AS q
-                LEFT JOIN book_quizzes.questions 
-                    ON q.id = questions.quiz_id
-                LEFT JOIN book_quizzes.options AS o
-                    ON o.question_id = questions.id
-                    
-                LEFT JOIN book_quizzes.answers AS a 
-                    ON (questions.id = a.question_id AND a.option_id = o.id) OR (questions.id = a.question_id AND a.option_id IS NULL)
-                    
-                    
-                LEFT JOIN book_usuarios.users AS creator 
-                    ON q.creator_id = creator.id
-                LEFT JOIN book_usuarios.users AS u 
-                    ON u.id = a.user_id
-                LEFT JOIN book_usuarios.users AS supervisor 
-                    ON supervisor.id = u.supervisor_id
-                LEFT JOIN book_usuarios.users AS coordenador 
-                    ON coordenador.id = u.coordenador_id
-                LEFT JOIN book_usuarios.users AS gerente 
-                    ON gerente.id = u.gerente_id
-                LEFT JOIN book_usuarios.users AS superintendente 
-                    ON superintendente.id = u.superintendente_id
-                WHERE q.id = ?"
+                // FROM book_quizzes.quizzes AS q
+                // LEFT JOIN book_quizzes.questions
+                //     ON q.id = questions.quiz_id
+                // LEFT JOIN book_quizzes.options AS o
+                //     ON o.question_id = questions.id
+
+                // LEFT JOIN book_quizzes.answers AS a
+                //     ON (questions.id = a.question_id AND a.option_id = o.id) OR (questions.id = a.question_id AND a.option_id IS NULL)
+
+
+                // LEFT JOIN book_usuarios.users AS creator
+                //     ON q.creator_id = creator.id
+                // LEFT JOIN book_usuarios.users AS u
+                //     ON u.id = a.user_id
+                // LEFT JOIN book_usuarios.users AS supervisor
+                //     ON supervisor.id = u.supervisor_id
+                // LEFT JOIN book_usuarios.users AS coordenador
+                //     ON coordenador.id = u.coordenador_id
+                // LEFT JOIN book_usuarios.users AS gerente
+                //     ON gerente.id = u.gerente_id
+                // LEFT JOIN book_usuarios.users AS superintendente
+                //     ON superintendente.id = u.superintendente_id
+                // WHERE q.id = ?"
+                "SELECT u.name As usuario, u.matricula AS matricula, u.username, SUM(is_correct) AS acertos, CAST((SUM(is_correct) / COUNT(q.id))*100 AS DECIMAL(5,2)) As porcentagem
+                FROM book_quizzes.quizzes qu
+                JOIN book_quizzes.questions AS q ON qu.id = q.quiz_id
+                JOIN book_quizzes.options AS o ON o.question_id = q.id
+                JOIN book_quizzes.answers AS a ON o.id = a.option_id AND q.id = a.question_id
+                LEFT JOIN book_usuarios.users AS u ON a.user_id = u.id
+                WHERE qu.id = ?
+                    AND a.deleted_At IS NULL
+                    AND qu.deleted_At IS NULL
+                    AND q.deleted_At IS NULL
+                GROUP BY usuario, matricula, username"
                 ,[$id]);
 
-            
-            $data = collect($result)->map(function($x){ return (array) $x; })->toArray(); 
+
+            $data = collect($result)->map(function($x){ return (array) $x; })->toArray();
             if(count($data) === 0) {
                 return back()->with('errorAlert','Nenhum dado encontrado!');
             }
@@ -108,7 +119,7 @@ class Quizzes extends Controller {
 
             return back()->with('errorAlert','Erro, contate o suporte!');
         }
-        
+
     }
 
 

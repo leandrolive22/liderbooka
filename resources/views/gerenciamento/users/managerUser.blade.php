@@ -29,8 +29,8 @@
                         </div>
                     </h3>
                     {{-- Excluir --}}
-                    @if(in_array(34, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                    <a class="btn btn-primary pull-right" href="{{ route('GetUsersRegisterUser') }}">Registrar</a>
+                    @if((in_array(34, session('permissionsIds')) || in_array(1,session('permissionsIds'))) && (Route::current()->getName() !== 'GetUsersManagerUserDeleted'))
+                    <a class="btn btn-primary pull-right" href="#" onclick="register()">Registrar</a>
                     @endif
                 </div>
 
@@ -53,10 +53,8 @@
                             </a>
                             @endif
                         @endif
-                        <div class="col-md-5 input-group">
-                            <input class="form-control col-md-4" name="searchInTable" id="searchInTable" placeholder="Pesquise um usuário aqui">
-                            <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
-                        </div>
+                        @component('assets.components.filtroUsers')
+                        @endcomponent
                         <table class="table table-bordered table-striped table-actions" id="usersTable">
                             <thead>
                                 <tr>
@@ -83,7 +81,7 @@
                                             {{ $user->username }}
                                         </td>
                                         <td>
-                                            <!-- Formata CPF  -->
+                                            <!-- Formata matricula  -->
                                             {{ $user->matricula }}
                                         </td>
                                         @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
@@ -144,8 +142,157 @@
 </div>
 
 @endsection
+@if(Route::current()->getName() !== 'GetUsersManagerUserDeleted')
+    @section('modal')
+    @component('gerenciamento.users.register', [
+        'carteiras' => $carteiras,
+        'setores' => $setores,
+        'ilhas' => $ilhas,
+        'cargos' => $cargos,
+        'gerentes' => $gerentes,
+        'superintendentes' => $superintendentes
+        ])
+    @endcomponent
+    @endsection
+@endif
 @section('Javascript')
-<script type="text/javascript">
+@hasSection ('filter')
+    @yield('filter')
+@endif
+<script type="text/javascript" id="registerUserJs">
+    function register() {
+        // response = $.ajax({
+        //     type: "GET",
+        //     url: "{{ route('GetUsersRegisterUser') }}"
+        // }).responseText
+        // console.log(response)
+        // $("form#createUserForm").html(response)
+        $('div#modalInsertUser').show()
+    }
+
+    $('#sendUserBtn').click(function() {
+        $(this).prop('enabled',false)
+        $(this).prop('disabled',true)
+        $("#sendUserBtn").html('<span class="fa fa-spin fa-spinner"></span>')
+
+        dados = {
+            name: $("input#name").val(),
+            username: $("input#username").val(),
+            matricula: $("input#matricula").val(),
+            data_admissao: $("input#data_admissao").val(),
+            carteira_id: $("select#carteira_id").val(),
+            cargo_id: $("select#cargo_id").val(),
+            superior_id: $("select#superior_id").val(),
+            coordenador_id: $("select#coordenador_id").val(),
+            manager_id: $("select#manager_id").val(),
+            sup_id: $("select#sup_id").val(),
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('PostUsersStore', ['id' =>Auth::user()->id]) }}",
+            data: dados,
+            success: function( xhr,status )
+            {
+                console.log(xhr)
+                noty({
+                    text: "{{ __('Usuário registrado com sucesso!') }}",
+                    layout: 'topRight',
+                    type: 'success',
+                    timeout: '3000'
+                })
+
+            },
+            error: function(xhr,error,status) {
+                if(xhr.status === 422) {
+                    if(xhr.responseJSON.errors.username) {
+                        noty({
+                            text: xhr.responseJSON.errors.username,
+                            layout: 'topRight',
+                            type: 'error',
+                            timeout: '3000'
+                        });
+                    }
+                    if(xhr.responseJSON.errors.matricula) {
+                        noty({
+                            text: xhr.responseJSON.errors.username,
+                            layout: 'topRight',
+                            type: 'error',
+                            timeout: '3000'
+                        });
+                    }
+                }
+                else {
+                    noty({
+                        text: 'Não foi possível registrar usuário, tente novamente mais tarde.<br>'+
+                        'se o erro persistir, contate o suporte. (error: '+xhr.status+')',
+                        layout: 'topRight',
+                        type: 'error',
+                        timeout: '3000'
+                    });
+                }
+                console.log(xhr);
+            }
+        });
+
+        $(this).prop('disabled',false)
+        $(this).prop('enabled',true)
+        $("#sendUserBtn").html('Salvar')
+    });
+
+    function ModalBtnmodal(id) {
+        $("#message-box"+id).hide();
+    }
+
+    function onChangeSelect() {
+        getSupervisors()
+        getCoordenador()
+    }
+
+    function getSupervisors(){
+        ilha_id = $("select#carteira_id").val();
+        console.log('ilha_id: ' + ilha_id)
+
+        $.getJSON('{{ asset("api/data/supervisor") }}/'+ilha_id+'/1' , function(ilha){
+
+            l = ilha.length;
+            if(l > 0) {
+                linha = '<option value="">Selecione o Supervisor</option>'
+                for(i=0; i< l; i++) {
+                    linha += '<option value="'+ilha[i].id+'">'+ilha[i].name+'</option>'
+                }
+                $("#noMoreSup").hide();
+                $("#superior_id").html(linha)
+            } else {
+                option = '<option id="noMoreSup" value="0">Nenhum Supervisor Encontrado</option>'
+                $("#superior_id").html(option)
+            }
+        });
+
+    }
+
+    function getCoordenador(){
+        setor = $("select#carteira_id").val();
+        $.getJSON('{{ asset("api/data/coordenator") }}/'+setor, function(ilha){
+
+            l = ilha.length;
+
+            if(l > 0) {
+                linha = '<option value="">Selecione o coordenador</option>'
+                for(i=0; i< l; i++) {
+                    linha += '<option value="'+ilha[i].id+'">'+ilha[i].name+'</option>'
+                }
+                $("#noMoreCoord").hide();
+                $("#coordenador_id").html(linha)
+            } else {
+                option = '<option id="noMoreCoord" value="0 ">Nenhum coordenador Encontrado</option>'
+                $("#coordenador_id").html(option)
+            }
+        });
+    }
+
+</script>
+<script type="text/javascript" id="managerUserJs">
         //deleta usuário
         function deleteUser(id) {
             data = "id="+id+"&user={{Auth::id()}}"
@@ -232,14 +379,22 @@
                         '</ul>'+
                         '<div class="panel-body tab-content">'+
                         '<div class="tab-pane active" id="tab-first'+data[0].id+'">'+
+                        // Nome
                         '<div class="form-group">'+
                         '<label class="control-label">Nome <b style="color:red; font-size: 8px">(Obrigatório) </b></label>'+
                         '<input type="text" name="name" class="form-control" id="name'+data[0].id+'" value="'+data[0].name+'">'+
                         '</div>'+
+                        // UserName
                         '<div class="form-group">'+
-                        '<label class="control-label">CPF <b style="color:red; font-size: 8px">(Obrigatório) </b> </label><span class="text-muted">(somente números)</span>'+
-                        '<input type="text" name="cpf" class="form-control" id="cpf'+data[0].id+'" value="'+data[0].cpf+'">'+
+                        '<label class="control-label">Username <b style="color:red; font-size: 8px">(Obrigatório) </b></label>'+
+                        '<input type="text" required name="username" class="form-control" id="username'+data[0].id+'" value="'+data[0].username+'">'+
                         '</div>'+
+                        // Matricula
+                        '<div class="form-group">'+
+                        '<label class="control-label">Matrícula <b style="color:red; font-size: 8px">(Obrigatório) </b> </label>'+
+                        '<input type="number" maxlength="6" max="999999" min="1" name="matricula" class="form-control" id="matricula'+data[0].id+'" value="'+data[0].matricula+'">'+
+                        '</div>'+
+                        // Cargo
                         '<div class="form-group">'+
                         '<label class="control-label">Cargo <b style="color:red; font-size: 8px">(Obrigatório) </b></label>'+
                         '<select type="text" name="cargo_id" id="cargo_id'+data[0].id+'" class="form-control select">'+
@@ -257,6 +412,7 @@
                         '</div>'+
                         '</div>'+
                         '<div class="tab-pane" id="tab-third'+data[0].id+'">'+
+                        // Filial
                         '<div class="form-group">'+
                         '<label class="control-label">Filial</label>'+
                         '<select type="text" name="filial_id" id="filial_id'+data[0].id+'" class="form-control select">'+
@@ -272,6 +428,7 @@
                         '</optgroup>'+
                         '<select>'+
                         '</div>'+
+                        // Carteira
                         '<div class="form-group">'+
                         '<label class="control-label">Carteira</label>'+
                         '<select type="text" name="carteira_id" id="carteira_id'+data[0].id+'" class="form-control select" onchange="getSetores(this,'+data[0].id+')">'+
@@ -287,6 +444,7 @@
                         '</optgroup>'+
                         '<select>'+
                         '</div>'+
+                        // Setor
                         '<div class="form-group">'+
                         '<label class="control-label">Setor</label>'+
                         '<select type="text" name="setor_id" id="setor_id'+data[0].id+'" class="form-control select" onchange="getIlhas(this,'+data[0].id+');getCoordenadores(this,'+data[0].id+')">'+
@@ -298,8 +456,9 @@
                         '</optgroup>'+
                         '<select>'+
                         '</div>'+
+                        // Segmento/Ilha
                         '<div class="form-group">'+
-                        '<label class="control-label">Segmento/Ilha</label>'+
+                        '<label class="control-label">Segmento / Ilha</label>'+
                         '<select type="text" name="ilha_id" id="ilha_id'+data[0].id+'" class="form-control select" onchange="getSup(this,'+data[0].id+')">'+
                         '<optgroup label="Atual">'+
                         '<option selected value="'+data[0].ilha_id+'">'+data[0].segmento+'</option>'+
@@ -311,6 +470,7 @@
                         '</div>'+
                         '</div>'+
                         '<div class="tab-pane" id="tab-second'+data[0].id+'">'+
+                        // Superintendente
                         '<div class="form-group">'+
                         '<label class="control-label">Superintendente</label>'+
                         '<select type="text" name="superintendente_id" id="superintendente_id'+data[0].id+'" class="form-control select">'+
@@ -326,6 +486,7 @@
                         '</optgroup>'+
                         '<select>'+
                         '</div>'+
+                        // Gerente
                         '<div class="form-group">'+
                         '<label class="control-label">Gerente</label>'+
                         '<select type="text" name="gerente_id" id="gerente_id'+data[0].id+'" class="form-control select">'+
@@ -341,6 +502,7 @@
                         '</optgroup>'+
                         '<select>'+
                         '</div>'+
+                        // Coordenador
                         '<div class="form-group">'+
                         '<label class="control-label">Coordenador</label>'+
                         '<select type="text" name="coordenador_id" id="coordenador_id'+data[0].id+'" class="form-control select">'+
@@ -357,6 +519,7 @@
                         '<select>'+
                         '</div>'+
                         '<div class="form-group">'+
+                        // Supervisor
                         '<label class="control-label">Supervisor</label>'+
                         '<select type="text" name="supervisor_id" id="supervisor_id'+data[0].id+'" class="form-control select">'+
                         '<optgroup label="Atual">'+
@@ -423,7 +586,8 @@
         function saveChanges(element,id) {
             $("#"+element.id).attr('disabled', true)
             arr = ['undefined',null,'',' ']
-            if( $.inArray($("input[name=name]#name"+id).val(),arr) > -1 || $.inArray($("input[name=cpf]#cpf"+id).val(),arr) > -1 ) {
+            if($.inArray($("input[name=username]#username"+id).val(),arr) > -1 || $.inArray($("input[name=name]#name"+id).val(),arr) > -1 || $.inArray($("input[name=matricula]#matricula"+id).val(),arr) > -1 ) {
+                $("#"+element.id).attr('disabled', false)
                 return noty({
                     text: 'Prencha os campos corretamente',
                     layout: 'topRight',
@@ -431,7 +595,6 @@
                     timeout: 3000
                 })
             }
-
 
             data = $("#formUser"+id).serialize()
             $.ajax({
@@ -467,7 +630,8 @@
             $.ajax({
                 url: "{{ asset('api/user/resetPass/') }}/"+id+"/{{ Auth::user()->id }}/{{ Auth::user()->ilha_id }}",
                 type: "POST",
-                success: function() {
+                success: function(response) {
+                    response.status
                     noty({
                         text: 'Senha redefinida com sucesso!',
                         layout: 'topRight',
@@ -569,100 +733,6 @@
             });
             $("#preloadModal"+id).hide()
         }
-
-        function searchInTable() {
-            $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
-            val = $("#searchInTable").val()
-            if(val.length > 0) {
-                data = 'str='+val
-
-                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted') data += '&deleted_at=1' @endif
-
-
-                $.ajax({
-                    url: '{{route("searchInTableUser")}}',
-                    data: data,
-                    success: function(data) {
-                        console.log(data)
-                        if(data.length > 0) {
-                            $("#usersTable > tbody tr").hide()
-                            linhas = ''
-                            for(i=0;i<data.length;i++) {
-                                linhas += '<tr id="usersTr'+data[i].id+'">'+
-                                    '<form id="retoreUserForm'+data[i].id+'" method="POST" action="'+"{{route('PostRestoreUser',['userAction' => Auth::id(), 'user' => '---'])}}".replace('---',data[i].id)+'">@csrf</form>'+
-                                '<form id="formEditDelete'+data[i].id+'" method="POST">'+
-                                '@csrf'+
-                                '<input type="hidden" name="user" value="{{ Auth::id() }}">'+
-                                '<input type="hidden" name="id" value="'+data[i].id+'">'+
-                                '</form>'+
-                                '<td>'+
-                                data[i].name+
-                                '</td>'+
-                                '<td>'+
-                                data[i].username+
-                                '</td>'+
-                                '<td>'+
-                                '<!-- Formata CPF  -->'+
-                                data[i].cpf+
-                                '</td>'+
-                                @if(!in_array(34, session('permissionsIds')) || in_array(35, session('permissionsIds')) || in_array(36, session('permissionsIds')) || in_array(37, session('permissionsIds')) || in_array(45, session('permissionsIds')) || in_array(1, session('permissionsIds')) )
-                                '<td>'+
-                                    '<div class="input-group btn">'+
-"{{-- Se a Consulta traz usuários deletados --}}"+
-                                                @if(Route::current()->getName() === 'GetUsersManagerUserDeleted')
-                                                @php $titleDelete = 'Clique aqui para excluir de vez o usuário'; @endphp
-                                                '<button type="button" class="btn btn-success btn-sm" title="Clique aqui para restaurar o usuário" onclick="$('+"'form#retoreUserForm"+data[i].id+"'"+').submit();">'+
-                                                    '<span id="btnPencil'+data[i].id+'" class="fa fa-mail-reply"></span>'+
-                                                '</button>'+
-"{{-- Se a Consulta traz usuários ativos --}}"+
-                                                @else
-                                                @php $titleDelete = 'Clique aqui para desativar usuário'; @endphp
-                                                {{-- Editar --}}
-                                                @if(in_array(35, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                '<button type="button" class="btn btn-default btn-sm" title="Clique aqui para salvar alterações" onclick="updateUser('+data[i].id+');">'+
-                                                    '<span id="btnPencil'+data[i].id+'" class="fa fa-pencil"></span>'+
-                                                '</button>'+
-                                                {{-- editar senha --}}
-                                                '<button type="button" onclick="resetPassword('+data[i].id+')" title="Clique aqui para redefinir senha de usuário" class="btn btn-warning btn-sm">'+
-                                                    '<span class="fa fa-lock"></span>'+
-                                                '</button>'+
-                                                @endif
-                                                {{-- PERMISSAO --}}
-                                                @if(in_array(45, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                '<button type="button" onclick="window.location.href = '+"'{{ route('GetPermissionsIndexUser', '---') }}'".replace('---',data[i].id)+'" class="btn btn-dark btn-sm">'+
-                                                    '<span class="fa fa-sitemap"></span>'+
-                                                '</button>'+
-                                                @endif
-                                                @endif
-                                                @if(in_array(36, session('permissionsIds')) || in_array(1,session('permissionsIds')))
-                                                {{-- Excluir --}}
-'                                                <button type="button" class="btn btn-danger btn-sm" title="{{$titleDelete}}" onclick="deleteUser('+data[i].id+');">'+
-                                                    '<span class="fa fa-times"></span>'+
-                                                '</button>'+
-                                                @endif
-                                            '</div>'+
-                                '</td>'+
-                                @endif
-                                '</tr>';
-                            }
-
-                            $("#usersTable >tbody").append(linhas)
-                        } else {
-                            noty({
-                                text: 'Nenhum dado encontrado',
-                                layout: 'topRight',
-                                type: 'warning'
-                            })
-                            $("#usersTable > tbody tr").show()
-                        }
-                        $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-                    }
-                });// end Ajax
-} else {
-    $("#usersTable > tbody tr").show()
-    $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-}
-}
 
 $(function(){
     $("#loadingPreLoader").hide();

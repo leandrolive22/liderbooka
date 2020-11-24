@@ -25,7 +25,7 @@
                                 <th></th>
                                 <th>Usuário</th>
                                 <th>Username</th>
-                                <th>CPF</th>
+                                <th>Matrícula</th>
                                 <th>Monitorias neste Mês</th>
                             </tr>
                         </thead>
@@ -43,7 +43,7 @@
                                             {{strtoupper($item->username)}}
                                         </td>
                                         <td>
-                                            {{$item->cpf}}
+                                            {{$item->matricula}}
                                         </td>
                                         <td>
                                             {{$item->ocorrencias}}

@@ -12,9 +12,4 @@ class Cargo extends Model
     public function user() {
         return $this->hasOne('App\Users\User','cargo_id','id');
     }
-
-    public function filtroMateriais()
-    {
-    	return hasMany('App\Materiais\Cargo');
-    }
 }

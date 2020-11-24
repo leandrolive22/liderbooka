@@ -38,4 +38,9 @@ class MaterialLogs extends Model
     {
         return $this->belongsTo('App\Posts\Post', 'post_id', 'id');
     }
+
+    public function material()
+    {
+        return $this->belongsTo('App\Materiais\Material', 'id_material', 'id');
+    }
 }

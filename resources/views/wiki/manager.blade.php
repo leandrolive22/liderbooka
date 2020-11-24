@@ -215,14 +215,14 @@
                                 @forelse($item->materiais->take(10) as $material)
                                 @php
                                 $actions =  "<div class='list-group'>";
-                                $actions .=     "<button onclick='seeMaterial(".$material->id.")' title='Visualizar' class='list-group-item btn-primary col-md-12'> <span class='fa fa-eye'></span></button>";
-                                $actions .=     "<button onclick='editInfoMaterial(".$material->id.")' title='Editar Informações' class='list-group-item btn-warning col-md-12'> <span class='fa fa-warning'></span></button>";
-                                $actions .=     "<button onclick='editFilterMaterial(".$material->id.")' title='Editar Filtros' class='list-group-item btn-warning col-md-12'> <span class='fa fa-filter'></span></button>";
-                                $actions .=     "<button onclick='editFileMaterial(".$material->id.")' title='Editar Tags' class='list-group-item btn-warning col-md-12'> <span class='fa fa-file'></span></button>";
-                                $actions .=     "<button onclick='deleteMaterial(".$material->id.")' title='Excluir' class='list-group-item btn-danger  col-md-12'> <span class='fa fa-trash-o'></span></button>";
+                                $actions .=     "<button onclick='seeMaterial(".$material->id."); closePopover()' title='Visualizar' class='list-group-item btn-primary col-md-12'> <span class='fa fa-eye'></span></button>";
+                                $actions .=     "<button onclick='editInfoMaterial(".$material->id."); closePopover()' title='Editar Informações' class='list-group-item btn-warning col-md-12'> <span class='fa fa-warning'></span></button>";
+                                $actions .=     "<button onclick='editFilterMaterial(".$material->id."); closePopover()' title='Editar Filtros' class='list-group-item btn-warning col-md-12'> <span class='fa fa-filter'></span></button>";
+                                $actions .=     "<button onclick='editFileMaterial(".$material->id."); closePopover()' title='Editar Arquivo' class='list-group-item btn-warning col-md-12'> <span class='fa fa-file'></span></button>";
+                                $actions .=     "<button onclick='deleteMaterial(".$material->id.','.$material->tipo_id."); closePopover()' title='Excluir' class='list-group-item btn-danger  col-md-12'> <span class='fa fa-trash-o'></span></button>";
                                 $actions .= "</div>";
                                 @endphp
-                                <button class="list-group-item text-left default_page" data-toggle="popover" title="Ações" data-content="@php echo $actions @endphp" data-html="true">
+                                <button id="list_group_item_material_{{$item->id}}_{{$material->id}}" class="list-group-item text-left default_page" data-toggle="popover" title="Ações" data-content="@php echo $actions @endphp" data-html="true">
                                     <b>#{{$material->id}}</b> - {{$material->name}}
                                 </button>
                                 @empty
@@ -258,38 +258,161 @@
 		$("div#insertUpdateMaterial").show()
 	}
 
+    function closePopover() {
+        $(".popover.fade.right.in").popover('hide')
+    }
+
     function seeMaterial(id) {
+        url = "{{ route('GetMaterial', ['id' => '55555555']) }}".replace('55555555',id)
         $.getJSON(url, function(data) {
-
+            if(typeof data.id !== 'undefined') {
+                $("#materialViewIframe").prop('src',"{{asset('/')}}"+data.file_path)
+                $("#materialViewName").html('<b>Material #'+data.id+'</b> '+data.name)
+                $("#materialView").show()
+            }
         })
     }
 
-
+    // Edita material
     function editInfoMaterial(id) {
+        url = "{{ route('GetMaterial', ['id' => '55555555']) }}".replace('55555555',id)
         $.getJSON(url, function(data) {
+            if(typeof data.id !== 'undefined') {
+                $("input#UpdateMaterialId").val(id)
+                $("input#titleUpdateMaterialForm").val(data.name)
+                $("input#descriptionUpdateMaterialForm").val(data.description)
 
+                $("#tipo_idUpdateMaterialSelect").each(function(i,v) {
+                    if($(v).val() === data.tipo_id) {
+                        $(v).prop('selected',true)
+                    }
+                })
+                $("div#UpdateMaterial").show()
+            }
         })
     }
 
-
+    // Altera filtros do amterial
     function editFilterMaterial(id) {
-        $.getJSON(url, function(data) {
+        $.getJSON("{{ route('getTagsByMaterial', ['id' => 444444444]) }}".replace('444444444',id),
+            function (data) {
+                len = data.length
+                if(len > 0) {
+                    $("input[name=filterSetEds]").prop('checked',false)
 
-        })
+                    for(i=0; i<len; i++) {
+                        $("input#filterSetEd_"+data[i].name).prop('checked',true)
+                    }
+                }
+                $("#editFilterTagsBtn").prop('onclick','syncTags('+id+')')
+                $("#editFilterTagsBtn").attr('onclick','syncTags('+id+')')
+                $("#editFilterTags").show()
+            }
+        );
     }
 
+    // Grava edião de tags
+    function syncTags(id) {
+        // Pega categorias já criadas
+        var tags = ''
+        console.log(tags)
+        $("input.filterSetEds:checked").each(function (index, element) {
+            tags += ','+element.id.split('_')[1]
 
+        });
+
+
+        // Pega novas Categorias
+        newData = ""
+        $("input[name=filterSetEdsAddTag]").each(function (index, element) {
+            tags += ','+element.value
+        });
+
+        $.ajax({
+            type: "PUT",
+            url: "{{ route('setTagsByMaterial', ['id' => 4444444444]) }}".replace('4444444444',id),
+            data: "tags="+tags,
+            success: function (response) {
+                console.log(response)
+                if(typeof response.successAlert !== 'undefined') {
+                    msg = response.successAlert
+                } else {
+                    msg = "Categorias Sincronizadas com sucesso!"
+                }
+                noty({
+                    text: msg,
+                    layout: 'topRight',
+                    type: 'success'
+                })
+            },
+            error: function (xhr) {
+                console.log(xhr)
+
+                if(typeof xhr.responseJSON.errorAlert !== 'undefined') {
+                    msg = xhr.responseJSON.errorAlert
+                } else  if(typeof xhr.errorAlert !== 'undefined') {
+                    msg = xhr.errorAlert
+                } else {
+                    msg = "Erro, contate o suporte!"
+                }
+                noty({
+                    text: msg,
+                    layout: 'topRight',
+                    type: 'error'
+                })
+            }
+        });
+
+    }
+
+    // Adiciona linha para inserir tag no material
+    function addTag() {
+        linha = '<div class="list-group-item">'+
+                    '<input name="filterSetEdsAddTag" maxlength="200" title="Não é permitido espaços" onkeyup="$(this).val($(this).val().replace('+"' '"+','+"'_'"+'))" class="form-control col-md-11">'+
+                    '<button class="btn btn-danger col-md-1" onclick="$(this).parent().hide().remove()">'+
+                        '<span class="fa fa-trash-o"></span>'+
+                    '</button>'+
+                '</div>';
+
+        $("#listEditFilterTags").append(linha)
+    }
+
+    // Edita material
     function editFileMaterial(id) {
+        url = "{{ route('GetMaterial', ['id' => '55555555']) }}".replace('55555555',id)
         $.getJSON(url, function(data) {
-
+            if(typeof data.id !== 'undefined') {
+                $("#editFileMaterialIframe").prop('src',"{{asset('/')}}"+data.file_path)
+                $("#editFileMaterialId").val(id)
+                $("#editFileMaterial").show()
+            }
         })
     }
 
 
-    function deleteMaterial(id) {
-        $.getJSON(url, function(data) {
-
-        })
+    function deleteMaterial(id, type) {
+        url = '{{ route("DeleteMaterialWiki", ['id' => 5555]) }}'.replace('5555', id)
+        $.ajax({
+            type: "DELETE",
+            url: url,
+            success: function (response) {
+                $('button#list_group_item_material_'+type+'_'+id).hide()
+                $('button#list_group_item_material_'+type+'_'+id).remove()
+                noty({
+                    text: "Material <strong>#"+id+"</strong> Excluído com sucesso!",
+                    type: 'success',
+                    layout: 'topRight'
+                })
+            },
+            error: function(xhr) {
+                console.log(xhr)
+                noty({
+                    text: xhr.responseJSON.errorAlert,
+                    type: 'error',
+                    layout: 'topRight'
+                })
+            }
+        });
     }
 
     function syncFiltros(id) {
@@ -453,7 +576,7 @@
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content" style="overflow-y: scroll;">
 				<div class="modal-header">
-					<h4 class="modal-title" id="insertUpdatedefModalHead">Monitoria</h4>
+					<h4 class="modal-title" id="insertUpdatedefModalHead">Material</h4>
 					<button type="button" class="close" onclick="javascript:$('#insertUpdateMaterial').hide()" data-dismiss="modal">
 						<span aria-hidden="true">×</span>
 						<span class="sr-only">Close</span>
@@ -462,15 +585,16 @@
 				<div class="modal-body">
 					<div class="form-group">
 						<label for="title">Título / Assunto</label>
-						<input required required type="text" name="title" class="form-control" id="title" placeholder="Título / Assunto">
+						<input required type="text" name="title" class="form-control" id="title" placeholder="Título / Assunto">
 					</div>
                     <div class="form-group">
                         <label for="description">Descrição</label>
-                        <input required required type="text" name="description" class="form-control" id="description" placeholder="Descrição / use '#' para hashtags">
+                        <input required type="text" name="description" class="form-control" id="description" placeholder="Descrição / use '#' para hashtags">
                     </div>
 					<div class="form-group">
 						<label for="tags">Categorias em Tags</label>
-						<input required type='text'
+                        <input required type='text'
+                        value="TESTE"
                             placeholder='Tags'
                             class='flexdatalist'
                             data-min-length='1'
@@ -554,6 +678,147 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="$('#setFiltrosModal').hide()">Fechar</button>
+                </div>
+			</div>
+		</div>
+	</div>
+</form>
+
+{{-- Ver Material --}}
+<div class="modal in" id="materialView" tabindex="-1" role="dialog" aria-labelledby="materialViewdefModalHead" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="materialViewName">Visualizar Material</h4>
+                <button type="button" class="close" onclick="javascript:$('#materialView').hide()" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" id="materialViewIframe" src="" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="$('#materialView').hide()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Editar Filtro --}}
+<div class="modal in" id="editFilterTags" tabindex="-1" role="dialog" aria-labelledby="editFilterTagsdefModalHead" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="editFilterTagsName">Editar Categorias de Material</h4>
+                <button class="btn btn-default pull-right" onclick="addTag()">
+                    <span class="fa fa-plus"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group" id="listEditFilterTags" style="max-height: 60vh; overflow-y: auto">
+                    @foreach($tags as $item)
+                    <div class="list-group-item">{{$item->name}}
+                        <input type="checkbox" class="form-check filterSetEds pull-right" name="filterSetEds" id="filterSetEd_{{$item->name}}" value="{{$item->name}}">
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="$('#editFilterTags').hide()">Fechar</button>
+                <button type="button" class="btn btn-success" id="editFilterTagsBtn">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Editar Arquivo --}}
+<form action="{{ route('editFile') }}" method="POST" id="editFileMaterialForm" enctype="multipart/form-data">
+    @csrf
+    @method("PUT")
+    <input type="hidden" name="id" id="editFileMaterialId">
+    <div class="modal in" @if(session('idMaterial')) value="{{session('idMaterial')}}"@endif  id="editFileMaterial" tabindex="-1" role="dialog" aria-labelledby="editFileMaterialdefModalHead" aria-hidden="false" style="display:  @if(session('src')) block; @else none; @endif">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="editFileMaterialName">Editar Arquivo de Material</h4>
+                    <button class="btn btn-default pull-right" onclick="addTag()">
+                        <span class="fa fa-plus"></span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="form-group p-2">
+                        <div class="col-md-2">
+                            <label for="material_file">
+                                Arquivo Novo
+                            </label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="file" class="col-md-21" name="material_file" id="material_file">
+                        </div>
+                    </div>
+                    <div class="form-group p-2">
+                        <div class="col-md-2">
+                            <label for="editFileMaterialIframe">
+                                Arquivo antigo
+                            </label>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="embed-responsive embed-responsive-4by3">
+                                <iframe class="embed-responsive-item" id="editFileMaterialIframe" @if(session('src')) src="{{ asset(session('src')) }}" @endif allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="$('#editFileMaterial').hide()">Fechar</button>
+                    <button class="btn btn-success" id="editFileMaterialBtn" onclick="$('form#editFileMaterialForm').submit();$(this).prop('disabled',true);$('span#editFileMaterialBtn').prop('class','fa fa-spinner fa-spin').html('')"><span id="editFileMaterialBtn">Salvar</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{-- Editar Material --}}
+<form method="POST" id="UpdateMaterialForm" enctype="multipart/form-data" method="POST" action="{{ route("syncMaterial") }}">
+    @csrf
+	<input type="hidden" required name="id" id="UpdateMaterialId" value="0">
+	<div class="modal in" id="UpdateMaterial" tabindex="-1" role="dialog" aria-labelledby="UpdatedefModalHead" aria-hidden="false" style="display: none;">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content" style="overflow-y: scroll;">
+				<div class="modal-header">
+					<h4 class="modal-title" id="UpdatedefModalHead">Material</h4>
+					<button type="button" class="close" onclick="javascript:$('#UpdateMaterial').hide()" data-dismiss="modal">
+						<span aria-hidden="true">×</span>
+						<span class="sr-only">Close</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="tipo_id">Tipo de Material</label>
+						<select required type="text" name="tipo_id" class="form-control" id="tipo_idUpdateMaterialSelect">
+                            @foreach($tipos as $item)
+                                <option value="{{$item->id}}">{{$item->name}}</option>
+                            @endforeach
+						</select>
+                    </div>
+                    <div class="form-group">
+						<label for="title">Título / Assunto</label>
+						<input required type="text" name="title" class="form-control" id="titleUpdateMaterialForm" placeholder="Título / Assunto">
+					</div>
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <input required type="text" name="description" class="form-control" id="descriptionUpdateMaterialForm" placeholder="Descrição / use '#' para hashtags">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="$('#UpdateMaterial').hide()">Fechar</button>
+                    <button type="button" onclick="$('form#UpdateMaterialForm').submit();$('#UpdateMaterialBtnB').hide();$('#UpdateMaterialBtnSpan').show();" class="btn btn-success" id="UpdateMaterialBtn">
+                        <b id="UpdateMaterialBtnB">Salvar</b>
+                        <span class="fa fa-spinner fa-spin" style="display: none;" id="UpdateMaterialBtnSpan"></span>
+                    </button>
                 </div>
 			</div>
 		</div>

@@ -152,6 +152,10 @@
         </div>
     </div>
 </div>
+{{-- Alteraview para update --}}
+<input type="hidden" name="url" id="url" value="{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}">
+<input type="hidden" name="laudo_id" id="laudo_id" value="{{ isset($laudo) ? $laudo->id : 0}}">
+<input type="hidden" name="method" id="method" value="{{ isset($laudo) ? "PUT" : "POST"}}">
 @endsection
 @section('Javascript')
     <script type="text/javascript">
@@ -192,6 +196,7 @@
 
         // verifica se existem linhas na tabela
         function vrfBtn() {
+            url = $("input#url").val()
             // Se tabela tem linha, disponibiliza botão salvar, senão, exclui botão
             if($("tbody#laudosCreate > tr").length > 0) {
                 $("#btn").html('<button class="btn btn-success btn-block" id="btnSave" onclick="saveMonitoring()">Salvar</button>')
@@ -325,16 +330,17 @@
                 });
                 $("#btnSave").html('Salvar')
             } else {
-                dados = '{{isset($laudo) ? 'laudo_id='.$laudo->id : 'l=0'}}&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+valores
+                laudo_id = 'laudo_id='+$("input#laudo_id").val()
+                dados = laudo_id+'&laudos='+laudos+'&title='+$("#title").val()+'&carteira_id='+$("#carteira_id").val()+'&tipo_monitoria='+$("#type").val()+'&valor='+valores
                 {{-- IF IS TEST --}}
                 @if(Auth::id() == 0)
                 console.log(valores+ ' ' +valoresDefinidos+ ' ' +contagemDefinidos+ ' ' +$("tbody#laudosCreate > tr").length + ' ' +dados)
                 @else
                 console.log(dados)
                 $.ajax({
-                    url: "{{isset($laudo) ? route('PutLaudosEdit',['user' => Auth::id()]) : route('PostLaudosStore',['user' => Auth::id()]) }}",
+                    url: $("input#url").val(),
                     data: dados,
-                    method: "{{ isset($laudo) ? "PUT" : "POST"}}",
+                    method: $("input#method").val(),
                     success: function (response) {
                         console.log(response)
                         $("div#response").html(response.msg)
@@ -342,6 +348,10 @@
                         $("#modalTrue").show()
                         $("#btnSave").html('Salvar')
 
+                        // Altera view para update
+                        $("input#url").val("{{ route('PutLaudosEdit',['user' => Auth::id()]) }}")
+                        $("input#laudo_id").val(response.id)
+                        $("input#method").val("PUT")
                     },
                     error: function (xhr) {
                         $("#btnSave").html('Salvar')

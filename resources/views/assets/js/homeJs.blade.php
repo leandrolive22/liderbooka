@@ -59,7 +59,7 @@
 
 
     //Monta Posts
-    function montarLinha(p){
+    function montarLinha(p) {
 
         var date = (p.date).split(' ');
         var hifen = date[0].split('-');
@@ -92,6 +92,9 @@
                 icon += 'reply';
             }
         }
+
+        // confere reação
+        reactions = setReaction(p.id_post, p.likDis, p.likes, p.dislikes)
 
         // verifica se usuário que publicou video está logado
         logado = ''
@@ -132,24 +135,7 @@
                                         '<div class="timeline-footer">'+
                                             '<div class="input-group">'+
                                                 '<div class="pull-left">'+
-                                                    '<a onclick="reactLike('+p.id_post+')" id="like'+p.id_post+'" class="btn btn-{{Auth::user()->css}}">' +
-                                                        '&nbsp<span id="LikeFalse'+p.id_post+'" class="fa fa-thumbs-o-up"> <b id="likeNumFalse'+p.id_post+'"></b></span>'+
-                                                        '&nbsp<span id="LikeTrue'+p.id_post+'" style="display:none; color: #10254d;" class="fa fa-thumbs-up"> <b id="likeNumTrue'+p.id_post+'"></b></span>'+
-                                                        '<div class="text-center" id="LikePreloader'+p.id_post+'" style="display:none">'+
-                                                            '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
-                                                                '<span class="sr-only"></span>'+
-                                                            '</div>'+
-                                                        '</div>'+
-                                                    '</a>'+
-                                                    '<a onclick="reactDislike('+p.id_post+')" id="dislike'+p.id_post+'" class="btn btn-{{Auth::user()->css}}">'+
-                                                        '&nbsp<span id="DislikeFalse'+p.id_post+'"  class="fa fa-thumbs-o-down"> <b id="dislikeNumFalse'+p.id_post+'"></b></span>'+
-                                                        '&nbsp<span id="DislikeTrue'+p.id_post+'" style="display:none; color: #8a0808;" class="fa fa-thumbs-down"> <b id="dislikeNumTrue'+p.id_post+'"></b></span>'+
-                                                        '<div class="text-center" id="DislikePreloader'+p.id_post+'" style="display:none">'+
-                                                            '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
-                                                                '<span class="sr-only"></span>'+
-                                                            '</div>'+
-                                                        '</div>'+
-                                                    '</a>'+
+                                                    reactions+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+
@@ -158,8 +144,67 @@
                             '</div>'+
                         '</div>'+
                 '</div></li>';
-                reactionNumbers(p.id_post)
         return linha;
+    }
+
+    function setReaction(id_post, reaction, likes, dislikes) {
+        if(reaction == null || reaction == 'null') {
+            likeT = 'display:none;'
+            likeF = ''
+            dislikeT = 'display:none; '
+            dislikeF = ''
+        } else if(reaction == 1) {
+            likeT = ''
+            likeF = 'display:none; '
+            dislikeT = 'display:none; '
+            dislikeF= ''
+        } else if(reaction == 2) {
+            likeT = 'display:none; '
+            likeF = ''
+            dislikeT = ''
+            dislikeF= 'display:none; '
+        }
+
+        console.log(reaction)
+
+        // LIKE
+        return '<a onclick="reactLike('+id_post+')" id="like'+id_post+'" class="btn btn-default">' +
+            // unpressed
+            '&nbsp'+
+            '<span id="LikeFalse'+id_post+'" style="'+likeF+'" class="fa fa-thumbs-o-up">'+
+                '<b id="likeNumFalse'+id_post+'">'+likes+'</b>'+
+            '</span>'+
+            // Pressed
+            '&nbsp'+
+            '<span id="LikeTrue'+id_post+'" style="'+likeT+' color: #10254d;" class="fa fa-thumbs-up">'+
+                '<b id="likeNumTrue'+id_post+'">'+likes+'</b>'+
+            '</span>'+
+            // preloader
+            '<div class="text-center" id="LikePreloader'+id_post+'" style="display:none">'+
+                '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
+                    '<span class="sr-only"></span>'+
+                '</div>'+
+            '</div>'+
+        '</a>'+
+        // DISLIKE
+        '<a onclick="reactDislike('+id_post+')" id="dislike'+id_post+'" class="btn btn-default">'+
+            // unpressed
+            '&nbsp'+
+            '<span id="DislikeFalse'+id_post+'" style="'+dislikeF+'" class="fa fa-thumbs-o-down">'+
+                '<b id="dislikeNumFalse'+id_post+'">'+dislikes+'</b>'+
+            '</span>'+
+            // pressed
+            '&nbsp'+
+            '<span id="DislikeTrue'+id_post+'" style="'+dislikeT+' color: #8a0808;" class="fa fa-thumbs-down">'+
+                '<b id="dislikeNumTrue'+id_post+'">'+dislikes+'</b>'+
+            '</span>'+
+            // preloader
+            '<div class="text-center" id="DislikePreloader'+id_post+'" style="display:none">'+
+                '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
+                    '<span class="sr-only"></span>'+
+                '</div>'+
+            '</div>'+
+        '</a>';
     }
 
     /******************* Reações *******************/
@@ -371,6 +416,9 @@
             }
         }
 
+        // confere reação
+        reactions = setReaction(p.id_post, p.likDis)
+
         linha = '<li id="post'+p.id+'"><div id="number_posts" style="background-color:RGBA(0,0,0,0); z-index: ;">'+
                         '<div class="timeline-item timeline-item-right">'+
                             '<div class="timeline-item-info">'+data+' '+hora+'</div>'+
@@ -403,24 +451,7 @@
                                         '<div class="timeline-footer">'+
                                             '<div class="input-group">'+
                                                 '<div class="pull-left">'+
-                                                    '<a onclick="reactLike('+p.id+')" id="like'+p.id+'" class="btn btn-{{Auth::user()->css}}">' +
-                                                        '&nbsp<span id="LikeFalse'+p.id+'" class="fa fa-thumbs-o-up"> <b id="likeNumFalse'+p.id+'"></b></span>'+
-                                                        '&nbsp<span id="LikeTrue'+p.id+'" style="display:none; color: #10254d;" class="fa fa-thumbs-up"> <b id="likeNumTrue'+p.id+'"></b></span>'+
-                                                        '<div class="text-center" id="LikePreloader'+p.id+'" style="display:none">'+
-                                                            '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
-                                                                '<span class="sr-only"></span>'+
-                                                            '</div>'+
-                                                        '</div>'+
-                                                    '</a>'+
-                                                    '<a onclick="reactDislike('+p.id+')" id="dislike'+p.id+'" class="btn btn-{{Auth::user()->css}}">'+
-                                                        '&nbsp<span id="DislikeFalse'+p.id+'"  class="fa fa-thumbs-o-down"> <b id="dislikeNumFalse'+p.id+'"></b></span>'+
-                                                        '&nbsp<span id="DislikeTrue'+p.id+'" style="display:none; color: #8a0808;" class="fa fa-thumbs-down"> <b id="dislikeNumTrue'+p.id+'"></b></span>'+
-                                                        '<div class="text-center" id="DislikePreloader'+p.id+'" style="display:none">'+
-                                                            '<div class="spinner-grow text-dark" role="status" style="width:1.5rem; height:1.5rem;">'+
-                                                                '<span class="sr-only"></span>'+
-                                                            '</div>'+
-                                                        '</div>'+
-                                                    '</a>'+
+                                                    reactions+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+

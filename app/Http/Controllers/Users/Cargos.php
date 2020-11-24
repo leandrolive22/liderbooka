@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Users;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Users\Cargo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Cargos extends Controller
 {
@@ -16,8 +17,12 @@ class Cargos extends Controller
         return $cargos->toJSON();
     }
 
-    public function selectCustom($query) {
-    	return $cargos = Cargo::selectRaw($query)->get();
+    public function selectCustom($query, $orderBy = NULL) {
+        return Cargo::selectRaw($query)
+                    ->when(!is_null($orderBy), function($q) use($orderBy){
+                        return $q->orderBy(DB::raw($orderBy));
+                    })
+                    ->get();
     }
 
     public function nameCargo($id) {

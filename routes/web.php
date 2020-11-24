@@ -72,6 +72,12 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         Route::get('manager','Monitoria\Monitorias@index')
             ->name('GetMonitoriasIndex');
 
+        Route::get('managerteste','Monitoria\Monitorias@indexteste')
+            ->name('GetMonitoriasIndexx');
+
+        Route::get('/pesquisarmonitoria/{campo}/{valor}', 'Monitoria\Monitorias@pesquisar')
+        ->name('pesquisarMonitorias');
+
         Route::get('create','Monitoria\Laudos@create')
             ->name('GetMonitoriasCreate')
             ->middleware('CreateApplyLaudo');
@@ -104,11 +110,20 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         Route::get('/edit/{id}','Monitoria\Monitorias@edit')->name('GetMonitoriaEdit');
         Route::put('/edit/{id}/{user}','Monitoria\Monitorias@update')->name('PutMonitoriaEdit');
 
-
+    /** Escobs */
+        Route::put('feedback/{id}/escobs', 'Monitoria\Monitorias@feedbackEscobs')
+            ->name('MonitFeedBackEscobs');
     });
 
     /*********** rotas de edição de Gerenciamento ***********/
     Route::group(['prefix' => 'manager'], function () {
+
+        //Manager Users
+        Route::group(['prefix' => 'user'], function () {
+            //edit User
+            Route::post('/update/{id}','Users\Users@editUser')
+            ->name('PostUsersEditUser');
+        });
 
         /* Permissões */
         Route::group(['prefix' => 'permissions', 'middleware' => 'SetPermissions'], function () {
@@ -210,6 +225,7 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
                         ->name('MediaByIlhaPost');
 
                 });
+
                 Route::group(['prefix' => 'supervisor'], function () {
                     Route::get('/search', 'Relatorios\Monitorias@findmonitoring')
                     ->name('FindMonitoring');
@@ -261,11 +277,10 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
                         ->name('PostRelatoriosSign');
                 });
 
-                // Route::group(['prefix' => 'operator'], function () {
-                //     Route::get('findAll','Relatorios\Monitorias@reportIndexAll')
-                //     ->name('GetMonitoringAlla');
-
-                // });
+                Route::group(['prefix' => 'operator'], function () {
+                    // Route::get('findAll','Relatorios\Monitorias@reportIndexAll')
+                    // ->name('GetMonitoringAlla');
+                });
 
                 // Route::group(['prefix' => 'signs'], function () {
                 //     Route::get('findAll','Relatorios\Monitorias@reportIndexAll')
@@ -689,22 +704,53 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
                 ->name('GetTabsBackOffice');
         });
     });
- 
+
     // NOVO WIKI
     Route::group(['prefix' => 'newWiki'], function () {
         Route::get('/', 'Materiais\MaterialController@index')->name('wikinew');
         Route::get('/hashtags', 'Materiais\MaterialController@hashtags')->name('hashtags');
-        Route::get('/categorias', 'Materiais\MaterialController@categorias')->name('categorias');
+        Route::get('/categorias/{type}/{ilha}', 'Materiais\MaterialController@categorias')
+            ->where('type','[0-9]+')
+            ->name('categorias');
+
+        Route::get('/materiais/{type}', 'Materiais\MaterialController@materiais')
+            ->where('type','[0-9]+')
+            ->name('materiais');
 
         Route::group(['prefix' => 'manager', 'middleware' => 'ManagerWiki'], function () {
             Route::get('/','Materiais\MaterialController@manager')->name('newWiki');
             Route::post('sync','Materiais\MaterialController@syncMaterial')->name('syncMaterial');
             Route::put('sync','Materiais\MaterialController@syncFiltros')->name('syncFiltros');
+            Route::delete('delete/{id}', 'Materiais\MaterialController@deleteMaterial')
+                ->where('id', '[0-9]+')
+                ->name('DeleteMaterialWiki');
         });
 
-
+        // rotas de visualização de material
         Route::get('fetch/{type}/{haveFilter?}','Materiais\MaterialController@search')
             ->name('GetMaterialsWiki');
+        Route::get('material/{id}/','Materiais\MaterialController@getMaterial')
+            ->name('GetMaterial');
+
+        Route::get('getTags/{id}', 'Materiais\MaterialController@getTagsByMaterial')
+            ->where('id','[0-9]+')
+            ->name('getTagsByMaterial');
+
+        Route::put('setTagsByMaterial/{id}', 'Materiais\MaterialController@setTagsByMaterial')
+            ->where('id','[0-9]+')
+            ->name('setTagsByMaterial');
+
+        // edita Arquivo do material
+        Route::put('editFile', 'Materiais\MaterialController@setFile')
+            ->name('editFile');
+
+        // Insere Estrela de avaliaão no material
+        Route::put('start/{id}/{user}/{tipo_id}/{value}', 'Materiais\MaterialController@saveStarMaterial')
+            ->where('id','[0-9]+')
+            ->where('user','[0-9]+')
+            ->where('tipo_id','[0-9]+')
+            ->where('value','[0-9]+')
+            ->name('StarMaterial');
     });
 });
 

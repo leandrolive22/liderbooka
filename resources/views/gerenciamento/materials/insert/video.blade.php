@@ -74,7 +74,7 @@
                                             <label for="ilha_id">Ilha</label>
                                             <select multiple required class="form-control select" onchange="getSublocal(this)" id="ilha_id" name="ilha_id">
                                                 @forelse ($ilhas as $ilha)
-                                                    <option value="{{ $ilha->setor_id }}|{{ $ilha->id }}">{{ $ilha->setor->name }} | {{ $ilha->name }}</option>
+                                                    <option value="{{ $ilha->setor_id }}|{{ $ilha->id }}">{{ @$ilha->setor->name }} | {{ $ilha->name }}</option>
                                                 @empty
                                                     <option value="0">Nenhuma ilha encontrada</option>
                                                 @endforelse

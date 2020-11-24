@@ -47,7 +47,6 @@
             {{-- Content --}}
             <div class="row col-sm-12 col-md-12 col-lg-12">
                 @if($webMaster || $isMonitor)
-                <div style="padding-left: 1%; padding-right: 1%;" class="col-sm-12 col-md-12 col-lg-12">
                     <div class="panel panel-colorful">
                         <div class="panel-heading ui-draggable-handle">
                             <h3 class="panel-title">Modelos/Laudos</h3>
@@ -66,29 +65,30 @@
                                             </a>
                                         </td>
                                         @endif
-                                        {{-- laços com modelos pré-registrados   --}}
+                                        {{-- laços com modelos pré-registrados --}}
                                         @forelse ($models as $item)
                                         <td class="col-sm-4 col-md-4 col-lg-4" style="min-width: 20rem" id="laudoModel{{$item->id}}">
                                             <div class="tile tile-default col-sm-12 col-md-12 col-lg-12">
                                                 <div class="form-group form-row col-sm-12 col-md-12 col-lg-12 text-center" style="height: 5rem">
-                                                    <p class="col-sm-12 col-md-12 col-lg-12 ">{{ $item->titulo }}</p>
+                                                    <p class="col-sm-12 col-md-12 col-lg-12">{{ $item->titulo }}</p>
+                                                    <p style="font-size: 1rem;" class="col-sm-12 col-md-12 col-lg-12 text-muted" title="às {{ date('H:i:s', strtotime($item->updated_at)) }}">Última alteração em: {{ date('d/m/Y', strtotime($item->updated_at)) }}</p>
                                                 </div>
                                                 <div class="btn-group btn-group-sm">
-                                                    {{-- Aplicar Laudo --}}
+                                                    <!-- Aplicar Laudo -->
                                                     @if($webMaster || $aplicarLaudo)
                                                     <a role="button" class="btn btn-outline-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
                                                         Aplicar
                                                     </a>
                                                     @endif
 
-                                                    {{-- Editar Laudo --}}
+                                                    <!-- Editar Laudo -->
                                                     @if($webMaster || $editarLaudo)
                                                     <a role="button" class="btn btn-outline-warning" href="{{ route('GetMonitoriasEdit',base64_encode($item->id)) }}/#">
                                                         Editar
                                                     </a>
                                                     @endif
 
-                                                    {{-- <button role="button" class="btn btn-secondary">Editar</button> --}}
+                                                    <!-- <button role="button" class="btn btn-secondary">Editar</button> -->
                                                     @if($webMaster || $excluirLaudo)
                                                     <button role="button" id="deleteLaudo{{$item->id}}" onclick="deleteLaudo({{$item->id}})" class="btn btn-outline-danger">
                                                         Excluir
@@ -105,89 +105,27 @@
                             </table>
                         </div>
                     </div>
-                </div>
                 @endif
             </div>
-@if($webMaster || $dash || $export)
+@if($webMaster || $dash || $export || $motivosContestar)
 
-                {{-- <div class="panel panel-secondary">
-                    <div class="panel-heading ui-dragable-handle">
-                        <h3 class="panel-title">
-                            Relatórios
-                            <span class="fa fa-bar-chart-o"></span>
-                        </h3>
-                        <ul class="panel-controls">
-                            <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
-                        </ul>
-                    </div>
-                    <div class="panel-body">
-                        {{-- Relatórios em Cards --}
-                        <div class="col-sm-3 col-md-3 col-lg-3">
-                            <div class="widget @if($webMaster || $media > 94 ) widget-success @elseif($media > 89) widget-primary @else widget-danger @endif widget-padding-sm">
-                                <a href="javascript:" class="text-light">
-                                    <div class="widget-item-left">
-                                        <input class="knob" data-width="80" data-height="80" data-min="0" data-max="100" data-displayInput=false data-bgColor="rgba(143,178,85,0.1)" data-fgColor="#FFF" value="{{$media}}%" data-readOnly="true" data-thickness=".3"/>
-                                    </div>
-                                    <div class="widget-data">
-                                        <div class="widget-subtitle">Média Geral neste Mês</div>
-                                        <div class="widget-big-int"><span class="num-count">{{$media}}</span>%</div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-sm-3 col-md-3 col-lg-3">
-                            <div class="widget bg-dark widget-padding-sm">
-                                <a href="#" class="text-light">
-                                    <div class="widget-subtitle">NCG neste Mês</div>
-                                    <div class="widget-big-int"><span class="num-count">{{@$ncgs}}</span></div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-sm-3 col-md-3 col-lg-3">
-                            <div class="widget widget-primary widget-padding-sm">
-                                <a href="#" class="text-light">
-                                    <div class="widget-subtitle">Avaliações neste Mês</div>
-                                    <div class="widget-big-int"><span class="num-count">{{$count}}</span></div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-sm-3 col-md-3 col-lg-3">
-                            <div class="widget widget-info">
-                                <div class="widget-subtitle">Relatório por</div>
-                                <div class="widget-title">Cliente</div>
-                                <div class="widget-int">
-                                    <div class="btn-group">
-                                        <input type="number" maxlength="11" name="cpf_cliente" id="cpf_cliente" class="btn btn-default" placeholder="Busca por CPF">
-                                        <button class="btn btn-dark" id="btnSBCPF" onclick="searchByCpfCli()"><span class="fa fa-search"></span></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}
             {{-- START Grafico --}}
             <div class="row col-sm-12 col-md-12 col-lg-12">
-                <div class="panel panel-secondary">
+                <div class="panel panel-secondary panel-toggled">
                     <div class="panel-heading">
-                        <h3 class="panel-title">
-                            Procurando o Dash? Acesse-o no <a href="#" class="btn btn-link" onclick="$('#formLogonLiderReport').submit()">LiderReport</a>!
-                            {{-- <p class="text-muted">Atualizado diariamente</p> --}}
-                        </h3>
                         <ul class="panel-controls pull-right">
-                            <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
+                            <li><a href="#" class="panel-collapse"><span class="fa fa-angle-up"></span></a></li>
                         </ul>
                         @if($webMaster)
-                            <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportar Analítico</button>
+                            <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportações MIS</button>
+                        @endif
+
+                        @if($webMaster || $motivosContestar)
+                            <button class="btn btn-dark" onclick="$('#AdminContestacao').show()">Motivos de Contestação</button>
                         @endif
                     </div>
-                    @if($webMaster)
-                    <div class="panel-body">
-                            <button class="btn btn-dark" onclick="$('#AdminContestacao').show()">Motivos de Contestação</button>
-                    </div>
-                    @endif
-                    {{-- DASH MONITORIA POWER BI --}
+                    {{-- DASH MONITORIA POWER BI --}}
                     <div class="panel-body text-center" style="overflow-x:auto">
-
                         <div class="col" style="border: solid 0.5px gray">
                             <iframe width="980" height="640" src="https://app.powerbi.com/view?r=eyJrIjoiMDE5OGNmMWEtN2E3Ni00MDNhLThkNjktMzA2ZmIxMTc1MDFiIiwidCI6ImZkYzJlZjNkLWEzZDEtNDA1OC1hOTA4LTAxMWMxMTcxZTYxNiJ9" frameborder="0" allowFullScreen="true"></iframe>
                         </div>
@@ -197,21 +135,57 @@
             </div>
             {{-- END Grafico --}}
 @endif
-@if($webMaster || $isMonitor || $isSupervisor)
+@if($webMaster || $isMonitor || $isSupervisor || Auth::user()->cargo_id === 4)
             <div class="row col-sm-12 col-md-12 col-lg-12">
                 {{-- Histórico --}}
                 <div class="panel panel-dark">
                     <div class="panel-heading">
                         <h2 id="historico" class="panel-title">
                             <p>Histórico de Monitorias</p>
-                            <p class="text-danger">As linhas em vermelho evidenciam quais monitorias estão pendentes de feedback do supervisor</p>
+                            {{-- Se é monitoria escobs --}}
+                            @if(in_array(64, Session::get('permissionsIds')))
+                            <p>As linhas em vermelho evidenciam quais monitorias estão pendentes de <strong class="text-danger">aceite de feedback do operador</strong></p>
+                            @else
+                            <p>As linhas em vermelho evidenciam quais monitorias estão pendentes de <strong class="text-danger">feedback do supervisor</strong></p>
+                            @endif
                         </h2>
                         <ul class="panel-controls">
                             <li><a href="#" class="panel-collapse"><span class="fa fa-angle-down"></span></a></li>
                         </ul>
-                        <div class="input-group pull-right">
-                            <input class="form-control col-sm-4 col-md-4 col-lg-4" name="searchInTable" id="searchInTable" placeholder="Pesquise por Monitoria Aqui">
-                            <span class="input-group-addon fa fa-search btn" onclick="searchInTable()"></span>
+                        <div class="col-md-10 text-center">
+                            <label class="mr-sm-8 sr-only" for="inlineFormCustomSelect">Campos</label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
+                                Monitoria
+                            </label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="operador">
+                                Operador
+                            </label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="supervisor">
+                                Supervisor
+                            </label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="monitor">
+                                Monitor
+                            </label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="usuariocliente">
+                                Usuário-Cliente
+                            </label>
+                            <label class="icheck">
+                                <input class="campo" name="campo" type="radio" class="icheck" value="matricula">
+                                Matricula
+                            </label>
+
+                            <div class="input-group mb-3 col-md-9 pull-right text-center">
+                                <input type="text" class="form-control col-md-6" name="valor" id="valor" placeholder="Digite aqui" aria-label="Pesquisar" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarmonitorias(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="panel-body">
@@ -228,7 +202,7 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="tbodypesquisa">
                                 @forelse ($monitorias as $m)
                                 <tr id="monitoriaLinha{{$m->id}}" @if(is_null($m->feedback_supervisor)) class="bg-danger" @endif>
                                     <td>#{{ $m->id }}</td>
@@ -438,6 +412,11 @@
                     $("#media").val(data[0].media)
                     $("p#media").html(data[0].media)
                     $("#ContestSupModal").attr('onclick','contestar('+id+')')
+                    if(data[0].feedback_operador !== 'null' && data[0].feedback_operador !== null){
+                        $("textarea#feedback_operador").prop('style','border-color: green')
+                        $("p#feedback_operador").prop('style','border-color: green')
+                    }
+
                     if(data[0].feedback_supervisor !== null) {
                         $("textarea#feedback_supervisor").attr('style','border-color: #95B75D')
                     }
@@ -844,5 +823,60 @@
                 $("#preLoaderContestar").html(table)
         })
     }
+
 </script>
+ <script>
+    function pesquisarmonitorias(campo, valor)
+{
+
+    if(valor.length >= 3) {
+        var valor = $('#valor').val();
+        var campo = $('input[name=campo]:checked').val();
+        var url = "{{ route('pesquisarMonitorias',['campo' => '--', 'valor' => '---'])}}".replace('--',campo).replace('---',valor)
+        $.ajax({
+            url:url,
+            method:'GET',
+            data:{campo,valor},
+            dataType:'json',
+            success:function(data)
+            {
+                console.log(data)
+                linhas =  ""
+                data = data.data
+                for(i = 0; i < data.length; i++){
+                    // console.log(data)
+
+                    var monitoria = JSON.parse(JSON.stringify(data[i].monitoria));
+                    var operador = JSON.parse(JSON.stringify(data[i].operador));
+                    var supervisor = JSON.parse(JSON.stringify(data[i].supervisor));
+                    var monitor = JSON.parse(JSON.stringify(data[i].monitor));
+                    var dataligacao = JSON.parse(JSON.stringify(data[i].dataligacao));
+                    var audio = JSON.parse(JSON.stringify(data[i].audio));
+                    var media = JSON.parse(JSON.stringify(data[i].media));
+                    var rota = "{{route('GetMonitoriaEdit',['id' => '---'])}}".replace('---',monitoria)
+                    var classe = ''
+                    @if(in_array(64, Session::get('permissionsIds'))))
+                    if(data[i].feedback_operador == null || data[i].feedback_operador == 'null') {
+                        classe += 'class="bg-danger"'
+                    }
+                    @else
+                    if(data[i].feedback_supervisor == null || data[i].feedback_supervisor == 'null') {
+                        classe += 'class="bg-danger"'
+                    }
+                    @endif
+
+
+                    linhas += '<tr '+classe+'> <td>  '+monitoria+'  </td>  <td>  '+operador+'  </td> <td>  '+supervisor+'  </td> <td>  '+monitor+'  </td> <td> '+dataligacao+' </td> <td> '+audio+' </td> <td> '+media+' </td>     <td class="btn-group btn-group-sm"><div class="btn-group"><button type="button" class="btn btn-secondary"id="btnView'+monitoria+'" onclick="viewMonitoring('+monitoria+')">Ver</button></div> @if ($webMaster || $isMonitor) @if($webMaster || $editarMonitoria || $excluirMonitoria) <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button> <ul class="dropdown-menu" role="menu"><li role="presentation" class="dropdown-header">Outras Ações</li> @if($webMaster || $editarMonitoria) <li> <a href="'+rota+'">Editar</a> </li> @endif @if($webMaster || $excluirMonitoria)  <li> <a onclick="deleteMonitoria('+monitoria+')">Excluir</a> </li> @endif </ul>@endif  @endif </td> </tr> '
+                  }
+
+                 $('#tbodypesquisa').html(linhas)
+
+             },
+            error: function(xhr) {
+                console.log(xhr)
+            }
+        })
+    }
+}
+ </script>
 @endsection

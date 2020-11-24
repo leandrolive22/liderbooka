@@ -12,6 +12,7 @@ use App\Http\Controllers\Logs\Logs;
 use App\Logs\Log;
 use App\Users\Ilha;
 use App\Users\User;
+use Illuminate\Support\Facades\DB;
 
 class Posts extends Controller
 {
@@ -26,7 +27,11 @@ class Posts extends Controller
             posts.user_id, DATE_FORMAT(posts.created_at,"%y-%m") AS mesAno,
             posts.created_at as date, posts.updated_at as updated,
             users.name as userPost, users.avatar, users.last_login,
-            posts.view_number as view_number')
+            posts.view_number as view_number,('.
+            DB::raw("SELECT r.react_id FROM book_posts.reactions AS r WHERE r.post_id = id_post AND r.user_id = $user AND deleted_at IS NULL").') AS likDis, ('.
+            DB::raw('SELECT COUNT(id) FROM book_posts.reactions AS r WHERE r.post_id = id_post AND deleted_at IS NULL AND r.react_id = 1').') AS likes, ('.
+            DB::raw('SELECT COUNT(id) FROM book_posts.reactions AS r WHERE r.post_id = id_post AND deleted_at IS NULL AND r.react_id = 2').') AS dislikes '
+            )
         ->leftJoin('book_usuarios.users','book_posts.posts.user_id','book_usuarios.users.id')
         ->when($permissions == 0,function($q) use ($ilha,$cargo,$user) {
             return $q->whereRaw('book_posts.posts.ilha_id LIKE "%,'.$ilha.',%"')

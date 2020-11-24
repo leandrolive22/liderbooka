@@ -3,20 +3,24 @@
 namespace App\Materiais;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Material extends Model
 {
+    use SoftDeletes;
+
     protected $connection = 'bookmateriais';
     protected $table = 'materiais_apoio';
 
     public function tipo()
     {
-    	return belongsTo('App\Materiais\Tipo','tipo_id');
+    	return $this->belongsTo('App\Materiais\Tipo','tipo_id');
     }
 
     public function user()
     {
-    	return belongsTo('App\Users\User');
+    	return $this->belongsTo('App\Users\User');
     }
 
     public function ilhas()
@@ -32,5 +36,10 @@ class Material extends Model
     public function tags()
     {
     	return $this->hasMany('App\Materiais\Tag');
+    }
+
+    public function logs()
+    {
+    	return $this->hasMany('App\Logs\MaterialLogs','id_material');
     }
 }

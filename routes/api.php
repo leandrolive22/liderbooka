@@ -81,10 +81,6 @@ Route::group(['prefix' => 'user'], function () {
 
     Route::put('sup/edit/{user}','Users\Users@editSupervisor')->name("PutUsersEditSupervisor");
 
-    //edit User
-    Route::post('/update/{id}','Users\Users@editUser')
-        ->name('PostUsersEditUser');
-
     //delete User
     Route::post('delete/','Users\Users@deleteUser')
         ->name('PostUsersDeleteUser');

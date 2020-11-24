@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Users;
 use App\User AS UserDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Controller;
@@ -22,6 +24,9 @@ use App\Logs\Log;
 use App\Users\User;
 use App\Users\DeletedUser;
 use App\Users\Filial;
+use App\Users\Ilha;
+use App\Users\Setor;
+use App\Users\Carteira;
 use App\Http\Controllers\Users\Ilhas;
 use App\Http\Controllers\Users\Cargos;
 use App\Http\Controllers\Users\Carteiras;
@@ -29,8 +34,6 @@ use App\Materials\Circular;
 use App\Materials\Material;
 use App\Materials\Roteiro;
 use App\Materials\Video;
-use Cache;
-use DB;
 
 class Users extends Controller
 {
@@ -79,7 +82,7 @@ class Users extends Controller
         $user->accept_lgpd = date('Y-m-d H:i:s');
         if($user->save()) {
             $log = new Logs();
-            $log->log(strtoupper('accept_lgpd'), base64_encode('Eu, portador do CPF'.Auth::user()->cpf.'declaro que aceito a politica de privacidade'), $request->fullUrl(), Auth::id(), Auth::user()->ilha_id);
+            $log->log(strtoupper('accept_lgpd'), base64_encode('Eu, portador da Matrícula '.Auth::user()->matricula.' declaro que aceito a politica de privacidade'), $request->fullUrl(), Auth::id(), Auth::user()->ilha_id);
 
             return redirect('home/page');
         }
@@ -113,60 +116,70 @@ class Users extends Controller
     }
 
     //retorna insert de usuarios
-    public function registerUserView()
-    {
-        // Gravas Setores em cache
-        if(!is_null(Cache::get('getSetores')))
-        {
-            $setores = Cache::get('getSetores');
-        } else {
-            $s = new Setores();
-            $setores = ($s->index());
-            Cache::put('getSetores',$setores,720);
-        }
+    // public function registerUserView()
+    // {
+    //     // Gravas Setores em cache
+    //     if(!is_null(Cache::get('getSetores')))
+    //     {
+    //         $setores = Cache::get('getSetores');
+    //     } else {
+    //         $s = new Setores();
+    //         $setores = ($s->index());
+    //         Cache::put('getSetores',$setores,720);
+    //     }
 
-        // grava cargos em cache
-        if(!is_null(Cache::get('getCargos')))
-        {
-            $cargos = Cache::get('getCargos');
-        } else {
-            $c = new Cargos();
-            $cargos = json_decode($c->selectCustom('id, description'));
-            Cache::put('getCargos',$cargos,720);
-        }
+    //     // grava cargos em cache
+    //     if(!is_null(Cache::get('getCargos')))
+    //     {
+    //         $cargos = Cache::get('getCargos');
+    //     } else {
+    //         $c = new Cargos();
+    //         $cargos = json_decode($c->selectCustom('id, description','description'));
+    //         Cache::put('getCargos',$cargos,720);
+    //     }
 
-        // grava carteiras em cache
-        if(!is_null(Cache::get('getCarteiras')))
-        {
-            $carteiras = Cache::get('getCarteiras');
-        } else {
-            $t = new Carteiras();
-            $carteiras = json_decode($t->index());
-            Cache::put('getCarteiras',$carteiras,720);
-        }
+    //     // grava carteiras em cache
+    //     if(!is_null(Cache::get('getCarteiras')))
+    //     {
+    //         $carteiras = Cache::get('getCarteiras');
+    //     } else {
+    //         $t = new Carteiras();
+    //         $carteiras = json_decode($t->index());
+    //         Cache::put('getCarteiras',$carteiras,720);
+    //     }
 
-        // grava superintendentes em cache
-        if(!is_null(Cache::get('getSuperintendentes')))
-        {
-            $superintendentes = Cache::get('getSuperintendentes');
-        } else {
-            $superintendentes = $this->getSuperintendentes();
-            Cache::put('getSuperintendentes',$superintendentes,720);
-        }
+    //     // grava carteiras em cache
+    //     if(!is_null(Cache::get('getIlhas')))
+    //     {
+    //         $ilhas = Cache::get('getIlhas');
+    //     } else {
+    //         $i = new Ilhas();
+    //         $ilhas = json_decode($i->index());
+    //         Cache::put('getIlhas',$ilhas,720);
+    //     }
 
-        // grava gerentes em cache
-        if(!is_null(Cache::get('getGerentes')))
-        {
-            $gerentes = Cache::get('getGerentes');
-        } else {
-            $gerentes = $this->getGerentes();
-            Cache::put('getGerentes',$gerentes,720);
-        }
+    //     // grava superintendentes em cache
+    //     if(!is_null(Cache::get('getSuperintendentes')))
+    //     {
+    //         $superintendentes = Cache::get('getSuperintendentes');
+    //     } else {
+    //         $superintendentes = $this->getSuperintendentes();
+    //         Cache::put('getSuperintendentes',$superintendentes,720);
+    //     }
 
-        $title = 'Registrar Usuários';
+    //     // grava gerentes em cache
+    //     if(!is_null(Cache::get('getGerentes')))
+    //     {
+    //         $gerentes = Cache::get('getGerentes');
+    //     } else {
+    //         $gerentes = $this->getGerentes();
+    //         Cache::put('getGerentes',$gerentes,720);
+    //     }
 
-        return view('gerenciamento.users.register', compact('title', 'gerentes', 'superintendentes', 'setores', 'cargos', 'carteiras'));
-    }
+    //     $title = 'Registrar Usuários';
+
+    //     return view('gerenciamento.users.register', compact('title', 'gerentes', 'superintendentes', 'ilhas','setores', 'cargos', 'carteiras'));
+    // }
 
     //pega todos os dados do usuários por id
     public function byId($id) {
@@ -217,7 +230,7 @@ class Users extends Controller
             return back()->with(['errorAlert','Erro! usuário sem carteira registrada, contate o treinamento.']);
         }
 
-        $users = User::select('id','name','username','cpf','ilha_id')
+        $users = User::select('id','name','username','matricula','ilha_id')
         ->when(!in_array($carteira,[1,2,9]),function($q,$carteira) {
             return $q->where('carteira_id',$carteira);
         })
@@ -256,11 +269,11 @@ class Users extends Controller
             $cargos = Cache::get('getCargos');
         } else {
             $c = new Cargos();
-            $cargos = json_decode($c->selectCustom('id, description'));
+            $cargos = json_decode($c->selectCustom('id, description', 'description'));
             Cache::put('getCargos',$cargos,720);
         }
 
-        // grava superintendentes em cache
+         // grava superintendentes em cache
         if(!is_null(Cache::get('getSuperintendentes')))
         {
             $superintendentes = Cache::get('getSuperintendentes');
@@ -283,7 +296,7 @@ class Users extends Controller
         {
             $coordenadores = Cache::get('getCoordenadores');
         } else {
-            $coordenadores = $this->getSuperintendentes();
+            $coordenadores = $this->getCoordenadores(0);
             Cache::put('getCoordenadores',$coordenadores,720);
         }
 
@@ -296,40 +309,56 @@ class Users extends Controller
             Cache::put('getSupervisores',$supervisores,720);
         }
 
-        $filiais  = Filial::select('id','name')->get();
-        $carteira = new Carteiras();
-        $carteiras = json_decode($carteira->index());
+        // grava carteiras em cache
+        if(!is_null(Cache::get('getCarteiras')))
+        {
+            $carteiras = Cache::get('getCarteiras');
+        } else {
+            $t = new Carteiras();
+            $carteiras = json_decode($t->index());
+            Cache::put('getCarteiras',$carteiras,720);
+        }
+
+        // Gravas Setores em cache
+        if(!is_null(Cache::get('getSetores')))
+        {
+            $setores = Cache::get('getSetores');
+        } else {
+            $s = new Setores();
+            $setores = ($s->index());
+            Cache::put('getSetores',$setores,720);
+        }
+
+        // grava Ilhas em cache
+        if(!is_null(Cache::get('getIlhas')))
+        {
+            $ilhas = Cache::get('getIlhas');
+        } else {
+            $i = new Ilhas();
+            $ilhas = json_decode($i->index());
+            Cache::put('getIlhas',$ilhas,720);
+        }
+
+        $filiais  = Filial::select('id','name')->orderBy('name')->get();
 
         $title = 'Gerenciar Usuário';
-        return view('gerenciamento.users.managerUser', compact('title', 'users','cargos','gerentes','superintendentes','coordenadores','supervisores','filiais','carteiras'));
+        return view('gerenciamento.users.managerUser', compact('title', 'users', 'cargos', 'gerentes', 'superintendentes', 'coordenadores', 'supervisores', 'filiais', 'carteiras', 'setores', 'ilhas'));
     }
 
     public function searchInTable(Request $request)
     {
         $str = $request->str;
-        $searchData = Tools::ajustarBusca($str);
+        $input = $request->input;
 
-        $data = User::when(true,function($q) use ($searchData) {
-                        $orderBy = ' case ';
-                        foreach(explode('.+',$searchData) as $item) {
-                            $q->orWhereRaw('name REGEXP  "'.$item.'"');
-                            $q->orWhereRaw('username REGEXP  "'.$item.'"');
-                            $q->orWhereRaw('matricula REGEXP  "'.$item.'"');
-                            $q->orWhereRaw('cpf REGEXP  "'.$item.'"');
-
-
-                            $orderBy .= 'when name REGEXP "'.$item.'" then 1 ';
-                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" then 2 ';
-                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" AND matricula REGEXP "'.$item.'" then 3 ';
-                            $orderBy .= 'when name REGEXP "'.$item.'" AND username REGEXP "'.$item.'" AND matricula REGEXP "'.$item.'" AND cpf REGEXP "'.$item.'" then 4 ';
-                        }
-
-                        $orderBy .= 'else 0 end DESC';
-
-                        $q->orderByRaw($orderBy);
-
-                        return $q;
-                    })->when(!!is_null($request->deleted_at), function($q) {
+        $data = User::when($input == 'name',function($q) use ($str) {
+                        return $q->whereRaw("name LIKE '%$str%'");
+                    })
+                    ->when($input == 'username',function($q) use ($str) {
+                        return $q->where("username",$str);
+                    })
+                    ->when($input == 'matricula',function($q) use ($str) {
+                        return $q->where("matricula","=",$str);
+                    })->when($request->deleted_at === 1 && !is_null($request->deleted_at), function($q) {
                         return $q->onlyTrashed();
                     })
                     ->get();
@@ -693,37 +722,41 @@ class Users extends Controller
             "name" => "required|min:3",
             "matricula" => "required|unique:users",
             "username" => "required|unique:users,username,NULL,id,deleted_at,NULL",
-            // "cpf" => "required|max:11|unique:users,cpf,NULL,id,deleted_at,NULL",
-            "ilha_id" => "required|int",
-            "cargo_id" => "required|int",
             "carteira_id" => "required|int",
+            "cargo_id" => "required|int",
         ];
         $messages = [
             "required" => "Este campo não pode ser vazio",
             "min" => "Este campo deve ser maior do que 3 caracteres",
             "max" => "Este campo deve ser menor do que 14 caracteres",
-            // "cpf.unique" => "CPF já registrado",
             "username.unique" => "Nome de Usuário (Username) já registrado",
-            "cpf.cpf" => "CPF inválido",
             "matricula.required" => "Matricula já registrada!"
         ];
         $request->validate($rules, $messages);
 
+
         // dados do form
         $name = $request->input("name");
-        // $cpf = trim($request->input("cpf"));
         $id = $request->input('id');
         $cargo = $request->input("cargo_id");
         $matricula = $request->input("matricula");
-        $ilha = $request->input("ilha_id");
+        $ilha = $request->input("carteira_id");
         $username = $request->input("username");
-        $carteira = $request->input("carteira_id");
         $supervisor = $request->input("superior_id");
         $coordenador = $request->input("coordenador_id");
         $gerente = $request->input("manager_id");
         $superintendente = $request->input("sup_id");
         $pass = Hash::make('Book2020@lidera');
         $another_config = NULL;
+
+        // Pega setor_id e Carteira_id
+        try {
+            $setor_id = Ilha::find($ilha)->setor_id;
+            $carteira_id = Setor::find($setor_id)->carteira_id;
+        } catch (\Exception $e) {
+            $this->forgetCache();
+            return response()->json(['success' => FALSE, 'msg' => $e->getMessage()], 422);
+        }
 
         // inclui infos adicionais
         if($cargo === 3) {
@@ -739,14 +772,14 @@ class Users extends Controller
         $insert->matricula = $matricula;
         $insert->username = $username;
         $insert->password = $pass;
-        // $insert->cpf = $cpf;
-        $insert->cargo_id = $cargo == '-' ? NULL : $cargo;
-        $insert->ilha_id = $ilha == '-' ? NULL : $ilha;
-        $insert->carteira_id = $carteira == '-' ? NULL : $carteira;
-        $insert->supervisor_id = $supervisor == '-' ? NULL : $supervisor;
-        $insert->coordenador_id = $coordenador == '-' ? NULL : $coordenador;
-        $insert->gerente_id = $gerente == '-' ? NULL : $gerente;
-        $insert->superintendente_id = $superintendente == '-' ? NULL : $superintendente;
+        $insert->cargo_id = in_array($cargo, ['-',0,'',' ']) ? NULL : $cargo;
+        $insert->ilha_id = in_array($ilha, ['-',0,'',' ']) ? NULL : $ilha;
+        $insert->carteira_id = in_array($carteira_id, ['-',0,'',' ']) ? NULL : $carteira_id;
+        $insert->setor_id = in_array($setor_id, ['-',0,'',' ']) ? NULL : $setor_id;
+        $insert->supervisor_id = in_array($supervisor, ['-',0,'',' ']) ? NULL : $supervisor;
+        $insert->coordenador_id = in_array($coordenador, ['-',0,'',' ']) ? NULL : $coordenador;
+        $insert->gerente_id = in_array($gerente, ['-',0,'',' ']) ? NULL : $gerente;
+        $insert->superintendente_id = in_array($superintendente, ['-',0,'',' ']) ? NULL : $superintendente;
         $insert->another_config;
 
         // salva e configura retornos
@@ -768,7 +801,7 @@ class Users extends Controller
             return response()->json(['success' => TRUE]);
         }
 
-        return response()->json(['success' => FALSE]);
+        return response()->json(['success' => FALSE],500);
 
     }
 
@@ -808,17 +841,20 @@ class Users extends Controller
         return response()->json(['success' => FALSE], 500);
     }
 
-    /*
-    * @param $user = User que solicitou alteração
-    * @param Request $request = dados da Requisição
-    * @return = JSON Response
-    */
+    /**
+     * Altera usuário
+     *
+     * @param int $user = User que solicitou alteração
+     * @param Illuminate\Http\Request $request = dados da Requisição
+     * @return Illuminate\Http\Response
+     */
     public function editUser(Request $request, $user)
     {
         //user data
         $id = $request->input('id'); //Usuário editado
         $name = $request->input('name');
-        $cpf = $request->input('cpf');
+        $username = $request->input('username');
+        $matricula = $request->input('matricula');
         $cargo = $request->input('cargo_id');
 
         //Locals data
@@ -842,7 +878,8 @@ class Users extends Controller
 
         //user data
         $update->name = $name;
-        $update->cpf = $cpf;
+        $update->username = $username;
+        $update->matricula = $matricula;
         $update->cargo_id = $cargo;
         //Locals data
         $update->filial_id = in_array($filial_id,['null','',' ',0]) ? NULL : $filial_id;
@@ -855,7 +892,7 @@ class Users extends Controller
         $update->coordenador_id = in_array($coordenador_id,['null','',' ',0]) ? NULL : $coordenador_id;
         $update->supervisor_id = in_array($supervisor_id,['null','',' ',0]) ? NULL : $supervisor_id;
 
-        if ($update->save()) {
+        if($update->save()) {
             $this->forgetCache();
             $m = new Monitorias();
             $m->changeAllSupers($id,in_array($supervisor_id,['null','',' ',0]) ? NULL : $supervisor_id);
@@ -888,18 +925,18 @@ class Users extends Controller
 
         // pega usuario para ser deletado
         $user = User::withTrashed()->find($id);
-        if(!!is_null($user)) {
+        if(!is_null($user)) {
             $ilha = $user->ilha_id;
 
             $deleted = new DeletedUser();
             $deleted->user_id = $id;
             $deleted->deletor_id = $userLog;
             $deleted->name = $user->name;
+            $deleted->cpf = $user->matricula;
             $deleted->username = $user->username;
-            $deleted->cpf = $user->cpf;
             $deleted->save();
 
-            if(!!is_null($user->deleted_at)) {
+            if(!is_null($user->deleted_at)) {
                 if($user->forceDelete()) {
                     //Registra log
                     $log = new Logs();
@@ -926,6 +963,7 @@ class Users extends Controller
 
     public function getSupervisores($ilha, $json = 0)
     {
+
         $sup = User::select('id','name')
         ->where('cargo_id',4)
         ->when($ilha > 0, function($query) use ($ilha) {

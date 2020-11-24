@@ -117,7 +117,7 @@
                                 <div class="pull-left">
 
                                     <!-- if eu tiver respondido -->
-                                    @if($quiz->logs->where('user_id',Auth::id())->where('action','LIKE','ANSWER_QUIZ')->count() >= 1)
+                                    @if($quiz->respondido >= 1)
                                     <a class="text-success">
                                         <i class="fa fa-check"></i>
                                         Respondido

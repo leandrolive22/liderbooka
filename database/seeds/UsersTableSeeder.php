@@ -135,6 +135,153 @@ class UsersTableSeeder extends Seeder
             ["id" =>"61", "name" => "Monitoria: Ver todas (Somente alta Gerência)","created_at" => now(), "updated_at" => now()],
             ["id" =>"62", "name" => "Post: Ver tudo","created_at" => now(), "updated_at" => now()],
             ["id" =>"64", "name" => "Monitoria: Ver Escobs","created_at" => now(), "updated_at" => now()],
+            ["id" =>"65", "name" => "Monitoria: Motivos Contestar","created_at" => now(), "updated_at" => now()],
+            ["id" =>"66", "name" => "Monitoria: Coordenador","created_at" => now(), "updated_at" => now()],
         ]);
+
+        DB::table('cargos')->insert(
+            [
+                [
+                    "id" => 1,
+                    "description" => "Desenvolvedor",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-08-04 22:25:17"
+                ],
+                [
+                    "id" => 2,
+                    "description" => "Gerente",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 3,
+                    "description" => "Treinamento",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 4,
+                    "description" => "Supervisor",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 5,
+                    "description" => "Operador",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 7,
+                    "description" => "Coordenador",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 8,
+                    "description" => "BackOffice",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 9,
+                    "description" => "Superintendente",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 10,
+                    "description" => "Analista",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 11,
+                    "description" => "Tecnico",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 12,
+                    "description" => "Assistente/Auxiliar",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 13,
+                    "description" => "Estagiário Operação",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-07-27 16:30:57"
+                ],
+                [
+                    "id" => 14,
+                    "description" => "Aprendiz Operação",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-07-27 16:31:01"
+                ],
+                [
+                    "id" => 15,
+                    "description" => "Monitor",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 16,
+                    "description" => "Diretor",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 17,
+                    "description" => "Sócio",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 18,
+                    "description" => "Estágio Adminstrativo",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-07-27 16:31:06"
+                ],
+                [
+                    "id" => 19,
+                    "description" => "Aprendiz Adminstrativo",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-07-27 16:31:10"
+                ],
+                [
+                    "id" => 20,
+                    "description" => "Recepcionista",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => NULL
+                ],
+                [
+                    "id" => 21,
+                    "description" => "Coordenador de Treinamento",
+                    "created_at" => "now()",
+                    "updated_at" => "now()",
+                    "deleted_at" => "2020-08-04 17:05:05"
+                ],
+            ]
+        );
     }
 }

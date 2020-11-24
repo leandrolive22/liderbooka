@@ -18,6 +18,7 @@ class Ilhas extends Controller
     public function index()
     {
         $ilhas = Ilha::where('id','<>',1)
+                    ->orderBy('name')
                     ->get();
 
         return $ilhas->toJSON();
@@ -160,7 +161,7 @@ class Ilhas extends Controller
         // variaveis
         $i = $request->ilhas;
         $s = $request->setor;
-        
+
         try {
             // Se existe ilha
             if(is_null($s)) {
@@ -205,7 +206,7 @@ class Ilhas extends Controller
             Ilha::find($id)->delete();
             return response()->json(['successAlert' => 'Excluído com sucesso!',201]);
         } catch (Exception $e) {
-            return response()->json(['errorAlert' => $e->getMessage()],500);   
+            return response()->json(['errorAlert' => $e->getMessage()],500);
         }
     }
 }

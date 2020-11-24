@@ -168,10 +168,11 @@ class Logs extends Controller
         }
     }
 
-    public function logMaterial($user, $material_id, $tipo_id, $action = 'NEW_INSERT_MATERIAL')
+    public function logMaterial($user, $material_id, $tipo_id, $action = 'NEW_INSERT_MATERIAL', $value = NULL)
     {
         $log = new MaterialLogs();
         $log->action = $action;
+        $log->value = $value;
         $log->id_material = $material_id;
         $log->tipo_id = $tipo_id;
         $log->user_id = $user;
@@ -369,7 +370,7 @@ class Logs extends Controller
 
         return FALSE;
     }
-    
+
     public function calculator($id, $ilha, $user, $action = 'NEW_CALCULATOR') : bool {
         $log = new MaterialLogs();
         $log->calculadora_id = $id;

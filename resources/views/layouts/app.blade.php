@@ -23,12 +23,15 @@
     @endif
     @include('assets.css.scroll')
 
+    @if(Auth::user()->css === 'black')
     <style type="text/css">
-        @if(Auth::user()->css === 'black')
-        body {
-            text-color: #ffffff;
-        }
-        @endif
+    body {
+        text-color: #ffffff;
+    }
+    </style>
+    @endif
+
+    <style type="text/css">
         .myParagraph{
             min-height: 20px;
             padding: 2px;
@@ -300,6 +303,62 @@
         }
 
         return false
+    }
+
+    // Grava feedback de Monitoria junto ao opeador (escobs)
+    function feedbackMonitoringEscobs() {
+        monitoria_id = $("#idModal").val()
+        passwd = $("input#passwdEscobs").val()
+        feedback = $("textarea#feedback_operador").val()
+        url = "{{ route('MonitFeedBackEscobs', ['id' => '-99999999']) }}".replace('-99999999',monitoria_id)
+        method = 'PUT'
+        data = "feedback="+feedback+"&passwd="+passwd+"&monitoria_id="+monitoria_id
+
+        if($.inArray(feedback,['',' ',null,undefined,'undefined']) === -1 && $.inArray(passwd, ['',' ',null,undefined,'undefined']) === -1) {
+            $.ajax({
+                url: url,
+                method: method,
+                data: data,
+                success: function(xhr) {
+                    // Exibe mensagem
+                    noty({
+                        text: xhr.successAlert,
+                        layout: 'topRight',
+                        type: 'success'
+                    })
+
+                    $("textarea#feedback_operador").prop('style','border-color: green')
+                },
+                error: function(xhr) {
+                    // Trata mensagens de retorno
+                    if(typeof xhr.responseJSON.errorAlert !== 'undefined'){
+                        msg = xhr.responseJSON.errorAlert
+                    } else if(typeof xhr.responseJSON !== 'undefined') {
+                        if(typeof xhr.responseJSON.message !== 'undefined') {
+                            msg = xhr.responseJSON.message
+                        }
+                        if(typeof xhr.responseJSON.errors !== 'undefined') {
+                            $.each(xhr.responseJSON.errors, (i,v) => {
+                                noty({
+                                    text: v,
+                                    layout: 'topRight',
+                                    type: 'error'
+                                })
+                            })
+                        }
+                    } else if(typeof xhr.responseJSON.warningAlert !== 'undefined') {
+                        msg = xhr.responseJSON.warningAlert
+                    }
+
+                    // Exibe mensagem
+                    noty({
+                        text: msg,
+                        layout: 'topRight',
+                        type: 'error'
+                    })
+                }
+            })
+        }
     }
 
     @include('assets.components.notify');

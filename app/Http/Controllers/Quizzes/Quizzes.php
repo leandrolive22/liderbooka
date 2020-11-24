@@ -111,7 +111,8 @@ class Quizzes extends Controller
         }
 
         if(Auth::id() > 0) {
-            $quizzes = Quiz::whereRaw('(validity >= NOW() OR ISNULL(validity)) AND ilhas LIKE "%,'.$ilha.',%"')
+            $quizzes = Quiz::selectRaw('quizzes.*, (SELECT count(id) FROM book_relatorios.logs WHERE action LIKE "ANSWER_QUIZ" AND deleted_at IS NULL AND value = quizzes.id AND user_id = '.$id.') AS respondido')
+                            ->whereRaw('(validity >= NOW() OR ISNULL(validity)) AND ilhas LIKE "%,'.$ilha.',%"')
                             ->orWhere('creator_id',$id)
                             ->skip($skip)
                             ->take($take)

@@ -3,23 +3,21 @@
 namespace App\Http\Controllers\Materiais;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Permissions\Permissions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Materiais\Cargo As FiltroCargo;
 use App\Materiais\Ilha As FiltroIlha;
-use App\Materials\Material;
-use App\Materials\Circular;
-use App\Materials\Roteiro;
-use App\Materials\Video;
+use App\Materiais\Material;
 use App\Materiais\Tag;
 use App\Materiais\Tipo;
 use App\Users\Ilha;
 use App\Users\Cargo;
 use App\User;
-use Auth;
-use Cache;
-use DB;
-use Storage;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller
 {
@@ -51,35 +49,17 @@ class MaterialController extends Controller
         return view('wiki.categorias',compact('title','type'));
     }
 
-    public function materiais($type, $ilha){
+    public function materiais($type, Request $request){
         $title = "Materiais";
-        $cargo = Auth::user()->cargo_id;
+        $data = [
+            'ilha' => Auth::user()->ilha_id,
+            'cargo' => Auth::user()->cargo_id,
+            'carteira' => Auth::user()->carteira_id
+        ];
+        $result = $this->search($type, $request, FALSE, $data);
+        $name = @Tipo::find($type)->name;
 
-        switch ($type) {
-            case "Videos":
-                $result = Video::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                ->orderBy('created_at','desc') 
-                ->paginate(9);
-                break;
-            case "Material de Apoio":
-                $result = Material::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                ->orderBy('created_at','desc') 
-                ->paginate(9);                
-                break;
-            case "Roteiro":
-                $result = Roteiro::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                ->orderBy('created_at','desc') 
-                ->paginate(9);     
-                break;
-            case "Comunicado":
-                $result = Circular::whereRaw("(ilha_id LIKE '%,1,%' OR ilha_id LIKE '%,$ilha,%') AND (cargo_id is NULL OR cargo_id LIKE '%,$cargo,%') AND deleted_at IS NULL")
-                ->orderBy('created_at','desc') 
-                ->paginate(9);     
-                break;    
-        }
-                
-        
-        return view('wiki.viewmateriais',compact('title','type','result'));
+        return view('wiki.viewmateriais',compact('title','type','result','name'));
     }
 
     /** Pega tags mais clicadas nos ultimos 10 minutos
@@ -181,17 +161,46 @@ class MaterialController extends Controller
         return view('wiki.manager', compact('tipos', 'tags', 'title', 'ilhas', 'cargos'));
     }
 
-    public function deleteMaterial($id)
+    /**
+     * Excluí Material com softDelete
+     * @param int $id
+     * @return Response
+     */
+    public function deleteMaterial(int $id)
     {
-        $user = Auth::id();
-        if($material = $this->checkIfMaterialExists($id)) {
-            Material::find($id)->delete();
-            $log = new Logs();
-            $log->logMaterial(Auth::id(), $id, $material->tipo_id, 'NEW_DELETE_MATERIAL');
-            return response()->json(['successAlert' => 'Material excluído!'],201);
+        try {
+            $user = Auth::id();
+            $material = $this->checkIfMaterialExists($id);
+
+            if(!$material) {
+                return response()->json(['errorAlert' => 'Material Não encontrado!'],500);
+            } else {
+                $tipo = $material->tipo_id;
+                $material->delete();
+                $log = new Logs();
+                $log->logMaterial($user, $id, $tipo, 'DELETE_MATERIAL');
+                return response()->json(['successAlert' => 'Material excluído!'],201);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['errorAlert' => 'Erro! Contate o suporte e passe a seguinte frase: <br>'.
+                $e->getMessage()],500);
+        }
+    }
+
+    /** Checa se material existe ou foi apagado
+     *
+     * @param int $id
+     * @return bool|App\Materiais\Material
+     */
+    public function checkIfMaterialExists(int $id)
+    {
+        $material = Material::find($id);
+
+        if(!is_null($material)) {
+            return $material;
         }
 
-        return response()->json(['errorAlert' => 'Material Não encontrado!'],500);
+        return FALSE;
     }
 
     /** Salva ou altera material e sincroniza mudanças
@@ -201,13 +210,12 @@ class MaterialController extends Controller
      */
     public function syncMaterial(Request $request)
     {
+        $id = $request->id;
         $rules = [
             'id' => 'required|int|min:0',
             'tipo_id' => 'required|int|min:1',
             'title' => 'required|min:1',
             'description' => 'required',
-            'tags' => 'required',
-            'material_file' => 'required|file'
         ];
 
         $msgs = [
@@ -220,10 +228,17 @@ class MaterialController extends Controller
             'title.required' => 'O nome do material deve ser preenchido!',
             'title.int' => 'Quantidade de carateres inválidas para o nome do material!',
             'description' => 'O campo Descrição não pode ser inválido',
-            'tags.required' => 'Selecione ao menos uma Categoria!',
-            'material_file.required' => 'Submeta um arquivo válido!',
-            'material_file.file' => 'Submeta um arquivo!',
         ];
+
+        $id = $request->id;
+
+        if($id === 0) {
+            $rules['tags'] = 'required';
+            $rules['material_file'] = 'required|file';
+            $msgs['tags.required'] = 'Selecione ao menos uma Categoria!';
+            $msgs['material_file.required'] = 'Submeta um arquivo válido!';
+            $msgs['material_file.file'] = 'Submeta um arquivo!';
+        }
 
         // validação
         $request->validate($rules, $msgs);
@@ -235,27 +250,37 @@ class MaterialController extends Controller
         $title = $request->title;
         $description = $request->description;
         $tags = explode(',',$request->tags);
-        $file = $request->file('material_file');
+        if($id === 0) {
+            $file = $request->file('material_file');
 
-        // Checa se existe arquivo e se foi submetido
-        if(empty($file)) {
-            return back()->with('errorAlert', 'Arquivo inválido!');
+            // Checa se existe arquivo e se foi submetido
+            if(empty($file)) {
+                return back()->with('errorAlert', 'Arquivo inválido!');
+            }
+
+            // grava arquivo no Storage
+            $file_path = 'storage/'.$file->store('materiais','public');
         }
-
-        // grava arquivo no Storage
-        $file_path = $file->store('materiais','public');
 
         //
         try {
             // Verifica se material existe
             if($id > 0) {
                 $material = Material::find($id);
+                $isEdit = 1;
             } else {
                 $material =  new Material();
+                $isEdit = 0;
             }
+
             $material->name = $title;
             $material->description = $description;
-            $material->file_path = $file_path;
+
+            // Se é edição, não altera caminho
+            if($isEdit === 0) {
+                $material->file_path = $file_path;
+            }
+
             $material->tipo_id  = $tipo_id;
             $material->user_id = Auth::id();
             if(!$material->save()) {
@@ -265,17 +290,20 @@ class MaterialController extends Controller
             if($error === 0) {
                 $material_id = $material->id;
 
-                $tagsInsert = [];
-                foreach($tags as $item) {
+                // Se n é editar
+                if($isEdit === 0) {
+                    $tagsInsert = [];
+                    foreach($tags as $item) {
 
-                    $tagsInsert[] = [
-                        'name' => $item,
-                        'material_id' => $material_id
-                    ];
-                }
+                        $tagsInsert[] = [
+                            'name' => trim($item),
+                            'material_id' => $material_id
+                        ];
+                    }
 
-                if(!Tag::insert($tagsInsert)) {
-                    $error++;
+                    if(!Tag::insert($tagsInsert)) {
+                        $error++;
+                    }
                 }
 
                 if($error > 0) {
@@ -292,6 +320,12 @@ class MaterialController extends Controller
         }
     }
 
+    /**
+     * Edita filtros por material
+     *
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
     public function syncFiltros(Request $request)
     {
         $error = 0;
@@ -324,6 +358,9 @@ class MaterialController extends Controller
 
     /** Coloca todos os filtros para material
      *
+     * @param mixed $type
+     * @param mixed $material_id
+     * @return bool
      */
     public function todosFiltros($type, $material_id) : bool
     {
@@ -344,8 +381,12 @@ class MaterialController extends Controller
         return $select->update([$column => NULL]);
     }
 
-    /*** Deleta os filtros do material que foram desmarcados
+    /** Deleta os filtros do material que foram desmarcados
      *
+     * @param string $type
+     * @param array $ids
+     * @param int $material_id
+     * @return bool
      */
     public function syncDelete(string $type, array $ids, int $material_id) : bool
     {
@@ -356,8 +397,12 @@ class MaterialController extends Controller
         }
     }
 
-    /*** Grava filtros no banco de dados
+    /** Grava filtros no banco de dados
      *
+     * @param string $type
+     * @param array $ids
+     * @param int $material
+     * @return bool
      */
     public function insertSync(string $type, array $ids, int $material_id) : bool
     {
@@ -371,19 +416,25 @@ class MaterialController extends Controller
         }
 
         foreach($ids as $id){
-                    $insert[] = [
-                        'material_id' => $material_id,
-                        $column => $id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+            $insert[] = [
+                'material_id' => $material_id,
+                $column => $id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
         return $model::insert($insert);
 
     }
 
-    // Pega filtros por material id
+    /**
+     *  Pega filtros por material id
+     *
+     * @param string $type
+     * @param int $material_id
+     * @return array
+     */
     public function getFiltros(string $type, int $material_id) : array
     {
         if($type === 'ilhas') {
@@ -405,20 +456,35 @@ class MaterialController extends Controller
         return [];
     }
 
-    // pega dados de array e filtra
+    /**
+     *  une dados de 2 arrays e filtra repetidos
+     *
+     * @param array $data
+     * @param array $antigo
+     * @return array
+     */
     public function filtraArray(array $data, array $antigo) : array
     {
         $dados = array_merge($data, $antigo);
         return array_unique($dados);
     }
 
-    // apaga cache de amanger
+    /**
+     * Apaga Cache
+     *
+     * @return void
+     */
     public function restoreCacheManager()
     {
         Cache::forget('tags');
         Cache::forget('tipos');
     }
 
+    /**
+     * Pega ilhas de cache para filtragem
+     *
+     * @return App\Materiais\Tag
+     */
     public function getTags()
     {
         $day= 60*60*24; // 86400 seconds or 1 day
@@ -432,6 +498,11 @@ class MaterialController extends Controller
         return $tags;
     }
 
+    /**
+     * Pega ilhas de cache para filtragem
+     *
+     * @return App\Materiais\Tipo
+     */
     public function getTipos()
     {
         $day= 60*60*24; // 86400 seconds or 1 day
@@ -445,6 +516,11 @@ class MaterialController extends Controller
         return $tipos;
     }
 
+    /**
+     * Pega ilhas de cache para filtragem
+     *
+     * @return App\Users\Ilha
+     */
     public function getIlhas($ilha = 0)
     {
         $ilhas = Cache::get('getIlhas');
@@ -460,6 +536,11 @@ class MaterialController extends Controller
         return $ilhas;
     }
 
+    /**
+     * Pega cargos de cache para filtragem
+     *
+     * @return App\Users\Cargo
+     */
     public function getCargos()
     {
         $day= 60*60*24; // 86400 seconds or 1 day
@@ -526,7 +607,7 @@ class MaterialController extends Controller
      * @param null|string $filter
      * @return App\Materiais\Material
      */
-    public function getMaterial($where, $type, $filter = NULL)
+    public function getMaterials($where, $type, $filter = NULL)
     {
         return Material::selectRaw('materiais_apoio.id AS id_material, materiais_apoio.name, materiais_apoio.file_path, materiais_apoio.created_at AS data_criacao')
         ->leftJoin('filtros_ilhas AS i', 'i.material_id', 'materiais_apoio.id')
@@ -536,7 +617,8 @@ class MaterialController extends Controller
             return $q->whereRaw($filter);
         })
         ->where('materiais_apoio.tipo_id','=',$type)
-        ->get();
+        ->orderby('materiais_apoio.created_at','desc')
+        ->paginate(9);
     }
 
     /**
@@ -562,7 +644,7 @@ class MaterialController extends Controller
      * @param bool $haveFilter
      * @return string $json
      */
-    public function search(int $type, Request $request, bool $haveFilter = FALSE)
+    public function search(int $type, Request $request, bool $haveFilter = FALSE, $data = NULL)
     {
         // Configura filtros
         $setFilter = NULL;
@@ -576,10 +658,132 @@ class MaterialController extends Controller
         }
 
         // Configura consulta
-        $where = $this->setWhere(Auth::user()->ilha_id, Auth::user()->cargo_id, Auth::user()->carteira_id);
+        if(is_null($data)) {
+            $where = $this->setWhere(Auth::user()->ilha_id, Auth::user()->cargo_id, Auth::user()->carteira_id);
+        } else {
+            $where = $this->setWhere($data['ilha'],$data['cargo'],$data['carteira']);
+        }
 
         // Executa consulta
-        $materiais = $this->getMaterial($where, $type, $setFilter);
+        $materiais = $this->getMaterials($where, $type, $setFilter);
         return $materiais;
+    }
+
+    public function getMaterial(int $id)
+    {
+        try {
+            return Material::find($id);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['errorAlert' => $msg], 500);
+        }
+    }
+
+    /**
+     * Retorna as tags que o material possui
+     *
+     * @param int $id
+     * @return App\Materiais\Tag|Illuminate\Http\Response
+     */
+    public function getTagsByMaterial(int $id)
+    {
+        try {
+            return Tag::where('material_id',$id)->get();
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['errorAlert' => $msg], 500);
+        }
+    }
+
+    /**
+     * Edita tags vinculadas ao material
+     *
+     * @param int $id
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
+    public function setTagsByMaterial(int $id, Request $request)
+    {
+        try {
+            $data = explode(',',$request->tags);
+
+            $insertArray = [];
+
+            DB::beginTransaction();
+            Tag::where("material_id",$id)->delete();
+
+            foreach($data as $item) {
+                if(!in_array($item,[NULL,'',' '])) {
+                    $insertArray[] = [
+                        'name' => $item,
+                        'material_id' => $id
+                    ];
+                }
+            }
+
+            if(Tag::insert($insertArray)) {
+                DB::commit();
+                Cache::forget('tags');
+                return response()->json(['successAlert' => 'Categoria atualizadas com sucesso!'], 201);
+            }
+
+            DB::rollback();
+            return response()->json(['errorAlert' => 'Categoria não atualizadas!'], 500);
+
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['errorAlert' => $msg], 500);
+        }
+    }
+
+    /**
+     * Altera arquivo do material
+     *
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
+    public function setFile(Request $request)
+    {
+        try {
+
+            $id = $request->input('id');;
+            $file = $request->file('material_file');
+
+            // Checa se existe arquivo e se foi submetido
+            if(empty($file)) {
+                return back()->with('errorAlert', 'Arquivo inválido!');
+            }
+
+            // grava arquivo no Storage
+            $file_path = 'storage/'.$file->store('materiais','public');
+
+            // Verifica se material existe
+
+            $material = Material::find($id);
+            $material->file_path = $file_path;
+            $material->user_id = Auth::id();
+            if($material->save()) {
+                return back()->with('successAlert','Material Atualizado')->with('src', $file_path)->with('idMaterial',$id);
+            }
+
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return back()->with('errorAlert', $msg);
+        }
+    }
+
+    public function saveStarMaterial(int $id, int $user, int $tipo_id, int $value)
+    {
+        try {
+            $logs = new Logs();
+            if($logs->logMaterial($user, $id, $tipo_id, 'NEW_STAR', $value)) {
+                return response()->json(['successAlert' => TRUE], 201);
+            }
+
+            return response()->json(['errorAlert' => "Erro ao gravar reação, contate o suporte!"], 422);
+
+        } catch (\Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()], 500);
+        }
     }
 }

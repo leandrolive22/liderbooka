@@ -185,12 +185,11 @@
 			<div class="content-frame-top">
 				<div class="page-title">
 					<a href="{{ url()->previous() }}">
-                    <h2><span class="fa fa-arrow-circle-o-left"></span>  Wiki</h2>
-					</a>
+                        <h2><span class="fa fa-arrow-circle-o-left"></span>  Wiki</h2>
+                    </a>
 				</div>
-			
-				<!-- END CONTENT FRAME TOP -->
 
+				<a href="{{ route('newWiki') }}" class="pull-right float-right btn btn-default">Administrar</a>
 			</div>
 			<!-- END CONTENT FRAME TOP-->
 
@@ -207,10 +206,10 @@
                         <div class="card-group">
                                           {{-- Inicio Hashtags --}}
                           <div style="font-size:20px;border-radius: 5px 10px 20px 30px; width:410px; height:200px;" class="form-control" >
-                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input> 
-                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input> 
-                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input> 
-  
+                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input>
+                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input>
+                           <a onclick="clickTag()" href="#" > <input type="hidden" value="Jornadadocliente" class="tags">#Jornadadocliente </a> </input>
+
                         </div>
                                         {{-- Fim Hashtags --}}
 
@@ -222,20 +221,20 @@
                                         <div class="carousel-item row no-gutters active p-1">
                                             @php $c =0; @endphp
                                     @foreach ($users as $user)
-                                            @php 
+                                            @php
                                             if($c == 0) {$foto = '1medalha';}
                                             else if($c == 1){$foto = '2medalha';}
                                             else if($c== 2){$foto = '3medalha';}
                                             else{$foto  = 'medalhabronze';}
                                              @endphp
-                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset($user->avatar) }}" > 
-                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/{{$foto}}.png" > 
-                                             <h5>{{ $user->name}}</h5> 
+                                            <div class="col-3 float-left"><img class="img-fluid" src="{{ asset($user->avatar) }}" >
+                                            <img class="img-fluid" style="width:40px;"src="storage/img/medalhas/{{$foto}}.png" >
+                                             <h5>{{ $user->name}}</h5>
                                             </div>
                                             @php $c++; @endphp
                                     @endforeach
                                        </div>
-                            
+
                                     </div>
                                     <a class="carousel-control-prev" href="#recipeCarousel" role="button" data-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -245,21 +244,20 @@
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                         <span class="sr-only">Next</span>
                                     </a>
-                                </div>                  
+                                </div>
                            </div>
                            {{-- Fim Destaque Mes --}}
 
                   </div>
 			  </div>
-                                  {{-- Fim Grupo Hashtags e Destaque Mes --}}
+                    {{-- Fim Grupo Hashtags e Destaque Mes --}}
 
 
             {{-- Inicio Materiais --}}
-         <div class="row">
             <div style="padding-top:40px;" class="panel panel-colorful text-center">
                 <h3 style="text-align:center;font-size:20px;"><strong>  Tipos de Materiais  </strong></h3>
                 @foreach ($tipos as $tipo)
-                <a href="#" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">{{$tipo->name}}</a>
+                <a href="{{ route('materiais', [ 'type' => $tipo->id]) }}" class="btn btn-dark btn-lg active" role="button" aria-pressed="true">{{$tipo->name}}</a>
                 @endforeach
             </div>
 
@@ -276,8 +274,7 @@
 
             {{-- Fim Categorias --}}
 
-	</div>
-</div>
+         </div>
 <!-- END PAGE CONTENT -->
 </div>
 <!-- END PAGE CONTAINER -->

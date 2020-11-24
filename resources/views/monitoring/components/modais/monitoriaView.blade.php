@@ -84,6 +84,18 @@
                     <p class="myParagraph" id="pontos_atencao"></p>
                 </div>
             </div>
+            @if(in_array(64, Session::get('permissionsIds')) && Auth::user()->cargo_id != 4)
+            <div class="form-row col-md-12">
+                <div class="form-group col-md-6">
+                    <label for="user">Feedback do Monitor</label>
+                    <p class="myParagraph col-md-10" style="min-height: 20px" id="feedback_monitor"></p>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="monitor">Feedback do Operador</label>
+                    <textarea class="myParagraph col-md-10" placeholder="Digite aqui sua resposta" style="border-color: red" id="feedback_operador"></textarea>
+                </div>
+            </div>
+            @else
             <div class="form-row col-md-12">
                 <div class="form-group col-md-4">
                     <label for="user">Feedback do Monitor</label>
@@ -106,6 +118,7 @@
                     @endif
                 </div>
             </div>
+            @endif
             <div class="form-row col-md-12">
                 <div class="form-group col-md-3">
                     <label for="conf">Conformes</label>
@@ -145,28 +158,49 @@
     </div>
     <div class="panel-footer flex-row-reverse">
         <button type="button" id="closeModal" onclick="$('#modalMonitoring').hide()" class="btn btn-dark">Fechar</button>
-        @if(in_array(1,session('permissionsIds')) || in_array(19, session('permissionsIds')) || Auth::user()->cargo_id == 4)
-        {{-- BTNS SUPERVISOR --}}
-        @if(in_array(21,session('permissionsIds')))
-        <button type="button" id="ContestSupModal" data-container="body" data-toggle="popover" data-placement="top" data-content="{{$popoverHtml}}" data-html="true" class="btn btn-danger">Contestar</button>
-        @endif
-        @if(Auth::user()->cargo_id == 4)
-        <button type="button" id="GravarSupModal" onclick="saveFeedbackSupervisorMonitoring()" class="btn btn-success">Gravar FeedBack</button>
-        @endif
-        @elseif(in_array(1,session('permissionsIds')) || in_array(21, session('permissionsIds')) || Auth::user()->cargo_id === 5)
-        @php
-        $hash2 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'2';
-        $hash1 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'1';
-        @endphp
+        {{-- ESCOBs --}}
+        @if(in_array(64, Session::get('permissionsIds')) && Auth::user()->cargo_id != 4)
+            <button type="button" id="closeModal" id="btnMo1"
+                onclick="feedbackMonitoringEscobs()" class="btn btn-success"
+                data-toggle="tooltip" data-placement="top"
+                data-original-title="Eu, {{Auth::user()->name}}, registro Nº {{@intval(Auth::user()->matricula)}} concordo com os pontos apresentados acima">
+                Gravar
+            </button>
+            <input type="password" class="form-control col-md-6 m-1" placeholder="Senha do operador" name="passwd" id="passwdEscobs">
+        {{-- CALLCENTER --}}
+        @else
+            @if(in_array(1,session('permissionsIds')) || in_array(19, session('permissionsIds')) || Auth::user()->cargo_id == 4)
+                {{-- Contestações --}}
+                {{-- BTNS SUPERVISOR --}}
+                @if(in_array(21,session('permissionsIds')))
+                <button type="button" id="ContestSupModal" data-container="body" data-toggle="popover" data-placement="top" data-content="{{$popoverHtml}}" data-html="true" class="btn btn-danger">
+                    Contestar
+                </button>
+                @endif
+                {{-- Gravar Feedback Supervisor  --}}
+                @if(Auth::user()->cargo_id == 4)
+                <button type="button" id="GravarSupModal" onclick="saveFeedbackSupervisorMonitoring()" class="btn btn-success">Gravar FeedBack</button>
+                @endif
+            {{-- Operador  --}}
+            @elseif(in_array(1,session('permissionsIds')) || in_array(21, session('permissionsIds')) || Auth::user()->cargo_id === 5)
+                @php
+                $hash2 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'2';
+                $hash1 = md5('Eu, '.Auth::user()->name.' discordo com a monitoria acima').date('Ymd').'-'.'1';
+                @endphp
 
-        {{-- BTNS Resposta Operador --}}
-        <button type="button" id="closeModal" id="btnMo2" onclick="saveFeedbackOperatorMonitoring(2,'{{$hash2}}')" class="btn btn-danger"
-        data-toggle="tooltip" data-placement="top"
-        data-original-title="Eu, {{Auth::user()->name}} discordo com a monitoria acima / Hash: {{ $hash2 }}">Discordar</button>
+                {{-- BTNS Resposta Operador --}}
+                <button type="button" id="closeModal" id="btnMo2" onclick="saveFeedbackOperatorMonitoring(2,'{{$hash2}}')" class="btn btn-danger"
+                    data-toggle="tooltip" data-placement="top"
+                    data-original-title="Eu, {{Auth::user()->name}} discordo com a monitoria acima / Hash: {{ $hash2 }}">
+                    Discordar
+                </button>
 
-        <button type="button" id="closeModal" id="btnMo1" onclick="saveFeedbackOperatorMonitoring(1,'{{$hash1}}')" class="btn btn-success"
-        data-toggle="tooltip" data-placement="top"
-        data-original-title="Eu, {{Auth::user()->name}} concordo com a monitoria acima / Hash: {{ $hash1 }}">Concordar</button>
+                <button type="button" id="closeModal" id="btnMo1" onclick="saveFeedbackOperatorMonitoring(1,'{{$hash1}}')" class="btn btn-success"
+                    data-toggle="tooltip" data-placement="top"
+                    data-original-title="Eu, {{Auth::user()->name}} concordo com a monitoria acima / Hash: {{ $hash1 }}">
+                    Concordar
+                </button>
+            @endif
         @endif
     </div>
 </div>

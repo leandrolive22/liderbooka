@@ -60,7 +60,7 @@ if(in_array(17, $permissions) || $webMaster) {
 
     $strEnc = implode("|", [Auth::id(),Auth::user()->name,Auth::user()->username,$nivel,$area,date("Y-m-d H:i:s"),$cargo]);
 
-    if((in_array(Auth::id(),[37,282]))) {
+    if((in_array(Auth::id(),[0]))) {
         var_dump($strEnc);
     }
     $password = date('Ymd');

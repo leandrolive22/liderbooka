@@ -27,7 +27,12 @@ class Laudos extends Controller
         return view('monitoring.makeModels',compact('title','carteiras'));
     }
 
-    // view que edita Laudos de monitoria
+    /**
+     * view que edita Laudos de monitoria
+     *
+     * @param string $i
+     * @return Illuminate\Http\Response
+     */
     public function edit($i)
     {
         $id = base64_decode($i);
@@ -55,6 +60,19 @@ class Laudos extends Controller
             return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
         }
 
+        // if(Auth::id() == 37) {
+        //     if(!is_null(Cache::get('modelosMonitoria'.$model))) {
+        //         $laudoItens = Cache::get('modelosMonitoria'.$model);
+        //         $itens = NULL;
+        //     } else {
+        //         $laudoItens = $laudo->itens;
+        //         $itens = NULL;
+        //         Cache::put('modelosMonitoria'.$model,$laudoItens,720);
+        //     }
+        // } else {
+        //     $laudoItens = $laudo->itens;
+        //     $itens = NULL;
+        // }
         $laudoItens = $laudo->itens;
         $itens = NULL;
 
@@ -77,10 +95,10 @@ class Laudos extends Controller
         $operador = User::selectRaw('users.ilha_id, users.id, users.name, s.name AS supervisor')
                         ->leftJoin('users As s','s.id','users.supervisor_id')
                         ->where('users.id',$request->userToApply)
-                        // ->withTrashed()
+                        ->withTrashed()
                         ->first();
         // não é update
-        $id = 0; 
+        $id = 0;
 
         if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
             return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','itens','laudoItens'));
@@ -163,10 +181,10 @@ class Laudos extends Controller
                 $this->forgetCache();
                 $log = new Logs();
                 $log->log("INSERT_LAUDO", NULL, 'INSERT_LAUDO', $user, '1');
-                return response()->json(['success' => TRUE, 'msg' => 'Laudos salvo com sucesso!', 'id' => $id,], 201);
+                return response()->json(['success' => TRUE, 'msg' => 'Laudos salvo com sucesso!', 'id' => $id, 'idb64' => base64_encode($id)], 201);
             } else {
                 @Laudo::find($id)->delete();
-                return response()->json([$itens->errors()->all()], 422);
+                return response()->json(['errorAlert' => 'Erro ao salvar itens!!'], 422);
             }
         }
     }

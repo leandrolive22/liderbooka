@@ -87,7 +87,9 @@ $file = "circular";
     position:absolute;
     left:120px;
 }
-
+.col-md-5.text-center{
+    padding-top:5px;
+}
 </style>
 <!-- START PAGE CONTAINER -->
 <div class="page-container">
@@ -183,16 +185,16 @@ $file = "circular";
                                             <input type="text" class="form-control col-md-6" name="valor" id="valor" placeholder="Digite aqui" aria-label="Pesquisar" aria-describedby="basic-addon2">
                                             <div class="input-group-append">
                                             @if($type == "MATERIAL")
-                                                <button  style="background-color:green; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisar(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                                <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisar(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
                                             @endif
                                             @if($type == "VIDEO")
-                                            <button  style="background-color:green; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarvideo(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                            <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarvideo(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
                                             @endif
                                             @if($type == "CIRCULAR")
-                                            <button  style="background-color:green; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarcircular(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                            <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarcircular(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
                                             @endif
                                             @if($type == "SCRIPT")
-                                            <button  style="background-color:green; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarscript(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                            <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarscript(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
                                             @endif
 
                                             </div>
