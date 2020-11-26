@@ -4,44 +4,33 @@ foreach($motivos as $item) {
     $motivosText .= '<option value="'.$item->id.'">'.$item->name.'</option>';
 }
 $popoverHtml = "
-<div id='contestarPopover' class='scroll' style='max-height: 250px; overflow-y: auto; overflow-x: auto'>
-<button type='button' class='close' onclick='$(this).parent().parent().parent().hide()'>
-<span aria-hidden='true'>×</span>
-<span class='sr-only'>Close</span>
-</button>
-<div>
-<div class='text-center' id='preLoaderContestar'>
-<div class='spinner-grow' role='status'>
-<span class='sr-only'>Loading...</span>
-</div>
-</div>
-<div class='form-group'>
-</div>
-<form method='POST' action='".route('login')."'>
-".csrf_field()."
-<div class='form-group'>
-<label for='contestarSelect'>Motivo:</label>
-<select id='contestarSelect' name='contestarSelect' class='form-control' required>
-$motivosText
-</select>
-</div>
-<div class='form-group'>
-<label for='contestarSelect'>Status:</label>
-<select id='status' name='status' class='form-control' required>
-<option value='2'>Improcedente</option>
-<option value='1'>Procedente</option>
-</select>
-</div>
-<div class='form-group'>
-<label for='contestarTextarea'>Obs:</label>
-<input id='contestarTextarea' name='contestarTextarea' max-length='255' class='form-control' placeholder='Observações'>
-</div>
-<div class='text-center'>
-<button class='btn btn-block btn-danger'>Contestar</button>
-</div>
-</form>
-</div>
-</div>";
+    <div id='contestarPopover' class='scroll' style='max-height: 250px; overflow-y: auto; overflow-x: auto'>
+        <button type='button' class='close' onclick='$(this).parent().parent().parent().hide()'>
+            <span aria-hidden='true'>×</span>
+            <span class='sr-only'>Close</span>
+        </button>
+    <div>
+    <div class='text-center' id='preLoaderContestar'>
+        <div class='spinner-grow' role='status'>
+            <span class='sr-only'>Loading...</span>
+        </div>
+    </div>
+    <form method='POST' action='".route('PostContestacaStore')."' id='form_constestar'>
+        ".csrf_field()."
+        <div class='form-group'>
+            <label for='contestarSelect'>Motivo:</label>
+            <select id='contestarSelect' name='motivo_id' class='form-control' required>
+            $motivosText
+            </select>
+        </div>
+        <div class='form-group'>
+            <label for='contestarTextarea'>Obs:</label>
+            <input id='contestarTextarea' name='obs' max-length='255' class='form-control' placeholder='Observações'>
+        </div>
+        <div class='text-center'>
+            <button type='button' onclick='contestar()' class='btn btn-block btn-danger'>Contestar</button>
+        </div>
+    </form>";
 @endphp
 <div class="modal in" id="modalMonitoring" tabindex="-1" role="dialog" aria-labelledby="defModalHead" aria-hidden="false" style="display: none;">
     <div class="modal-dialog modal-lg">

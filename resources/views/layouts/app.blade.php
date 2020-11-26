@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 
 <head>
-    <link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon" />
-    <!-- END META SECTION -->
+    <link rel="icon" href="{{ asset('img/bookLogo.png') }}" type="image/x-icon" />
 
     @include('assets.title.title')
     @include('assets.meta')
@@ -62,6 +61,8 @@
         @yield('basicDatatableExcel')
     @endif
     <div class="page-container page-navigation-top-fixed" style="max-height: 100%" id="app">
+        <input type="hidden" name="hasMonitoria" id="hasMonitoria">
+        <input type="hidden" name="hasContestacoes" id="hasContestacoes">
         <!-- MENU -->
         @if(!isset($lgpd))
         @component('assets.components.menu',["current"=>$current ])
@@ -361,7 +362,108 @@
         }
     }
 
+    // Transforma Data em Data Br
+    function dataBr(dataEn) {
+        data = dataEn.split(' ')
+        data2 = data[0].split('-')
+        data3 = data2.reverse()
+        data4 = data3.join('/')
+
+        return data4+' '+data[1]
+    }
+
+    // contesta monitoria
+    function contestar() {
+        data = {
+            monitoria_id: $("#idModal").val(),
+            motivo_id: $("#contestarSelect").val(),
+            obs: $("#contestarTextarea").val()
+        }
+
+        $.ajax({
+            type: "POST",
+            url: $("#form_constestar").prop('action'),
+            data: data,
+            dataType: 'json',
+            success: function (response) {
+                msg = response.successAlert
+                noty({
+                    text: msg,
+                    type: 'success',
+                    layout: 'topRight'
+                })
+            },
+            error: function(xhr) {
+                console.log(xhr)
+                try {
+                    // Trata mensagens de retorno
+                    if(typeof xhr.responseJSON.errorAlert !== 'undefined'){
+                            msg = xhr.responseJSON.errorAlert
+                        } else if(typeof xhr.responseJSON !== 'undefined') {
+                            if(typeof xhr.responseJSON.message !== 'undefined') {
+                                msg = xhr.responseJSON.message
+                            }
+                            if(typeof xhr.responseJSON.errors !== 'undefined') {
+                                $.each(xhr.responseJSON.errors, (i,v) => {
+                                    noty({
+                                        text: v,
+                                        layout: 'topRight',
+                                        type: 'error'
+                                    })
+                                })
+                            }
+                        } else if(typeof xhr.responseJSON.warningAlert !== 'undefined') {
+                            msg = xhr.responseJSON.warningAlert
+                        }
+
+                        // Exibe mensagem
+                        noty({
+                            text: msg,
+                            layout: 'topRight',
+                            type: 'error'
+                        })
+                } catch (error) {
+                    // Exibe mensagem
+                    noty({
+                        text: 'Erro ao contestar',
+                        layout: 'topRight',
+                        type: 'error'
+                    })
+                    console.log(error)
+                }
+
+            }
+        });
+    }
+
+    function checkContestacoes(){
+        $.ajax({
+            type: "GET",
+            url: "{{route('GetContestacaoCheck')}}",
+            success: function(response) {
+                if(response > 0) {
+                    $("#monitoriaMenuBtn").html('.')
+                    $("#notifyContestacao").show()
+                    $("#hasContestacoes").val(1)
+                } else {
+                    if($("#hasMonitoria").val() == 0) {
+                        $("#monitoriaMenuBtn").html('')
+                    }
+                    $("#notifyContestacao").hide()
+                    $("#hasContestacoes").val(0)
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr)
+            }
+        });
+    }
+
     @include('assets.components.notify');
+
+    $(() => {
+        checkContestacoes()
+    })
 
     </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->

@@ -63,37 +63,66 @@
                         <div class="col-md-10">
                             <label class="mr-sm-8 sr-only" for="inlineFormCustomSelect">Campos</label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
+                                <input onchange="$('#selectMonit').hide();$('#selectOperador').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Monitoria" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
                                 Monitoria
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="operador">
+                                <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').hide();if(typeof $('#input_Operador:checked').val() != 'undefined'){$('#selectOperador').show()}" id="input_Operador" name="campo" type="radio" class="icheck" value="operador">
                                 Operador
                             </label>
+                            @if(in_array(67, Session::get('permissionsIds')))
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="supervisor">
+                                <input id="input_Supervisor" name="campo" onchange="$('input#valor[name=valor]').hide();$('#selectMonit').hide();$('#selectOperador').hide();if(typeof $('#input_Supervisor:checked').val() != 'undefined'){$('#selectSuper').show()}" type="radio" class="icheck" value="supervisor">
                                 Supervisor
                             </label>
+                            @endif
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="monitor">
+                                <input id="input_Monitor" name="campo" onchange="$('input#valor[name=valor]').hide();$('#selectSuper').hide();if(typeof $('#input_Monitor:checked').val() != 'undefined'){$('#selectMonit').show()}" type="radio" class="icheck" value="monitor">
                                 Monitor
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="usuariocliente">
+                                <input onchange="$('#selectMonit').hide();$('#selectOperador').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Cliente" name="campo" type="radio" class="icheck" value="usuariocliente">
                                 Usuário-Cliente
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="matricula">
+                                <input onchange="$('#selectMonit').hide();$('#selectOperador').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Matricula" name="campo" type="radio" class="icheck" value="matricula">
                                 Matricula
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="feedback_search" type="checkbox" value="1">
+                                <input id="input_Aplicado" name="feedback_search" type="checkbox" value="1">
                                 Feedback Aplicado
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="periodo_search" id="periodo_search" type="checkbox" value="periodo" onchange="if(typeof $('#periodo_search:checked').val() !== 'undefined'){$('#dateFilter').show()}else{$('#dateFilter').hide();$('#dataini_search').val('');$('#dataifi_search').val('')}">
+                                <input id="input_Periodo" name="periodo_search" id="periodo_search" type="checkbox" value="periodo" onchange="if(typeof $('#periodo_search:checked').val() !== 'undefined'){$('#dateFilter').show()}else{$('#dateFilter').hide();$('#dataini_search').val('');$('#dataifi_search').val('')}">
                                 Período
                             </label>
+                            {{-- SELECTS --}}
+                            <div class="form-group" id="selectOperador" style="display: none;">
+                                <label for="operador">Selecione um Operador</label>
+                                <select class="select" name="operador" id="selectOperadorIpt" data-live-search="true">
+                                    @foreach ($usersFiltering as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if(in_array(67, $permissions))
+                            <div class="form-group" id="selectSuper" style="display: none;">
+                                <label for="supervisor">Selecione um Supervisor</label>
+                                <select class="select" name="supervisor" id="selectSuperIpt" data-live-search="true">
+                                    @foreach ($supers as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
+                            <div class="form-group" id="selectMonit" style="display: none;">
+                                <label for="monitor">Selecione um Monitor</label>
+                                <select class="select" name="monitor" id="selectMonitIpt" data-live-search="true">
+                                    @foreach ($monits as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="input-group" id="dateFilter" style="display: none">
                                 <input type="date" id="dataini_search" name="dataini_search" class="form-control col-sm-6">
                                 <input type="date" id="dataifi_search" name="dataifi_search" class="form-control col-sm-6">
@@ -102,10 +131,13 @@
                             <div class="input-group mb-3 col-md-9">
                                 <input type="text" class="form-control col-md-6" name="valor" id="valor" placeholder="Digite aqui" aria-label="Pesquisar" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarmonitorias(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                    <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarmonitorias();" id="pesquisarFiltro">Pesquisar</button>
                                 </div>
+                                <button class="btn btn-secondary pull-right" data-title="Há contestações para você verificar" onclick="window.location= '{{ route("GetContestacoesIndex") }}' ">
+                                    Contestações
+                                    <span class="fa fa-warning text-danger" id="notifyContestacao" style="display: none"></span>
+                                </button>
                             </div>
-
                         </div>
                         <div class="col-md-2">
                             Média no Mês
@@ -232,6 +264,7 @@
 <script type="text/javascript" src="{{asset('js/plugins/nvd3/nv.d3.min.js')}}"></script>
 <script type="text/javascript">
     function viewMonitoring(id) {
+        $("input#contestarId").val($("#idModal").val())
         $("#btnView"+id).html('<span class="fa fa-spinner fa-spin"></span>')
         if($("#idModal").val() !== id) {
             $.getJSON('{{asset("api/monitoring/view")}}/'+id,function(data){
@@ -486,73 +519,110 @@
         })
     }
 
-    function pesquisarmonitorias(campo, valor) {
-
-        if(valor.length >= 3) {
-            var valor = $('#valor').val();
-            var campo = $('input[name=campo]:checked').val();
-            var feedback = typeof $('input[name=feedback_search]:checked').val() !== 'undefined';
-            var datain = $("input#dataini_search").val()
-            var datafi = $("input#dataifi_search").val()
-
-            var periodo = $('input[name=periodo_search]:checked').val();
-
-            var url = "{{ route('pesquisarMonitorias',['campo' => '--', 'valor' => '---'])}}".replace('--',campo).replace('---',valor)
-            var data = {
-                campo: campo,
-                valor: valor,
-                feedback: feedback,
-                periodo: periodo,
-                datain: datain,
-                datafi: datafi
-            }
-
-            console.log(data)
-
-            $.ajax({
-                url:url,
-                method:'GET',
-                data: data,
-                dataType:'json',
-                success:function(data)
-                {
-                    console.log(data)
-                    linhas =  ""
-                    data = data.data
-                    for(i = 0; i < data.length; i++){
-                        // console.log(data)
-
-                        var monitoria = JSON.parse(JSON.stringify(data[i].monitoria));
-                        var operador = JSON.parse(JSON.stringify(data[i].operador));
-                        var supervisor = JSON.parse(JSON.stringify(data[i].supervisor));
-                        var monitor = JSON.parse(JSON.stringify(data[i].monitor));
-                        var dataligacao = JSON.parse(JSON.stringify(data[i].dataligacao));
-                        var audio = JSON.parse(JSON.stringify(data[i].audio));
-                        var media = JSON.parse(JSON.stringify(data[i].media));
-                        var rota = "{{route('GetMonitoriaEdit',['id' => '---'])}}".replace('---',monitoria)
-                        var classe = ''
-                        @if(in_array(64, Session::get('permissionsIds'))))
-                        if(data[i].feedback_operador == null || data[i].feedback_operador == 'null') {
-                            classe += 'class="bg-danger"'
-                        }
-                        @else
-                        if(data[i].feedback_supervisor == null || data[i].feedback_supervisor == 'null') {
-                            classe += 'class="bg-danger"'
-                        }
-                        @endif
-
-
-                        linhas += '<tr '+classe+'> <td>  '+monitoria+'  </td>  <td>  '+operador+'  </td> <td>  '+supervisor+'  </td> <td>  '+monitor+'  </td> <td> '+dataligacao+' </td> <td> '+audio+' </td> <td> '+media+' </td>     <td class="btn-group btn-group-sm"><div class="btn-group"><button type="button" class="btn btn-secondary"id="btnView'+monitoria+'" onclick="viewMonitoring('+monitoria+')">Ver</button></div>  </td> </tr> '
-                    }
-
-                    $('#tbodypesquisa').html(linhas)
-
-                },
-                error: function(xhr) {
-                    console.log(xhr)
-                }
-            })
+    function pesquisarmonitorias() {
+        var valor = $('input#valor[name=valor]').val();
+        if(valor.length == 0) {
+            valor = 0
         }
+        var campo = $('input[name=campo]:checked').val();
+        var feedback = typeof $('input[name=feedback_search]:checked').val() !== 'undefined';
+        var datain = $("input#dataini_search").val()
+        var datafi = $("input#dataifi_search").val()
+        var monit = $("#selectMonitIpt").val()
+        var supers = $("#selectSuperIpt").val()
+        var operads = $("#selectOperadorIpt").val()
+
+        var periodo = $('input[name=periodo_search]:checked').val();
+
+        var url = "{{ route('pesquisarMonitorias',['campo' => '--', 'valor' => '---'])}}".replace('--',campo).replace('---',valor)
+        var data = {
+            campo: campo,
+            valor: valor,
+            feedback: feedback,
+            periodo: periodo,
+            datain: datain,
+            datafi: datafi,
+            monit: monit,
+            supers: supers,
+            operads: operads
+        }
+
+        console.log(data)
+
+        $.ajax({
+            url:url,
+            method:'GET',
+            data: data,
+            dataType:'json',
+            success:function(data)
+            {
+                console.log(data)
+                linhas =  ""
+                for(i = 0; i < data.length; i++){
+                    // console.log(data)
+
+                    var monitoria = data[i].monitoria;
+                    var operador = data[i].operador;
+                    var supervisor = data[i].supervisor;
+                    var monitor = data[i].monitor;
+                    var dataligacao = dataBr(data[i].dataligacao).replace('undefined','');
+                    var audio = data[i].audio;
+                    var media = data[i].media;
+                    var rota = "{{route('GetMonitoriaEdit',['id' => '---'])}}".replace('---',monitoria)
+                    var classe = ''
+                    @if(in_array(64, $permissions)))
+                    if(data[i].feedback_operador == null || data[i].feedback_operador == 'null') {
+                        classe += 'class="bg-danger"'
+                    }
+                    @else
+                    if(data[i].feedback_supervisor == null || data[i].feedback_supervisor == 'null') {
+                        classe += 'class="bg-danger"'
+                    }
+                    @endif
+
+
+                    linhas += '<tr '+classe+'> <td>  '+monitoria+'  </td>  <td>  '+operador+'  </td> <td>  '+supervisor+'  </td> <td>  '+monitor+'  </td> <td> '+dataligacao+' </td> <td> '+audio+' </td> <td> '+media+' </td>     <td class="btn-group btn-group-sm"><div class="btn-group"><button type="button" class="btn btn-secondary"id="btnView'+monitoria+'" onclick="viewMonitoring('+monitoria+')">Ver</button></div>  </td> </tr> '
+                }
+
+                $('#tbodypesquisa').html(linhas)
+
+            },
+            error: function(xhr) {
+                console.log(xhr)
+            }
+        })
+    }
+
+    function getContestByMonitoriaId(monitoria_id) {
+        url = '{{route("GetContestacaoByMon",['id' => '---'])}}'.replace('---', monitoria_id)
+        $.getJSON(url,function(data) {
+
+                table = "<table class='table table-hover'>"+
+                            "<thead>"+
+                                "<tr>"+
+                                    "<th>Data</th>"+
+                                    "<th>Motivo</th>"+
+                                    "<th>OBS</th>"+
+                                    "<th>Nome</th>"+
+                                "</tr>"+
+                            "</thead>"+
+                            "<tbody>";
+
+                // Monta contestações
+                for(i=0; i<data.length; i++) {
+                    const item = data[i]
+                    table += '<tr>'+
+                            '<td>'+dataBr(item.created_at)+'</td>'+
+                            '<td>'+$('select#contestarSelect > option[value='+item.motivo_id+']').html()+'</td>'+
+                            '<td>'+item.obs+'</td>'+
+                            '<td>'+item.name+'</td>'+
+                            '</tr>';
+                }
+
+                table += "</tbody></table>"
+
+                $("#preLoaderContestar").html(table)
+        })
     }
  </script>
 @endsection

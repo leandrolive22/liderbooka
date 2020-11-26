@@ -1,9 +1,4 @@
-@extends('layouts.app', ["current"=>"adm"])
-@section('style')
-<style type="text/css">
-	
-</style>
-@endsection
+@extends('layouts.app', ["current"=>"monitoring"])
 @section('content')
 <!-- START PAGE CONTAINER -->
 <div class="page-container">
@@ -21,17 +16,19 @@
 			<!-- START CONTENT FRAME TOP -->
 			<div class="content-frame-top">
 				<div class="page-title">
-					<a href="{{ url()->previous() }}">
-						<h2><span class="fa fa-arrow-circle-o-left"></span> Clique aqui para voltar</h2>
-					</a>
+					<h2>
+                        <a href="{{ asset('/') }}">
+                            <span class="fa fa-arrow-circle-o-left"></span>
+                        </a>
+                        Título da Página
+                    </h2>
+
 				</div>
 				<div class="pull-right">
 					<button class="btn btn-default content-frame-right-toggle">
-						<span class="fa fa-bars"></span>
+                        <span class="fa fa-bars"></span>
 					</button>
 				</div>
-				<!-- END CONTENT FRAME TOP -->
-
 			</div>
 			<!-- END CONTENT FRAME TOP-->
 
@@ -45,7 +42,7 @@
 			<!-- END CONTENT FRAME LEFT -->
 		</div>
 		<!-- START CONTENT FRAME -->
-		
+
 	</div>
 	<!-- END PAGE CONTENT -->
 </div>
@@ -53,6 +50,6 @@
 @endsection
 @section('Javascript')
 <script type="text/javascript">
-	
+
 </script>
 @endsection

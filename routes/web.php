@@ -19,6 +19,11 @@ Route::group(['prefix' => 'forgot'], function () {
 Route::post('acceptLgpd','Users\Users@lgpd')->name('PostUsersLgpd');
 
 Route::group(['middleware' => ['auth','LogsRequest']], function () {
+    // Dados de apoio
+    Route::group(['prefix' => 'data'], function() {
+        Route::get('monitors', 'Users\Users@getMonitors')->name('GetMonitorList');
+    });
+
     //change pass
     Route::post('changePass/{id}','Users\Users@changePass')->name('PostUsersPass');
 
@@ -60,20 +65,23 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
     /*********** Rotas de Monitoria ***********/
     Route::group(['prefix' => 'monitoring', 'middleware' => 'Monitoria'], function () {
         Route::group(['prefix' => 'contestar'], function () {
+            // Contestações
+            Route::get('/', 'Monitoria\Contestacoes@index')->name('GetContestacoesIndex'); // Página de contestações
+            Route::get('contestacao/{id}', 'Monitoria\Contestacoes@showBy')->name('GetContestacaoByMon'); // Pega dados de contestação
+            Route::get('contestacao_filter', 'Monitoria\Contestacoes@filterContest')->name('GetContestacaofilterContest'); // Pega dados de contestação
+
             // Motivos de contestação
             Route::delete('delete/{id}','Monitoria\Monitorias@deleteContest')->name('DeleteMotivoContestacao');
             Route::post('add','Monitoria\Monitorias@addContest')->name('AddMotivoContestacao');
 
-            // Contestações
-            route::get('contestacao/{id}', 'Monitoria\Contestacoes@showBy')->name('GetContestacaoByMon');
+            // Checa se existe contestação
+            Route::get('check','Monitoria\Contestacoes@check')->name('GetContestacaoCheck');
 
+            Route::post('sync','Monitoria\Contestacoes@store')->name('PostContestacaStore');
         });
 
         Route::get('manager','Monitoria\Monitorias@index')
             ->name('GetMonitoriasIndex');
-
-        Route::get('managerteste','Monitoria\Monitorias@indexteste')
-            ->name('GetMonitoriasIndexx');
 
         Route::get('/pesquisarmonitoria/{campo}/{valor}', 'Monitoria\Monitorias@pesquisar')
         ->name('pesquisarMonitorias');
@@ -109,6 +117,8 @@ Route::group(['middleware' => ['auth','LogsRequest']], function () {
         //editar
         Route::get('/edit/{id}','Monitoria\Monitorias@edit')->name('GetMonitoriaEdit');
         Route::put('/edit/{id}/{user}','Monitoria\Monitorias@update')->name('PutMonitoriaEdit');
+
+        Route::put('change_monitor','Monitoria\Monitorias@change_monitor')->name('ChangeMonitorMonitoria');
 
     /** Escobs */
         Route::put('feedback/{id}/escobs', 'Monitoria\Monitorias@feedbackEscobs')

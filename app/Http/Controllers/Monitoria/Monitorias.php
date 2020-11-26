@@ -11,15 +11,16 @@ use App\Monitoria\Contestacoes;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Tools\Tools;
 use App\Http\Controllers\Users\Users;
+use App\Http\Controllers\Monitoria\Contestacoes AS ContestacoesController;
 use App\Users\Ilha;
 use App\User;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Session;
-use Cache;
-use DateTime;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class Monitorias extends Controller
 {
@@ -91,14 +92,46 @@ class Monitorias extends Controller
                 // Carrega usuários
                 $usersFiltering = $this->carregarUsuarios($usersCacheName, $escobs, $all, $carteira, Auth::user()->carteira_id);
 
-            } else {// Senão, é supervisor
+            } elseif(Auth::user()->cargo_id === 4) {// Senão, se é supervisor
                 return $this->indexSup($id);
+            } else {
+                return $this->indexOpe($id);
             }
+
+            // Pega monitores e supervisores
+            $c = new ContestacoesController();
+            $supers = $c->getSupOrMoni(4);
+            $monits = $c->getSupOrMoni(15);
 
             $motivos = Motivo::all();
 
-            $compact = compact('title', 'escobs', 'models', 'monitorias', 'usersFiltering', 'permissions', 'webMaster', 'dash', 'export', 'criarLaudo', 'excluirLaudo', 'editarMonitoria', 'excluirMonitoria', 'aplicarLaudo', 'editarLaudo', 'isMonitor', 'isSupervisor', 'motivos', 'motivosContestar', 'gestorMonitoria');
+            $compact = compact(
+                'title',
+                'escobs',
+                'models',
+                'monitorias',
+                'usersFiltering',
+                'permissions',
+                'webMaster',
+                'dash',
+                'export',
+                'criarLaudo',
+                'excluirLaudo',
+                'editarMonitoria',
+                'excluirMonitoria',
+                'aplicarLaudo',
+                'editarLaudo',
+                'isMonitor',
+                'isSupervisor',
+                'motivos',
+                'motivosContestar',
+                'gestorMonitoria',
+                'supers',
+                'monits'
+            );
             return view('monitoring.manager',$compact);
+        // try {
+        //     1;
         } catch (\Exception $e) {
             return back()->with('errorAlert','Erro de Rede, tente novamente');
         }
@@ -166,7 +199,7 @@ class Monitorias extends Controller
     {
        return Monitoria::selectRaw('monitorias.*, users.name')
                                             ->leftJoin('book_usuarios.users','users.id','monitorias.operador_id')
-                                            ->when(!$seeAll, function($q) use($id, $all, $carteira, $escobs, $carteira_id, $cargo) {
+                                            ->when(!$seeAll, function($q) use($id, $all, $carteira, $escobs, $carteira_id, $cargo, $gestorMonitoria) {
                                                 // Se o usuário não tem permissão para ver tudo
                                                 if(!$all || $gestorMonitoria) {
                                                     // Se o usuário só tem perimssão para ver a carteira dele
@@ -178,7 +211,7 @@ class Monitorias extends Controller
                                                     }
 
                                                     // Se é monitor, só vê suas prórpias monitorias
-                                                    if($cargo === 15) {
+                                                    if($cargo == 15) {
                                                         $q->where('monitorias.monitor_id',$id);
                                                     }
                                                 }
@@ -240,10 +273,11 @@ class Monitorias extends Controller
      */
     public function indexSup(int $id)
     {
-        $title = 'Monitoria / Supervisor';
+        $permissions = Session::get('permissionsIds');
+        $title = 'Monitoria - Operador';
 
         $media = Monitoria::selectRaw("CAST(AVG(media) AS DECIMAL(5,2)) AS media")
-                        ->where('supervisor_id', $id)
+                        ->where('operador_id', $id)
                         ->where('created_at','>=',DB::raw('DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)'))
                         ->get()[0]->media;
 
@@ -255,18 +289,33 @@ class Monitorias extends Controller
 
         $motivos = Motivo::all();
 
+        // Pega monitores e supervisores
+        $c = new ContestacoesController();
+        $supers = $c->getSupOrMoni(4);
+        $monits = $c->getSupOrMoni(15);
+        $usersFiltering = User::select('id','name')->where('supervisor_id',$id)->get();
+
         $compact = compact(
+            'permissions',
             'monitorias',
             'motivos',
             'media',
-            'title'
+            'title',
+            'supers',
+            'monits',
+            'usersFiltering'
         );
 
         return view('monitoring.managerSuper', $compact);
     }
 
 
-    // Adiciona motivo de Contestação
+    /**
+     * Adiciona novo motivo de contestação
+     *
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
     public function addContest(Request $request)
     {
         try {
@@ -284,8 +333,42 @@ class Monitorias extends Controller
         }
     }
 
+    /**
+     * Carrega Tela de Monitoria do Operador
+     *
+     * @param int $id
+     * @return Illuminate\Http\Request
+     */
+    public function indexOpe(int $id)
+    {
+        $permissions = Session::get('permissionsIds');
+        $title = 'Monitoria - Operador';
+
+
+        $monitorias = Monitoria::where('operador_id',$id)
+                                ->orderBy(DB::Raw('case WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end')) //ASC
+                                ->orderBy('created_at','DESC')
+                                ->paginate(25);
+
+        $motivos = [];
+
+        // Pega monitores e supervisores
+        $c = new ContestacoesController();
+        $monits = $c->getSupOrMoni(15);
+
+        $compact = compact(
+            'permissions',
+            'monitorias',
+            'media',
+            'title',
+            'monits',
+        );
+
+        return view('monitoring.managerOpe', $compact);
+    }
+
     // Deleta motivo de contestação
-    public function deleteContest($id)
+    public function deleteContest(int $id)
     {
         try {
             if(is_null($id)) {
@@ -588,13 +671,7 @@ class Monitorias extends Controller
             'operador' => 'required',
             'hr_call' => 'required',
             'hr_tp_call' => 'required',
-            'userCli' => 'required',
-            'nome_cliente' => 'required',
             'tp_call' => 'required',
-            'id_audio' => 'required',
-            'pt_pos' => 'required',
-            'pt_dev' => 'required',
-            'pt_att' => 'required',
             'hash' => 'required',
             'modelo_id' => 'required',
             'dt_call' => 'required',
@@ -603,6 +680,7 @@ class Monitorias extends Controller
             'nConf' => 'required',
             'nAv' => 'required',
         ];
+
         // itens da monitoria
         $MonitoriaItem = [];
 
@@ -802,7 +880,15 @@ class Monitorias extends Controller
         return $monitoria;
     }
 
-    function operatorFeedback($id, $option, Request $request) {
+    /**
+     * Salva Feedback do Operador
+     *
+     * @param int $id - id da Monitoria
+     * @param int $option - Opção (1 = aceite, 2 = rejeite)
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
+    function operatorFeedback(int $id, int $option, Request $request) {
         $hash = $request->input('hash');
         $feedback = $request->input('feedback');
 
@@ -818,7 +904,14 @@ class Monitorias extends Controller
         return response()->json($fb->errors()->all(), 500);
     }
 
-    function supervisorFeedback($id, Request $request) {
+    /**
+     * Salva Feedback do supervisor
+     *
+     * @param int $id - id da Monitoria
+     * @param Illuminate\Http\Request
+     * @return Illuminate\Http\Response
+     */
+    function supervisorFeedback(int $id, Request $request) {
         $feedback = $request->input('feedback');
 
         $fb = Monitoria::find($id);
@@ -856,9 +949,13 @@ class Monitorias extends Controller
         $periodo = $request->periodo;
         $datain = $request->datain;
         $datafin = $request->datafi;
+        $supers = $request->supers;
+        $monit = $request->monits;
+        $operads = $request->operads;
 
         // permissões
         $gestorMonitoria = in_array(66, Session::get('permissionsIds'));
+        $verOutrosSupers = in_array(67, Session::get('permissionsIds'));
 
         // verifica se data inicial é maior do que a final
         if($datain > $datafin) {
@@ -875,26 +972,27 @@ class Monitorias extends Controller
         }
 
         // Atualizando no banco de dados
-        return Monitoria::selectRaw('monitorias.id AS monitoria, monitorias.data_ligacao AS dataligacao,monitorias.id_audio AS audio, monitorias.media AS media, o.name AS operador, s.name AS supervisor, m.name AS monitor, monitorias.feedback_supervisor')
+        return Monitoria::selectRaw('monitorias.monitor_id, monitorias.id AS monitoria, monitorias.data_ligacao AS dataligacao,monitorias.id_audio AS audio, monitorias.media AS media, o.name AS operador, s.name AS supervisor, m.name AS monitor, monitorias.feedback_supervisor')
                         ->leftJoin('book_usuarios.users AS o','o.id','monitorias.operador_id')
                         ->leftJoin('book_usuarios.users AS m','m.id','monitorias.monitor_id')
                         ->leftJoin('book_usuarios.users AS s','s.id','monitorias.supervisor_id')
-                        ->when(1, function($q) use ($campo, $valor) {
+                        ->orderBy('monitorias.created_at','DESC')
+                        ->when(1, function($q) use ($campo, $valor, $supers, $monit, $operads) {
                             switch ($campo) {
                                 case 'monitoria':
                                     return $q->where('monitorias.id', '=', $valor);
                                     break;
 
                                 case 'operador':
-                                    return $q->whereRaw("o.name LIKE '%$valor%'");
+                                    return $q->where("o.id",$operads);
                                     break;
 
                                 case 'supervisor':
-                                    return $q->whereRaw("s.name LIKE '%$valor%'");
+                                    return $q->where("s.id",$supers);
                                     break;
 
                                 case 'monitor':
-                                    return $q->whereRaw("m.name LIKE '%$valor%'");
+                                    return $q->where("m.id",$monit);
                                     break;
 
                                 case 'usuariocliente':
@@ -906,7 +1004,7 @@ class Monitorias extends Controller
                                     break;
 
                                 case 'periodo':
-                                        return $q->whereRaw('created_at BETWEEN '.$valor);
+                                        return $q->whereRaw('monitorias.created_at BETWEEN '.$valor);
                                         break;
 
                                 default:
@@ -915,7 +1013,7 @@ class Monitorias extends Controller
                             }
                         })
                         // quando o filtro for apenas de feedbacks aplicados
-                        ->when(1,  function($q) use ($feedback) {
+                        ->when($cargo == 4,  function($q) use ($feedback) {
                             if($feedback == 'true') {
                                 return $q->whereRaw('NOT ISNULL(feedback_supervisor)');
                             } else {
@@ -924,21 +1022,22 @@ class Monitorias extends Controller
 
                         })
                         // quando pfor selecionada a pesquisa por período
-                        ->when($periodo == 'periodo',  function($q) use ($datain, $datafin) {
-                            return $q->whereBetween('created_at', [$datain.' 00:00:00', $datafin.' 23:59:59']);
+                        ->when($periodo == 'periodo' && $cargo == 4,  function($q) use ($datain, $datafin) {
+                            return $q->whereBetween('monitorias.created_at', [$datain.' 00:00:00', $datafin.' 23:59:59']);
                         })
-                        // Quando cargo_id do usuário for 4 (supervisor)
-                        ->when($cargo == 4, function($q) use($id){
-                            return $q->where('supervisor_id',$id);
+                        // Quando cargo_id do usuário for 4 (supervisor) e o capmo for diferente de supervisor, pois já está incluso no primeiro When
+                        ->when(($cargo == 4 && !$verOutrosSupers) && $campo !== 'supervisor', function($q) use($id){
+                            return $q->where('s.id',$id);
                         })
-                        // Quando cargo_id do usuário for 15 (monitor)
-                        ->when($cargo == 15, function($q) use($id, $gestorMonitoria){
-                            if($gestorMonitoria) {
-                                return $q;
-                            }
-                            return $q->where('monitor_id',$id);
+                        // Quando cargo_id do usuário for 15 (monitor) e o capmo for diferente de monitor, pois já está incluso no primeiro When
+                        ->when(($cargo == 15 && !$gestorMonitoria) && $campo == 'monitor', function($q) use($id, $gestorMonitoria){
+                            return $q->where('m.id',$id);
                         })
-                        ->get();
+                        ->when($periodo !== 'periodo', function($q) {
+                            return $q->where('monitorias.created_at','>=',date('Y-m-d 00:00:00', strtotime('-45 Days')));
+                        })
+                        /**->toSql();/*/
+                        ->get();/**/
     }
 
     /**
@@ -1034,5 +1133,36 @@ class Monitorias extends Controller
         }
 
         return response()->json($data, $status);
+    }
+
+    /**
+     * Altera Monitorde monitorias
+     *
+     * @param Illuminate\Http\Request
+     * @return illuminate\Http\Response
+     */
+    public function change_monitor(Request $request)
+    {
+        try {
+            $id = $request->trocaMoniMoniId; // iDaMonitoria
+            $monitor = $request->trocaMoniSelect; // Monitor Novo
+            $monitor_antigo = $request->trocaMoniHI; // Monitor Antigo
+            $trocaMoniIcheck = $request->trocaMoniIcheck; // Se altera todos ou não
+
+            // Altera dados
+            Monitoria::where('monitor_id',$monitor_antigo)
+                    ->when($trocaMoniIcheck != 1, function($q) use ($id) {
+                        return $q->where('id',$id);
+                    })
+                    ->update(['monitor_id' => $monitor]);
+
+            // Grava Log
+            $log = new Logs();
+            $log->log("CHANGE_MONITOR_FROM_MONITORIA_ALL_".$trocaMoniIcheck."_ID_".$monitor_antigo, $monitor, url()->previous(), Auth::id(), Auth::user()->ilha_id);
+
+            return response()->json(['successAlert' => 'Alterado com sucesso!'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['errorAlert' => $e->getMessage()], 422);
+        }
     }
 }

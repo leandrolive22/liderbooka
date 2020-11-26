@@ -1,5 +1,5 @@
 <div class="content-frame-right">
-    <div class="panel panel-{{Auth::user()->css}}">
+    <div class="panel panel-default">
         <div class="panel-body">
             <h3 class="push-up-0">Atualizações</h3>
             <!-- Div Relógio e Clima -->

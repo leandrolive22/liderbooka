@@ -1024,4 +1024,19 @@ class Users extends Controller
         Cache::forget('usersMonitoriaCallCenter');
     }
 
+    /* DATA */
+    /**
+     *
+     */
+    public function getMonitors()
+    {
+        return User::where('cargo_id',15)
+                    ->when(in_array(64,Session::get('permissionsIds')), function($q) {
+                        return $q->whereRaw('NOT carteira_id = 1');
+                    }) // Quando é escobs
+                    ->when(!in_array(64,Session::get('permissionsIds')), function($q) {
+                        return $q->where('carteira_id',1);
+                    }) // Quando é CallCenter
+                    ->get();
+    }
 }

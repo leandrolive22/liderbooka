@@ -107,7 +107,7 @@
                     </div>
                 @endif
             </div>
-@if($webMaster || $dash || $export || $motivosContestar)
+@if($webMaster || $dash || $export || $motivosContestar || in_array(21,Session::get('permissionsIds')) || in_array(Auth::user()->cargo_id,[15,4]))
 
             {{-- START Grafico --}}
             <div class="row col-sm-12 col-md-12 col-lg-12">
@@ -116,12 +116,21 @@
                         <ul class="panel-controls pull-right">
                             <li><a href="#" class="panel-collapse"><span class="fa fa-angle-up"></span></a></li>
                         </ul>
+                        {{-- futuro relatório --}}
                         @if($webMaster)
                             <button onclick="$('#modalAnaliticoMonitoria').show();" class="btn btn-outline-success pull-right"><span class="fa fa-table">&nbsp;</span> Exportações MIS</button>
                         @endif
-
+                        {{-- Gerencia Motivos de contestações --}}
                         @if($webMaster || $motivosContestar)
                             <button class="btn btn-dark" onclick="$('#AdminContestacao').show()">Motivos de Contestação</button>
+                        @endif
+
+                        {{-- Fluxo de contestações --}}
+                        @if($webMaster || in_array(Auth::user()->cargo_id,[15,4]) || in_array(21,Session::get('permissionsIds')))
+                        <button class="btn btn-secondary" data-title="Há contestações para você verificar" onclick="window.location= '{{ route("GetContestacoesIndex") }}' ">
+                            Contestações
+                            <span class="fa fa-warning text-danger" id="notifyContestacao" style="display: none"></span>
+                        </button>
                         @endif
                     </div>
                     {{-- DASH MONITORIA POWER BI --}}
@@ -135,7 +144,7 @@
             </div>
             {{-- END Grafico --}}
 @endif
-@if($webMaster || $isMonitor || $isSupervisor || Auth::user()->cargo_id === 4)
+@if($webMaster || $isMonitor)
             <div class="row col-sm-12 col-md-12 col-lg-12">
                 {{-- Histórico --}}
                 <div class="panel panel-dark">
@@ -155,34 +164,62 @@
                         <div class="col-md-10 text-center">
                             <label class="mr-sm-8 sr-only" for="inlineFormCustomSelect">Campos</label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
+                                <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Monitoria" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
                                 Monitoria
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="operador">
+                                <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').hide();if(typeof $('#input_Operador:checked').val() != 'undefined'){$('#selectOperador').show()}" id="input_Operador" name="campo" type="radio" class="icheck" value="operador">
                                 Operador
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="supervisor">
+                                <input id="input_Supervisor" name="campo" onchange="$('input#valor[name=valor]').hide();$('#selectMonit').hide();$('#selectOperador').hide();if(typeof $('#input_Supervisor:checked').val() != 'undefined'){$('#selectSuper').show()}" type="radio" class="icheck" value="supervisor">
                                 Supervisor
                             </label>
+                            @if(in_array(66, Session::get('permissionsIds')))
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="monitor">
+                                <input id="input_Monitor" name="campo" onchange="$('input#valor[name=valor]').hide();$('#selectSuper').hide();if(typeof $('#input_Monitor:checked').val() != 'undefined'){$('#selectMonit').show()}" type="radio" class="icheck" value="monitor">
                                 Monitor
                             </label>
+                            @endif
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="usuariocliente">
+                                <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Cliente" name="campo" type="radio" class="icheck" value="usuariocliente">
                                 Usuário-Cliente
                             </label>
                             <label class="icheck">
-                                <input class="campo" name="campo" type="radio" class="icheck" value="matricula">
+                                <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Matricula" name="campo" type="radio" class="icheck" value="matricula">
                                 Matricula
                             </label>
-
+                            {{-- SELECTS --}}
+                            <div class="form-group" id="selectOperador" style="display: none;">
+                                <label for="operador">Selecione um Operador</label>
+                                <select class="select" name="operador" id="selectOperadorIpt" data-live-search="true">
+                                    @foreach ($usersFiltering as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group" id="selectSuper" style="display: none;">
+                                <label for="supervisor">Selecione um Supervisor</label>
+                                <select class="select" name="supervisor" id="selectSuperIpt" data-live-search="true">
+                                    @foreach ($supers as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if(in_array(66, Session::get('permissionsIds')))
+                            <div class="form-group" id="selectMonit" style="display: none;">
+                                <label for="monitor">Selecione um Monitor</label>
+                                <select class="select" name="monitor" id="selectMonitIpt" data-live-search="true">
+                                    @foreach ($monits as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
                             <div class="input-group mb-3 col-md-9 pull-right text-center">
                                 <input type="text" class="form-control col-md-6" name="valor" id="valor" placeholder="Digite aqui" aria-label="Pesquisar" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarmonitorias(String($('#campo').val()),String($('input#valor').val()),String($('#tipo').val()),String($('#ilha').val()));" id="pesquisarFiltro">Pesquisar</button>
+                                    <button  style="background-color:black; color:white; width:72px;height:30px;" class="input-group-text"  onclick="pesquisarmonitorias();" id="pesquisarFiltro">Pesquisar</button>
                                 </div>
                             </div>
 
@@ -232,22 +269,30 @@
                                     <td class="btn-group btn-group-sm">
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-secondary"id="btnView{{$m->id}}" onclick="viewMonitoring({{$m->id}})">Ver</button>
-                                            @if ($webMaster || $isMonitor)
-                                                @if($webMaster || $editarMonitoria || $excluirMonitoria)
-                                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li role="presentation" class="dropdown-header">Outras Ações</li>
-                                                        {{-- Editar Monitoria --}}
-                                                        @if($webMaster || $editarMonitoria)
-                                                            <li><a href="{{route('GetMonitoriaEdit',['id' => $m->id])}}">Editar</a></li>
-                                                        @endif
+                                            @if($webMaster || $editarMonitoria || $excluirMonitoria || $$isMonitor)
+                                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li role="presentation" class="dropdown-header">Outras Ações</li>
+                                                    {{-- Editar Monitoria --}}
+                                                    @if($webMaster || $editarMonitoria || $gestorMonitoria)
+                                                        <li><a href="{{route('GetMonitoriaEdit',['id' => $m->id])}}">Editar</a></li>
+                                                    @endif
 
-                                                        {{-- Excluir Monitoria --}}
-                                                        @if($webMaster || $excluirMonitoria)
-                                                            <li><a onclick="deleteMonitoria({{$m->id}})">Excluir</a></li>
-                                                        @endif
-                                                    </ul>
-                                                @endif
+                                                    {{-- Excluir Monitoria --}}
+                                                    @if($webMaster || $excluirMonitoria || $gestorMonitoria)
+                                                        <li><a onclick="deleteMonitoria({{$m->id}})">Excluir</a></li>
+                                                    @endif
+
+                                                    {{-- Designa a Monitoria à outro monitor --}}
+                                                    @if($webMaster || $gestorMonitoria)
+                                                        <li><a onclick="trocarMonitor({{$m->id}},{{$m->monitor_id}})">Trocar Monitor</a></li>
+                                                    @endif
+
+                                                    {{-- Designa a Monitoria à outro Supervisor --}}
+                                                    @if($webMaster)
+                                                        <li><a onclick="trocarSupervisor({{$m->id}})">Trocar Supervisor</a></li>
+                                                    @endif
+                                                </ul>
                                             @endif
                                         </div>
                                     </td>
@@ -291,7 +336,7 @@
 @component('monitoring.components.modais.resultRelatorio', ['motivos' => $motivos])
 @endcomponent
 
-
+{{-- Adiciona ou exclui motivos de contestações --}}
 <div class="modal in" id="AdminContestacao" style="display: none;">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -328,6 +373,38 @@
     </div>
 </div>
 
+{{-- Trocar Monitor e Supervisor --}}
+<form action="{{ __('ChangeMonitorMonitoria') }}" method="POST">
+    @csrf
+    <input type="hidden" name="trocaMoniMoniId" id="trocaMoniMoniId">
+    <input type="hidden" name="trocaMoniHI" id="trocaMoniHI">
+    <div class="modal in" id="trocaMoni" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Altera Monitor da Monitoria
+                </div>
+                <div class="modal-body" style="max-height: 65vh;">
+                    <div class="form-group">
+                        <label for="trocaMoniSelect">Selecione o Monitor</label>
+                        <select name="trocaMoniSelect" id="trocaMoniSelect" class="form-control" data-live-search="true">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="trocaMoniIcheck" class="icheck">
+                            <input type="checkbox" class="icheck" name="trocaMoniIcheck" id="trocaMoniIcheck" value="1">
+                            Selecione aqui se você quer alterar todas monitorias deste monitor
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="$('#trocaMoni').hide()">Fechar</button>
+                    <button type="button" class="btn btn-success" id="trocaMoniBtn" onclick="change_monitor()">Gravar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 @endsection
 @section('Javascript')
 <script type="text/javascript" src="{{asset('js/plugins/knob/jquery.knob.min.js')}}"></script>
@@ -421,8 +498,7 @@
                         $("textarea#feedback_supervisor").attr('style','border-color: #95B75D')
                     }
 
-                    //
-                    $("#ContestSupModal").attr('onclick','getContestByMonitoriaId('+id+')')
+                    // $("#ContestSupModal").attr('onclick','getContestByMonitoriaId('+id+')')
                     //tabela de laudos
                     $("tbody#laudos").html(linhas)
                     $("#modalMonitoring").show()
@@ -436,11 +512,11 @@
                 }
                 $("#btnView"+id).html('Ver')
             });
-} else {
-    $("#modalMonitoring").show()
-    $("#btnView"+id).html('Ver')
-}
-}
+        } else {
+            $("#modalMonitoring").show()
+            $("#btnView"+id).html('Ver')
+        }
+    }
     //pega nome do supervisor
     function getUserNameById(id,type) {
         $.getJSON("{{asset('api/data/user/json')}}/"+id,function(user){
@@ -722,75 +798,6 @@
         return date
     }
 
-    function searchInTable() {
-            $(".input-group-addon.fa.fa-search.btn").attr('class','input-group-addon fa fa-spin fa-spinner btn')
-            val = $("input#searchInTable").val()
-            if(val.length > 3) {
-                $.ajax({
-                    url: '{{route("searchInTableMonitoring")}}',
-                    data: 'str='+val,
-                    success: function(m) {
-                        console.log(m)
-                        if(m.length > 0) {
-                            $("table#searchInTable > tbody tr").hide()
-                            linhas = ''
-                            for(i=0;i<m.length;i++) {
-                                classB = ''
-                                if($.inArray(m[i].feedback_supervisor,[null,undefined,'',' '])) {
-                                    classB += 'class="bg-danger"'
-                                }
-                                linhas += '<tr id="monitoriaLinha'+m[i].id+'" '+classB+'>'+
-                                            '<td>#'+m[i].id+' </td>'+
-                                                // Operador
-                                                '<td>'+m[i].operador+'</td>'+
-
-                                                // Supervisor
-                                                '<td>'+m[i].supervisor+'</td>'+
-
-                                                // Monitor
-                                                '<td>'+m[i].monitor+'</td>'+
-
-                                                '<td>'+transformDataDb(m[i].created_at)+'</td>'+
-                                                '<td>'+m[i].id_audio+' </td>'+
-                                                '<td>'+m[i].media+' %</td>'+
-                                                '<td class="btn-group btn-group-sm">'+
-                                                    '<div class="btn-group">'+
-                                                        '<button type="button" class="btn btn-secondary"id="btnView'+m[i].id+'" onclick="viewMonitoring('+m[i].id+')">Ver</button>'+
-                                                        @if($webMaster || $isMonitor)
-                                                            @if($webMaster || $editarMonitoria || $excluirMonitoria)
-                                                                '<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>'+
-                                                                '<ul class="dropdown-menu" role="menu">'+
-                                                                    '<li role="presentation" class="dropdown-header">Outras Ações</li>'+
-                                                                    // Editar Monitoria
-                                                                    @if($webMaster || $editarMonitoria)
-                                                                    ' <li><a href="{{asset("monitoring/edit/")}}/'+m[i].id+'">Editar</a></li>'+
-                                                                    @endif
-
-                                                                    // Excluir Monitoria
-                                                                    @if($webMaster || $excluirMonitoria)
-                                                                        '<li><a onclick="deleteMonitoria('+m[i].id+')">Excluir</a></li>'+
-                                                                    @endif
-                                                                '</ul>'+
-                                                            @endif
-                                                        @endif
-                                                ' </div>'+
-                                            ' </td>'+
-                                        '</tr>';
-                            }
-
-                            $("table#searchInTable >tbody").append(linhas)
-                        } else {
-                            $("table#searchInTable > tbody tr").show()
-                        }
-                        $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-                    }
-                });// end Ajax
-            } else {
-                $("table#searchInTable > tbody tr").show()
-                $(".input-group-addon.fa.fa-spin.fa-spinner.btn").attr('class','input-group-addon fa fa-search btn')
-            }
-        }
-
     function getContestByMonitoriaId(monitoria_id) {
         url = '{{route("GetContestacaoByMon",['id' => '---'])}}'.replace('---', monitoria_id)
         $.getJSON(url,function(data) {
@@ -824,38 +831,64 @@
         })
     }
 
-</script>
- <script>
-    function pesquisarmonitorias(campo, valor)
-{
-
-    if(valor.length >= 3) {
-        var valor = $('#valor').val();
+    function pesquisarmonitorias()
+    {
+        var valor = $('input#valor[name=valor]').val();
+        if(valor.length == 0) {
+            valor = 0
+        }
         var campo = $('input[name=campo]:checked').val();
+        var feedback = typeof $('input[name=feedback_search]:checked').val() !== 'undefined';
+        var datain = $("input#dataini_search").val()
+        var datafi = $("input#dataifi_search").val()
+        var monit = $("#selectMonitIpt").val()
+        var supers = $("#selectSuperIpt").val()
+        var operads = $("#selectOperadorIpt").val()
+
+        var periodo = $('input[name=periodo_search]:checked').val();
+
         var url = "{{ route('pesquisarMonitorias',['campo' => '--', 'valor' => '---'])}}".replace('--',campo).replace('---',valor)
+        var data = {
+            campo: campo,
+            valor: valor,
+            feedback: feedback,
+            periodo: periodo,
+            datain: datain,
+            datafi: datafi,
+            monit: monit,
+            supers: supers,
+            operads: operads
+        }
+
+        if({{Auth::id()}} === 37) {
+            console.log(data)
+        }
+
         $.ajax({
             url:url,
             method:'GET',
-            data:{campo,valor},
+            data: data,
             dataType:'json',
             success:function(data)
             {
-                console.log(data)
-                linhas =  ""
-                data = data.data
-                for(i = 0; i < data.length; i++){
-                    // console.log(data)
 
-                    var monitoria = JSON.parse(JSON.stringify(data[i].monitoria));
-                    var operador = JSON.parse(JSON.stringify(data[i].operador));
-                    var supervisor = JSON.parse(JSON.stringify(data[i].supervisor));
-                    var monitor = JSON.parse(JSON.stringify(data[i].monitor));
-                    var dataligacao = JSON.parse(JSON.stringify(data[i].dataligacao));
-                    var audio = JSON.parse(JSON.stringify(data[i].audio));
-                    var media = JSON.parse(JSON.stringify(data[i].media));
+                if({{Auth::id()}} === 37) {
+                    console.log(data)
+                }
+                linhas =  ""
+                for(i = 0; i < data.length; i++){
+
+                    var monitoria = data[i].monitoria;
+                    var monitor_id = data[i].monitor_id;
+                    var operador = data[i].operador;
+                    var supervisor = data[i].supervisor;
+                    var monitor = data[i].monitor;
+                    var dataligacao = dataBr(data[i].dataligacao).replace('undefined','');
+                    var audio = data[i].audio;
+                    var media = data[i].media;
                     var rota = "{{route('GetMonitoriaEdit',['id' => '---'])}}".replace('---',monitoria)
                     var classe = ''
-                    @if(in_array(64, Session::get('permissionsIds'))))
+                    @if(in_array(64, Session::get('permissionsIds')))
                     if(data[i].feedback_operador == null || data[i].feedback_operador == 'null') {
                         classe += 'class="bg-danger"'
                     }
@@ -866,17 +899,129 @@
                     @endif
 
 
-                    linhas += '<tr '+classe+'> <td>  '+monitoria+'  </td>  <td>  '+operador+'  </td> <td>  '+supervisor+'  </td> <td>  '+monitor+'  </td> <td> '+dataligacao+' </td> <td> '+audio+' </td> <td> '+media+' </td>     <td class="btn-group btn-group-sm"><div class="btn-group"><button type="button" class="btn btn-secondary"id="btnView'+monitoria+'" onclick="viewMonitoring('+monitoria+')">Ver</button></div> @if ($webMaster || $isMonitor) @if($webMaster || $editarMonitoria || $excluirMonitoria) <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button> <ul class="dropdown-menu" role="menu"><li role="presentation" class="dropdown-header">Outras Ações</li> @if($webMaster || $editarMonitoria) <li> <a href="'+rota+'">Editar</a> </li> @endif @if($webMaster || $excluirMonitoria)  <li> <a onclick="deleteMonitoria('+monitoria+')">Excluir</a> </li> @endif </ul>@endif  @endif </td> </tr> '
-                  }
+                    linhas += '<tr '+classe+'>'+
+                        '<td>  '+monitoria+'  </td>'+
+                        '<td>  '+operador+'  </td>'+
+                        '<td>  '+supervisor+'  </td>'+
+                        '<td>  '+monitor+'  </td>'+
+                        '<td> '+dataligacao+' </td>'+
+                        '<td> '+audio+' </td>'+
+                        '<td> '+media+' </td>'+
+                        '<td class="btn-group btn-group-sm">'+
+                            '<div class="btn-group">'+
+                                '<button type="button" class="btn btn-secondary"id="btnView'+monitoria+'" onclick="viewMonitoring('+monitoria+')">'+
+                                'Ver</button>'+
+                            '</div>'+
+                            @if($webMaster || $editarMonitoria || $excluirMonitoria || $isMonitor)
+                                '<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"></button>'+
+                                '<ul class="dropdown-menu" role="menu">'+
+                                    // Editar MoOnitoria
+                                    '<li role="presentation" class="dropdown-header">Outras Ações</li>'+
+                                    @if($webMaster || $editarMonitoria)
+                                        '<li>'+
+                                            '<a href="'+rota+'">Editar</a>'+
+                                        '</li>'+
+                                    @endif
+                                    // Excluir Monitoria
+                                    @if($webMaster || $excluirMonitoria)
+                                    '<li>'+
+                                        '<a onclick="deleteMonitoria('+monitoria+')">'+
+                                            'Excluir'+
+                                        '</a>'+
+                                    '</li>'+
+                                    @endif
+                                    // Trocar Monitoria
+                                    @if($webMaster || $gestorMonitoria)
+                                        '<li><a onclick="trocarMonitor('+monitoria+','+monitor_id+')">Trocar Monitor</a></li>'+
+                                    @endif
+                                '</ul>'+
+                            @endif
+                        '</td>'+
+                    '</tr> '
+                }
 
-                 $('#tbodypesquisa').html(linhas)
+                $('#tbodypesquisa').html(linhas)
 
-             },
+            },
             error: function(xhr) {
                 console.log(xhr)
             }
         })
     }
-}
+
+    // Troca o supervisor da Monitoria
+    function trocarSupervisor(id) {
+
+    }
+
+    // Prepara Troca do Monitor da Monitoria
+    function trocarMonitor(id, monitor_id) {
+        $("#trocaMoniMoniId").val(id)
+        $("#trocaMoniHI").val(monitor_id)
+        url = '{{ route("GetMonitorList") }}'
+        $.getJSON(url, function(data) {
+            linhas = ''
+            for (let i = 0; i < data.length; i++) {
+                const element = data[i];
+                selected = ' '
+                if(monitor_id == element.id) {
+                    selected += 'selected'
+                }
+
+                linhas += '<option'+selected+'+ value="'+element.id+'">'+element.name+'</option>'
+            }
+            $("#trocaMoniSelect").html(linhas)
+        })
+
+        $("#trocaMoni").show()
+    }
+
+    // Troca o Monitor da Monitoria
+    function change_monitor() {
+        $("#trocaMoniBtn").prop('disabled',true)
+        $("#trocaMoniBtn").prop('enabled',false)
+        $("#trocaMoniBtn").html('<span class="fa fa-spin fa-spinner"></span>')
+
+        data = {
+            trocaMoniMoniId: $("#trocaMoniMoniId").val(), // idMonitoria
+            trocaMoniSelect: $("#trocaMoniSelect").val(), // Novo Monitor
+            trocaMoniHI: $("#trocaMoniHI").val(), // Monitor Antigo
+            trocaMoniIcheck: $("#trocaMoniIcheck:checked").val() // Se altera todos ou não
+        }
+        $.ajax({
+            type: "PUT",
+            url: "{{ route('ChangeMonitorMonitoria') }}",
+            data: data,
+            success: function (response) {
+                $("#trocaMoniHI").val($("#trocaMoniSelect").val())
+                console.log(response)
+                noty({
+                    text: response.successAlert,
+                    layout: 'topRight',
+                    type: 'success'
+                })
+            },
+            error: function (xhr) {
+                console.log(xhr)
+                try {
+                    noty({
+                        text: xhr.responseJSON.errorAlert,
+                        layout: 'topRight',
+                        type: 'error'
+                    })
+                } catch (error) {
+                    noty({
+                        text: 'Erro ao alterar Monitor (JS)',
+                        layout: 'topRight',
+                        type: 'error'
+                    })
+                    console.log(error)
+                }
+            }
+        });
+        $("#trocaMoniBtn").prop('disabled',false)
+        $("#trocaMoniBtn").prop('enabled',true)
+        $("#trocaMoniBtn").html('Gravar')
+    }
  </script>
 @endsection

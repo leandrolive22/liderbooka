@@ -264,8 +264,12 @@ function getMonitoriasNavBar() {
     $.getJSON( '{{ asset("api/monitoring/get/supervisor/".Auth::id()) }}/'  , function(data){
         if(data > 0) {
             $("#monitoriaMenuBtn").html('.')
+            $("#hasMonitoria").val(1)
         } else {
-            $("#monitoriaMenuBtn").html('')
+            if($("#hasContestacoes").val() == 0) {
+                $("#monitoriaMenuBtn").html('')
+            }
+            $("#hasMonitoria").val(0)
         }
     });
 }
@@ -628,9 +632,9 @@ $(function(){
             type: 'error'
         });
 
-        //If supervisor, carrega notificação de monitoria
         setTimeout( function() {getMsgNotify()}, (60*1000))
-        @if(in_array(19,$permissions))
+        //If supervisor, carrega notificação de monitoria
+        @if(in_array(19,$permissions) || Auth::user()->cargo_id == 4)
         setTimeout(() => {
             getMonitoriasNavBar()
         }, 2000);
@@ -638,8 +642,8 @@ $(function(){
             getMonitoriasNavBar()
         }, 1800*1000);
 
-        // If operador, carrega modal monitoria feedback
-        @elseif(in_array(20,$permissions))
+        // else If operador, carrega modal monitoria feedback
+        @elseif(in_array(20,$permissions) || Auth::user()->cargo_id == 5)
         setTimeout(() => {
             openModalSupOpeMonitoria()
         }, 2000);
