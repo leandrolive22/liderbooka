@@ -92,8 +92,10 @@ class Monitorias extends Controller
                 // Carrega usuários
                 $usersFiltering = $this->carregarUsuarios($usersCacheName, $escobs, $all, $carteira, Auth::user()->carteira_id);
 
-            } elseif(Auth::user()->cargo_id === 4) {// Senão, se é supervisor
+            } elseif(in_array(Auth::user()->cargo_id,[4])) {// Senão, se é supervisor
                 return $this->indexSup($id);
+            } elseif(in_array(Auth::user()->cargo_id,[4,7,2,9])) {
+                return $this->indexGer($id);
             } else {
                 return $this->indexOpe($id);
             }
@@ -277,7 +279,7 @@ class Monitorias extends Controller
         $title = 'Monitoria - Operador';
 
         $media = Monitoria::selectRaw("CAST(AVG(media) AS DECIMAL(5,2)) AS media")
-                        ->where('operador_id', $id)
+                        ->where('supervisor_id', $id)
                         ->where('created_at','>=',DB::raw('DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)'))
                         ->get()[0]->media;
 
@@ -309,6 +311,106 @@ class Monitorias extends Controller
         return view('monitoring.managerSuper', $compact);
     }
 
+    /**
+     * Carrega Tela de Monitoria de Gestores
+     *
+     * @param int $id
+     * @return Illuminate\Http\Request
+     */
+    public function indexGer(int $id)
+    {
+        $equipe = Session::get('minha_equipe_id');
+        $where = Session::get('consulta_subordinados_where');
+
+        $permissions = Session::get('permissionsIds');
+        $title = 'Monitoria - Gestão';
+
+        $media = Monitoria::selectRaw("CAST(AVG(media) AS DECIMAL(5,2)) AS media")
+                        ->whereIn('operador_id', $equipe)
+                        ->orWhereIn('supervisor_id', $equipe)
+                        ->where('created_at','>=',DB::raw('DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)'))
+                        ->get()[0]->media;
+
+
+        $monitorias = Monitoria::whereIn('operador_id', $equipe)
+                                ->whereIn('supervisor_id', $equipe)
+                                ->orderBy(DB::Raw('case WHEN ISNULL(feedback_operador) THEN 0 ELSE 1 end'), 'ASC')
+                                ->orderBy('created_at','DESC')
+                                ->paginate(25);
+
+        // Motivos de contestação
+        $motivos = Motivo::all();
+
+        // Pega monitores e supervisores e operadores
+        $c = new ContestacoesController();
+        $monits = $c->getSupOrMoni(15);
+        $supers = User::select('id', 'name')
+                    ->whereIn('id', $equipe)
+                    ->where('cargo_id',4)
+                    ->get();
+
+        $usersFiltering = User::select('id', 'name')
+                    ->whereIn('id', $equipe)
+                    ->where('cargo_id',5)
+                    ->get();
+
+        $compact = compact(
+            'permissions',
+            'monitorias',
+            'media',
+            'title',
+            'monits',
+            'supers',
+            'motivos',
+            'usersFiltering'
+        );
+
+        return view('monitoring.managerSuper', $compact);
+    }
+
+    /**
+     * Carrega Tela de Monitoria do Operador
+     *
+     * @param int $id
+     * @return Illuminate\Http\Request
+     */
+    public function indexOpe(int $id)
+    {
+        $permissions = Session::get('permissionsIds');
+        $title = 'Monitoria - Operador';
+
+        $media = Monitoria::selectRaw("CAST(AVG(media) AS DECIMAL(5,2)) AS media")
+                        ->where('operador_id', $id)
+                        ->where('created_at','>=',DB::raw('DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 DAY)'))
+                        ->get()[0]->media;
+
+
+        $monitorias = Monitoria::where('operador_id',$id)
+                                ->orderBy(DB::Raw('case WHEN ISNULL(feedback_operador) THEN 0 ELSE 1 end'), 'ASC')
+                                ->orderBy('created_at','DESC')
+                                ->paginate(25);
+
+        $motivos = [];
+
+        // Pega monitores e supervisores
+        $c = new ContestacoesController();
+        $monits = $c->getSupOrMoni(15);
+
+        // Não tem motivo
+        $motivos = [];
+
+        $compact = compact(
+            'permissions',
+            'monitorias',
+            'media',
+            'title',
+            'monits',
+            'motivos'
+        );
+
+        return view('monitoring.managerSuper', $compact);
+    }
+
 
     /**
      * Adiciona novo motivo de contestação
@@ -331,40 +433,6 @@ class Monitorias extends Controller
         } catch (\Exception $e) {
             return back()->with('errorAlert',$e->getMessage());
         }
-    }
-
-    /**
-     * Carrega Tela de Monitoria do Operador
-     *
-     * @param int $id
-     * @return Illuminate\Http\Request
-     */
-    public function indexOpe(int $id)
-    {
-        $permissions = Session::get('permissionsIds');
-        $title = 'Monitoria - Operador';
-
-
-        $monitorias = Monitoria::where('operador_id',$id)
-                                ->orderBy(DB::Raw('case WHEN ISNULL(feedback_supervisor) THEN 0 ELSE 1 end')) //ASC
-                                ->orderBy('created_at','DESC')
-                                ->paginate(25);
-
-        $motivos = [];
-
-        // Pega monitores e supervisores
-        $c = new ContestacoesController();
-        $monits = $c->getSupOrMoni(15);
-
-        $compact = compact(
-            'permissions',
-            'monitorias',
-            'media',
-            'title',
-            'monits',
-        );
-
-        return view('monitoring.managerOpe', $compact);
     }
 
     // Deleta motivo de contestação

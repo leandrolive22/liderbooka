@@ -125,6 +125,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CONSTANTES
+    |--------------------------------------------------------------------------
+    |
+    | Constantes da aplicação carregadas em todas as páginas
+    | São definidas no arquivo ../.env ou aqui
+    |
+    */
+
+    'DEFAULT_PASSWORD' => env('DEFAULT_PASSWORD','Book2020@lidera'),
+    "CAT_MON" => env("CAT_MON","Categoria"),
+    "COUNT_PASSO_CONTESTAR" => env("COUNT_PASSO_CONTESTAR","developer"),
+    "DEFAULT_PASSWORD" => env("DEFAULT_PASSWORD","Book2020@lidera"),
+    "N_MON" => env("N_MON","Nº/Grupo"),
+    "PAGINATE_NUMBER" => env("PAGINATE_NUMBER",5),
+    "PROCED_MON" => env("PROCED_MON","Procedimento"),
+    "QUEST_MON" => env("QUEST_MON","Pergunta"),
+    "VAL_MON" => env("VAL_MON","Valor (0 para valores iguais)"),
+
+    /*
+    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |

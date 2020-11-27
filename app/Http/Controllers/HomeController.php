@@ -32,6 +32,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+
         // if(Auth::id() === 37) {
         //     return Session::all();
         // }

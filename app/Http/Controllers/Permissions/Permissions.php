@@ -158,7 +158,7 @@ class Permissions extends Controller
             if($countOldDb > 0) {
                 UserPermission::withTrashed()->whereIn('id',$id)->restore();
             }
-            
+
             return response()->json(['msg' => 'Erro ao alterar permissões!'],422);
         } catch (Exception $e) {
             return response()->json(['errorAlert' => $e->getMessage()],500);
@@ -192,11 +192,11 @@ class Permissions extends Controller
             break;
 
             case 2:
-            $defaultPermission = [12,16,17,8,9,26,27,29,30,31,32,33,46,34,35,36,45,37,40,41,56];
+            $defaultPermission = [12,16,17,8,9,26,27,29,30,31,32,33,46,34,35,36,37,40,41,56];
             break;
 
             case 3:
-            $defaultPermission = [3,6,17,7,26,27,29,30,31,32,33,46,34,35,36,45,38,39,40,41,56];
+            $defaultPermission = [3,6,17,7,26,27,29,30,31,32,33,46,34,35,36,38,39,40,41,56];
             break;
 
             case 4:
@@ -208,7 +208,7 @@ class Permissions extends Controller
             break;
 
             case 7:
-            $defaultPermission = [12,16,17,6,7,8,27,33,46,34,35,36,45,37,41,43,56];
+            $defaultPermission = [12,16,17,6,7,8,27,33,46,34,35,36,37,41,43,56];
             break;
 
             case 8:
@@ -216,7 +216,7 @@ class Permissions extends Controller
             break;
 
             case 9:
-            $defaultPermission = [6,7,8,9,12,16,17,26,27,29,30,31,32,33,34,35,36,37,40,41,45,46,56];
+            $defaultPermission = [6,7,8,9,12,16,17,26,27,29,30,31,32,33,34,35,36,37,40,41,46,56];
             break;
 
             case 10:
@@ -244,11 +244,11 @@ class Permissions extends Controller
             break;
 
             case 16:
-            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,45,41];
+            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,41];
             break;
 
             case 17:
-            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,45,41];
+            $defaultPermission = [12,16,17,6,7,9,26,27,31,32,33,46,34,35,36,41];
             break;
 
             case 18:
@@ -265,7 +265,7 @@ class Permissions extends Controller
 
             default:
             throw new Exception("Cargo Inválido", 1);
-            
+
         }
 
         $data = [];

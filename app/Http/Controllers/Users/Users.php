@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Users;
+
+use App\Http\Controllers\Auth\LoginController;
 use App\User AS UserDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,9 +36,39 @@ use App\Materials\Circular;
 use App\Materials\Material;
 use App\Materials\Roteiro;
 use App\Materials\Video;
+use Exception;
 
 class Users extends Controller
 {
+    public function getSubordinados(int $id, int $cargo, bool $ids = TRUE) : array
+    {
+        try {
+            switch ($cargo) {
+                case 4:
+                    $where = 'supervisor_id';
+                    break;
+                case 7:
+                    $where = 'coordenador_id';
+                    break;
+                case 2:
+                    $where = 'gerente_id';
+                    break;
+                case 9:
+                    $where = 'superintendente_id';
+                    break;
+
+                default:
+                    return [];
+                    break;
+            }
+
+            Session::put('consulta_subordinados_where',$where);
+            return User::when($ids,function($q){return$q->select('id');})->where($where, $id)->get()->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
     public function saveLogin($id)
     {
         $user = UserDefault::find($id);
@@ -559,8 +591,8 @@ class Users extends Controller
         $word = $request->input('confirmPass');
         $id = $request->input('id');
 
-        if($pass == env("DEFAULT_PASSWORD")) {
-            return response()->json(['errorAlert', 'Senha Padrão ('.env("DEFAULT_PASSWORD").') não permitida, altere a senha!'],422);
+        if($pass == config("DEFAULT_PASSWORD")) {
+            return response()->json(['errorAlert', 'Senha Padrão ('.config("DEFAULT_PASSWORD").') não permitida, altere a senha!'],422);
         } else if ($pass === $word) {
             $change = UserDefault::find($id);
 

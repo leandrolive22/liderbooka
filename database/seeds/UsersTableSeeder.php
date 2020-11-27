@@ -138,6 +138,7 @@ class UsersTableSeeder extends Seeder
             ["id" =>"65", "name" => "Monitoria: Motivos Contestar","created_at" => now(), "updated_at" => now()],
             ["id" =>"66", "name" => "Monitoria: Coordenador","created_at" => now(), "updated_at" => now()],
             ["id" =>"67", "name" => "Monitoria: Ver as Monitorias de Outros Supervisores","created_at" => now(), "updated_at" => now()],
+            ["id" =>"68", "name" => "Monitoria: Visualizar Monitorias (Operador)","created_at" => now(), "updated_at" => now()],
         ]);
 
         DB::table('cargos')->insert(

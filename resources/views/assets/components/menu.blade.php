@@ -136,7 +136,6 @@ foreach([57,58] AS $item) {
             </a>
         </li>
         @endif
-        @if($monitoria > 0)
         <li @if($current == 'monitor') class="active" @else @endif>
             <div class="informer informer-danger text-danger" id="monitoriaMenuBtn"></div>
             <a href="{{asset('monitoring/manager')}}" title="Monitoria">
@@ -144,7 +143,6 @@ foreach([57,58] AS $item) {
                 <span class="xn-text">Qualidade</span>
             </a>
         </li>
-        @endif
         {{-- Para todos  --}}
         <li @if($current == 'profile') class="active"@else @endif>
             <a href="{{route('GetUserProfile',['id' => base64_encode(Auth::user()->id)])}}">

@@ -17,7 +17,16 @@ class Monitoria
     public function handle($request, Closure $next)
     {
         $permissions = Session::get('permissionsIds');
-        if( in_array(18,$permissions) || in_array(19,$permissions) || in_array(20,$permissions) || in_array(21,$permissions) || in_array(22,$permissions) || in_array(23,$permissions) || in_array(24,$permissions) || in_array(25,$permissions) || in_array(47,$permissions) || in_array(50,$permissions) || in_array(51,$permissions) || in_array(52,$permissions) || in_array(53,$permissions) || in_array(54,$permissions) || in_array(55,$permissions)  || in_array(1, $permissions)) {
+        $result = 0;
+        $permissions_ids = [19,20,21,22,23,24,25,47,50,51,52,53,54,55,61,64,65,66,67,68];
+        foreach($permissions as $item) {
+            if(in_array($item,$permissions_ids)) {
+                $result++;
+            }
+        }
+
+
+        if($result > 0) {
             return $next($request);
         }
 

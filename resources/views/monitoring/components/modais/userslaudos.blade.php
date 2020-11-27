@@ -34,7 +34,7 @@
                                 @forelse($usersFiltering as $item)
                                     <tr id="">
                                         <td>
-                                            <input onchange="selectUserToApply()" type="radio" name="userToApply" required="true" id="userToApply" class="icheck" value="{{$item->id}}">
+                                            <input onchange="selectUserToApply()" type="radio" name="userToApply" required="true" id="userToApply" class="icheck" value="{{base64_encode($item->id)}}">
                                         </td>
                                         <td>
                                             {{strtoupper($item->name)}}

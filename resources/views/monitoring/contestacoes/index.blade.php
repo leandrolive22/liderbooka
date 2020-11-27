@@ -54,38 +54,49 @@
                         Status
                     </label>
                 </div>
-                <div class="form-group" id="por_usuarios">
-                    <label type="button" class="btn btn-default col m-1 text-left">
-                        <input type="radio" name="filtro_tipo" id="minhas_contestacoes" class="form-check m-1 pull-left" onchange="if(typeof $('#minhas_contestacoes:checked').val() !== 'undefined'){$('input[name=filtro_tipo]').prop('checked',false);$(this).prop('checked',true)}">
-                        Minhas Contestações
-                    </label>
-                    <label type="button" class="btn btn-default col m-1 text-left">
-                        <input type="radio" name="filtro_tipo" id="tableContestMonitorFilter" class="form-check m-1 pull-left" onclick="$('#contestSupervisorFilterDiv').hide();$('#contestMonitorFilterDiv').show();$('#minhas_contestacoes').prop('checked',false)">
-                        Por Monitor
-                    </label>
-                    <div class="form-group col m-1" id="contestMonitorFilterDiv" style="display: none;">
-                        <select name="contestMonitorFilter" id="contestMonitorFilter" class="form-control select" data-live-search="true">
-                            @foreach ($monitores as $item)
+                @if(Auth::user()->cargo_id != 5)
+                    <div class="form-group" id="por_usuarios">
+                        <label type="button" class="btn btn-default col m-1 text-left">
+                            <input type="radio" name="filtro_tipo" id="minhas_contestacoes" class="form-check m-1 pull-left" onchange="if(typeof $('#minhas_contestacoes:checked').val() !== 'undefined'){$('input[name=filtro_tipo]').prop('checked',false);$(this).prop('checked',true)}">
+                            Minhas Contestações
+                        </label>
+                        <label type="button" class="btn btn-default col m-1 text-left">
+                            <input type="radio" name="filtro_tipo" id="tableContestMonitorFilter" class="form-check m-1 pull-left" onclick="$('#contestSupervisorFilterDiv').hide();$('#contestMonitorFilterDiv').show();$('#minhas_contestacoes').prop('checked',false)">
+                            Por Monitor
+                        </label>
+                        <div class="form-group col m-1" id="contestMonitorFilterDiv" style="display: none;">
+                            <select name="contestMonitorFilter" id="contestMonitorFilter" class="form-control select" data-live-search="true">
+                                @foreach ($monitores as $item)
+                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if(Auth::user()->cargo_id != 4 || in_array(67, $permissions))
+                        <label type="button" class="btn btn-default col m-1 text-left">
+                            <input type="radio" name="filtro_tipo" id="tableContestSupervisorFilter" class="form-check m-1 pull-left" onclick="$('#contestSupervisorFilterDiv').show();$('#contestMonitorFilterDiv').hide();$('#minhas_contestacoes').prop('checked',false)">
+                            Por Supervisor
+                        </label>
+                        @else
+                        <input type="hidden" name="tableContestSupervisorFilter" id="tableContestSupervisorFilter">
+                        @endif
+                        <label for="por_usuarios" class="text-muted">
+                            Usuário
+                        </label>
+                    </div>
+                    {{-- Select de supervisor  --}}
+                    <div class="form-group col m-1" id="contestSupervisorFilterDiv" style="display: none;">
+                        <select name="contestSupervisorFilter" id="contestSupervisorFilter" class="form-control select" data-live-search="true">
+                            @foreach ($supervisores as $item)
                                 <option value="{{$item->id}}">{{$item->name}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <label type="button" class="btn btn-default col m-1 text-left">
-                        <input type="radio" name="filtro_tipo" id="tableContestSupervisorFilter" class="form-check m-1 pull-left" onclick="$('#contestSupervisorFilterDiv').show();$('#contestMonitorFilterDiv').hide();$('#minhas_contestacoes').prop('checked',false)">
-                        Por Supervisor
-                    </label>
-                    <label for="por_usuarios" class="text-muted">
-                        Usuário
-                    </label>
-                </div>
-                {{-- Select de supervisor  --}}
-                <div class="form-group col m-1" id="contestSupervisorFilterDiv" style="display: none;">
-                    <select name="contestSupervisorFilter" id="contestSupervisorFilter" class="form-control select" data-live-search="true">
-                        @foreach ($supervisores as $item)
-                            <option value="{{$item->id}}">{{$item->name}}</option>
-                        @endforeach
-                    </select>
-                </div>
+                    @else
+                <input type="hidden" name="tableContestMonitorFilter" id="tableContestMonitorFilter" value="false">
+                <input type="hidden" name="tableContestSupervisorFilter" id="tableContestSupervisorFilter" value="false">
+                <input type="hidden" name="contestMonitorFilter" id="contestMonitorFilter" value="false">
+                <input type="hidden" name="contestSupervisorFilter" id="contestSupervisorFilter" value="false">
+                @endif
                 <button id="tableContestFilterBtn" class="btn btn-info col m-1" type="button">
                     <span class="fa fa-search"></span>
                     Filtrar

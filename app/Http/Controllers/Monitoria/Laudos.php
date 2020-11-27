@@ -12,7 +12,7 @@ use App\Http\Controllers\Logs\Logs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Cache;
+use Illuminate\Support\Facades\Cache;
 
 class Laudos extends Controller
 {
@@ -48,9 +48,7 @@ class Laudos extends Controller
 
     public function toApply($model, Request $request)
     {
-        if($request->method() === "GET") {
-            return back()->with('errorAlert','Selecione primeiro um operador!');
-        }
+        $request->validate(['userToApply' => 'required'],['userToApply.required' => 'Selecione um usuário!']);
 
         $title = 'Aplicar Monitoria';
         $carteira = Auth::user()->carteira_id;
@@ -60,19 +58,6 @@ class Laudos extends Controller
             return back()->with('errorAlert','Laudo não encontrado, tente novamente!');
         }
 
-        // if(Auth::id() == 37) {
-        //     if(!is_null(Cache::get('modelosMonitoria'.$model))) {
-        //         $laudoItens = Cache::get('modelosMonitoria'.$model);
-        //         $itens = NULL;
-        //     } else {
-        //         $laudoItens = $laudo->itens;
-        //         $itens = NULL;
-        //         Cache::put('modelosMonitoria'.$model,$laudoItens,720);
-        //     }
-        // } else {
-        //     $laudoItens = $laudo->itens;
-        //     $itens = NULL;
-        // }
         $laudoItens = $laudo->itens;
         $itens = NULL;
 
@@ -94,13 +79,16 @@ class Laudos extends Controller
 
         $operador = User::selectRaw('users.ilha_id, users.id, users.name, s.name AS supervisor')
                         ->leftJoin('users As s','s.id','users.supervisor_id')
-                        ->where('users.id',$request->userToApply)
+                        ->where('users.id',base64_decode($request->userToApply))
                         ->withTrashed()
                         ->first();
         // não é update
         $id = 0;
 
         if(!is_null($laudo) || $laudo->count() > 0 || $operador->count() > 0) {
+            if(date('Y-m-d H:i:s') >= date('2020-12-01 09:00:00')) {
+                return view('monitoring.newmakeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','itens','laudoItens'));
+            }
             return view('monitoring.makeMonitoria',compact('laudo','model','title','users','ilhas','supers','id','operador','itens','laudoItens'));
         }
 
@@ -289,7 +277,7 @@ class Laudos extends Controller
                 return response()->json(['success' => TRUE, 'msg' => 'Laudo alterado com sucesso!', 'id' => $id,], 201);
             } else {
                 @Laudo::find($id)->delete();
-                return response()->json([$itens->errors()->all()], 422);
+                return response()->json(['errorAlert' => 'Erro,contate o suporte (4222)'], 422);
             }
         }
     }

@@ -462,7 +462,9 @@
     @include('assets.components.notify');
 
     $(() => {
+        @if(in_array(Auth::user()->cargo_id,[4,15,7,2,9]) || in_array(66, Session::get('permissionsIds')))
         checkContestacoes()
+        @endif
     })
 
     </script>

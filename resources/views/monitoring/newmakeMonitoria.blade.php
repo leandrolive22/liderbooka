@@ -230,6 +230,12 @@
                         <h3 class="panel-title">
                             Laudos
                         </h3>
+                        <div class="pull-right pr-5">
+                            <p class="text-center">
+                                <strong>Nota:</strong>
+                                <span id="previaNota" data-value="100.00">100,00</span>%
+                            </p>
+                        </div>
                     </div>
                     <div class="panel-body" style="max-height: 500px; overflow-y: auto;">
                         <table class="table table-bordered">
@@ -244,138 +250,19 @@
                                 </thead>
                             </thead>
                             <tbody>
-                                {{-- Se não é edição --}}
+                                {{-- Se é inserção --}}
                                 @if(is_null($itens))
                                     @forelse ($laudoItens as $item)
-                                        @if(is_null($item->deleted_at))
-                                            <tr id="trAplicarLaudos">
-                                                <td>
-                                                    <p>
-                                                        {{$item->numero}}
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p>
-                                                        {{$item->questao}}
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p>
-                                                        {{$item->sinalizacao}}
-                                                    </p>
-                                                </td>
-                                                <td class="procedimentos" id="{{$item->id}}">
-                                                    <div class="btn-group col-md-12">
-                                                        @if($item->valor < 1 || Auth::user()->carteira_id == 1)
-                                                        <label class="check btn btn-success label-group" title="Conforme">
-                                                            <input required type="radio" value="Conforme" @if(isset($monitoria) && $monitoria->itens === "Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Conforme" />
-                                                            {{-- <span class="fa fa-check"></span> Conforme --}}
-                                                        </label>
-                                                        @endif
-                                                        @if($item->valor < 1)
-                                                        <label class="check btn btn-dark label-group" title="Não Conforme">
-                                                            <input required type="radio" value="Não Conforme"  @if(isset($monitoria) && $monitoria->itens === "Não Conforme") checked="true" @endif id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Conforme" />
-                                                            {{-- <span class="fa fa-times"></span> Não Conforme --}}
-                                                        </label>
-                                                        @endif
-                                                        @if($item->valor == 1 || Auth::user()->carteira_id == 1)
-                                                        <label class="check btn btn-danger label-group">
-                                                            <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "NCG") checked="true" @endif  @endif value="NCG" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" class="NCG_{{$item->id}}" title="NCG" />
-                                                            {{-- <span class="fa fa-times"></span> NCG --}}
-                                                        </label>
-                                                        @endif
-                                                        <label class="check btn btn-secondary label-group">
-                                                            <input required type="radio" @if(isset($monitoria)) @if($monitoria->itens === "Não Avaliado") checked="true" @endif @else checked="true"  @endif value="Não Avaliado" id="procedimento_{{$item->id}}" valor="{{round($item->valor*100,2)}}" name="procedimento_{{$item->id}}" title="Não Avaliado" />
-                                                            {{-- <span class="fa fa-times"></span> Não Avaliado --}}
-                                                        </label>
-                                                        @if(Auth::user()->carteira_id > 1)
-                                                        <label class="check btn btn-default label-group" onclick="if($('input#obs_{{$item->id}}').prop('see') == 1)
-                                                            {
-                                                                $('input#obs_{{$item->id}}').prop('see',0);
-                                                                $('input#obs_{{$item->id}}').hide()
-                                                            } else {
-                                                                $('input#obs_{{$item->id}}').prop('see',1);
-                                                                $('input#obs_{{$item->id}}').show();
-                                                                $('input#obs_{{$item->id}}').trigger('focus')
-                                                            }">
-                                                            <a>
-                                                                <span class="fa fa-comment"></span>
-                                                            </a>
-                                                            {{-- <span class="fa fa-times"></span> Não Avaliado --}}
-                                                        </label>
-                                                        <input type="text" style="display: none;" placeholder="Observação" class="btn btn-default" id="obs_{{$item->id}}" see="0">
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @if(Auth::id() === 37)
-                                            <tr>
-                                                <td colspan="4">
-
-                                                </td>
-                                            </tr>
-                                            @endif
-                                        @endif
+                                        @component('monitoring.components.insertMonitoringTable', ['item' =>$item])
+                                        @endcomponent
                                     @empty
                                         <td colspan="4" class="text-center">Nenhum dado encontrado</td>
                                     @endforelse
-                                {{-- Senão, se é edição --}}
+                                {{-- Se é edição --}}
                                 @elseif(isset($itens))
                                     @forelse ($itens as $item)
-                                        <tr id="trAplicarLaudos">
-                                            <td>
-                                                <p>
-                                                    {{$item->laudo->numero}}
-                                                </p>
-                                            </td>
-                                            <td>
-                                                <p>
-                                                    {{$item->laudo->questao}}
-                                                </p>
-                                            </td>
-                                            <td>
-                                                <p>
-                                                    {{$item->laudo->sinalizacao}}
-                                                </p>
-                                            </td>
-                                            <td class="procedimentos" id="{{$item->laudo->id}}">
-                                                <label class="check btn btn-success">
-                                                    <input required type="radio" value="Conforme"  @if($item->value === "Conforme")  checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Conforme"/>
-                                                    {{-- Conforme --}}
-                                                </label>
-                                                @if($item->laudo->valor < 1)
-                                                <label class="check btn btn-dark">
-                                                    <input required type="radio" value="Não Conforme"  @if($item->value === "Não Conforme") checked="true" @endif id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Não Conforme"/>
-                                                    {{-- Não Conforme --}}
-                                                </label>
-                                                @endif
-                                                <label class="check btn btn-danger">
-                                                    <input required type="radio" @if($item->value === "NCG") checked="true" @endif value="NCG" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="NCG"/>
-                                                    {{-- NCG --}}
-                                                </label>
-                                                <label class="check btn btn-secondary">
-                                                    <input required type="radio" @if($item->value !== "Não Conforme" && $item->value !== "Conforme") checked="true" @endif value="Não Avaliado" id="procedimento_{{$item->laudo->id}}" valor="{{round($item->laudo->valor*100,2)}}" name="procedimento_{{$item->laudo->id}}" title="Não Avaliado"/>
-                                                    {{-- Não Avaliado --}}
-                                                </label>
-                                                @if(Auth::user()->carteira_id > 1)
-                                                <label class="check btn btn-default label-group"onclick="if($('input#obs_{{$item->id}}').prop('see') == 1)
-                                                    {
-                                                        $('input#obs_{{$item->id}}').prop('see',0);
-                                                        $('input#obs_{{$item->id}}').hide()
-                                                    } else {
-                                                        $('input#obs_{{$item->id}}').prop('see',1);
-                                                        $('input#obs_{{$item->id}}').show();
-                                                        $('input#obs_{{$item->id}}').trigger('focus')
-                                                    }">
-                                                    <a>
-                                                        <span class="fa fa-comment"></span>
-                                                    </a>
-                                                    {{-- <span class="fa fa-times"></span> Não Avaliado --}}
-                                                </label>
-                                                <input type="text" @if(is_null($item->obs)) style="display: none;" @endif value="{{$item->obs}}" placeholder="Observação" class="btn btn-default" id="obs_{{$item->id}}" @if(is_null($item->obs)) see="0" @else see="1" @endif>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                        @component('monitoring.components.updateMonitoringTable', ['item' =>$item])
+                                        @endcomponent
                                     @empty
                                         <td colspan="4" class="text-center">Nenhum dado encontrado para edição</td>
                                     @endforelse
@@ -506,6 +393,30 @@
 @endsection
 @section('Javascript')
 <script language="javascript">
+    function changeMedia() {
+        media = 100
+        nConf = 0
+        ncg = 0
+        $("td.procedimentos").each((i,v) => {
+            id = v.id
+            value = $("input#procedimento_"+id+":checked").val()
+            valor = parseFloat($("input#procedimento_"+id+":checked").attr('valor'))
+            if(value == 'Não Conforme') {
+                nConf += valor
+            } else if(value == 'NCG') {
+                ncg++
+            }
+        })
+
+        media -= nConf
+        if(media < 0 || ncg > 0) {
+            media = 0
+        }
+        $("#previaNota").data('value',media)
+        $("#previaNota").html(media)
+
+    }
+
     // Altera supervisor
     function saveSup() {
         supervisor = $("#supSelection").val()
@@ -662,7 +573,7 @@
             ncg = Number(0)
             valueTotal = Number(0)
             valueConsiderar = Number(0)
-            media = parseFloat(0)
+            media = parseFloat(100)
 
             // concatena procedimentos selecionados em laudos
             procedimentos = ''
@@ -682,16 +593,12 @@
                     // conta conformes
                     if(value == 'Conforme') {
                         conf += Number(1)
-                        valueTotal += valor
-                        console.log('considerar: '+valor)
-                        valueConsiderar += valor
                     }
 
                     // conta não conformes
                     else if(value == 'Não Conforme') {
                         nConf += Number(1)
-                        console.log('total: '+valor)
-                        valueTotal += valor
+                        media -= valor
                     }
 
                     // conta não conformes
@@ -699,23 +606,18 @@
                         nAv += Number(1)
                     }
                 }
+                console.log(media)
 
                 obs = $("input#obs_"+id).val()
 
                 procedimentos += id+'|||||'+value+'|||||'+isNcg+'|||||'+(valor/100).toFixed(6)+'|||||'+obs+'_____'
             });
 
-            if(ncg === 0) {
-                if(valueTotal == 0) {
-                    valueTotal++
-                }
-                media += Number(parseFloat(((valueConsiderar/valueTotal)*100)).toFixed(2))
-                if(media > 0 || media < 0) {
-                    media = media
-                } else {
-                    media = 0
-                }
+            if(ncg > 0) {
+                media = 0
             }
+
+            console.log(media)
 
             $("#resultConf").html(conf)
             $("#resultnConf").html(nConf)

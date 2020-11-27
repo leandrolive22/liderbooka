@@ -76,7 +76,7 @@
                                                 <div class="btn-group btn-group-sm">
                                                     <!-- Aplicar Laudo -->
                                                     @if($webMaster || $aplicarLaudo)
-                                                    <a role="button" class="btn btn-outline-success" href="javascript:$('#formToApply').attr('action','{{route('PostLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
+                                                    <a role="button" class="btn btn-outline-success" href="javascript:$('#formToApply').attr('action','{{route('GetLaudoToApply',['model' => $item->id])}}');$('#formToApplyModal').show();">
                                                         Aplicar
                                                     </a>
                                                     @endif
@@ -758,10 +758,13 @@
     function selectUserToApply() {
         checked = $("input#userToApply.icheck:checked").val()
         console.log(checked)
-        if(typeof checked === "undefined" || checked <= 0) {
+        if(typeof checked === "undefined" || checked.length <= 0) {
             console.log('btnUn')
             $("#userToApplyBtn").prop('disabled',true)
         } else {
+            url = $("#formToApply").prop('action')
+            url += '?userToApply='+checked
+            $("#formToApply").prop('action',url)
             console.log('btnEn')
             $("#userToApplyBtn").prop('disabled',false)
         }

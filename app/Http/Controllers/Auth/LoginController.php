@@ -6,11 +6,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logs\Logs;
 use App\Http\Controllers\Permissions\UserPermission;
+use App\Http\Controllers\Users\Users;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Session;
-use Hash;
 use App\Users\Cargo;
-use Cache;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -61,6 +62,7 @@ class LoginController extends Controller
         } else {
             Cache::add('day',$now,(60*24));
         }
+
         // Dados de usuário
         $ilha = $user->ilha_id;
         $lgpd = $user->accept_lgpd;
@@ -94,13 +96,43 @@ class LoginController extends Controller
             }
         }
 
-        $searchCargo = @Cargo::find($cargo);
-        @Session::put('cargoUser',@$searchCargo->description);
+        // Pega nome do cargo do usuário
+        $searchCargo = Cargo::find($cargo);
+        if(!is_null($searchCargo)) {
+            Session::put('cargoUser',$searchCargo->description);
+        }
 
-        if($firstLogin === 0 || Hash::check(env("DEFAULT_PASSWORD"),$user->password)) {
+        // Grava equipe na sessão
+        if(!in_array($cargo,[5,8])) {
+            Session::put('minha_equipe_id',$this->getSubordinados($user->id, $cargo));
+        }
+
+        // Verifica se é o primeiro login do usuário ou se asenha é a senha padrão
+        if($firstLogin === 0 || Hash::check(config("DEFAULT_PASSWORD"),$user->password)) {
             Session::put('pwIsDf',1);
             return redirect('profile/'.base64_encode($user))->with('errorAlert','Altere sua senha');
         }
+
+    }
+
+    /**
+     * Configura subordinados para gravar na sessão
+     *
+     * @param int $id ID do usuário
+     * @param int $cargo ID do cargo do usuário
+     * @return array IDs dos subordinados
+     */
+    public function getSubordinados(int $id, int $cargo) : array
+    {
+        $result = [];
+        $user = new Users();
+        $users = $user->getSubordinados($id, $cargo);
+
+        for($i=0; $i<count($users); $i++) {
+            array_push($result, $users[$i]['id']);
+        }
+
+        return $result;
     }
 }
 ?>

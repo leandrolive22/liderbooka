@@ -66,11 +66,13 @@
                                 <input onchange="$('#selectMonit').hide();$('#selectOperador').hide();$('#selectSuper').hide();$('input#valor[name=valor]').show();" id="input_Monitoria" name="campo" type="radio" class="icheck" value="monitoria" checked="true">
                                 Monitoria
                             </label>
+                            @if(Auth::user()->cargo_id != 5)
                             <label class="icheck">
                                 <input onchange="$('#selectMonit').hide();$('#selectSuper').hide();$('input#valor[name=valor]').hide();if(typeof $('#input_Operador:checked').val() != 'undefined'){$('#selectOperador').show()}" id="input_Operador" name="campo" type="radio" class="icheck" value="operador">
                                 Operador
                             </label>
-                            @if(in_array(67, Session::get('permissionsIds')))
+                            @endif
+                            @if(in_array(67, Session::get('permissionsIds')) || Auth::user()->cargo_id != 5)
                             <label class="icheck">
                                 <input id="input_Supervisor" name="campo" onchange="$('input#valor[name=valor]').hide();$('#selectMonit').hide();$('#selectOperador').hide();if(typeof $('#input_Supervisor:checked').val() != 'undefined'){$('#selectSuper').show()}" type="radio" class="icheck" value="supervisor">
                                 Supervisor
@@ -97,6 +99,7 @@
                                 Período
                             </label>
                             {{-- SELECTS --}}
+                            @if(Auth::user()->cargo_id != 5)
                             <div class="form-group" id="selectOperador" style="display: none;">
                                 <label for="operador">Selecione um Operador</label>
                                 <select class="select" name="operador" id="selectOperadorIpt" data-live-search="true">
@@ -105,7 +108,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            @if(in_array(67, $permissions))
+                            @endif
+                            @if(in_array(67, $permissions) || Auth::user()->cargo_id != 5)
                             <div class="form-group" id="selectSuper" style="display: none;">
                                 <label for="supervisor">Selecione um Supervisor</label>
                                 <select class="select" name="supervisor" id="selectSuperIpt" data-live-search="true">
@@ -214,7 +218,7 @@
 @component('monitoring.components.modais.resultRelatorio', ['motivos' => $motivos])
 @endcomponent
 
-
+@if(Auth::user()->cargo_id != 5)
 <div class="modal in" id="AdminContestacao" style="display: none;">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -250,6 +254,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @endsection
 @section('Javascript')

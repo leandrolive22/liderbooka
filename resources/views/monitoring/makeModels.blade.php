@@ -86,10 +86,10 @@
                         <table class="table col-md-12">
                             <thead>
                                 <tr>
-                                    <th>{{env('N_MON')}}</th>
-                                    <th>{{env('QUEST_MON')}}</th>
-                                    <th>{{env('CAT_MON')}}</th>
-                                    <th>{{env('VAL_MON')}}</th>
+                                    <th>{{config('N_MON')}}</th>
+                                    <th>{{config('QUEST_MON')}}</th>
+                                    <th>{{config('CAT_MON')}}</th>
+                                    <th>{{config('VAL_MON')}}</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>

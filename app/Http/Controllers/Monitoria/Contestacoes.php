@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Session;
 
 class Contestacoes extends Controller
 {
+    /**
+     * Checa se existe contestação para o usuário visualizar
+     *
+     * @return int Quantidade de contestações
+     */
     public function check()
     {
         return DB::table('book_monitoria.listar_contestacoes')
@@ -25,9 +30,10 @@ class Contestacoes extends Controller
             ->when(in_array(66, Session::get('permissionsIds')), function($q) {
                 return $q->where('status',3);
             })
-            ->when(Auth::user()->cargo_id == 4, function($q) {
+            ->when(Auth::user()->cargo_id == 4 && !in_array(66, Session::get('permissionsIds')), function($q) {
                 return $q->where('supervisor_id',Auth::id())
-                    ->whereBetween('stattus', [1,2]);
+                    ->whereBetween('status', [1,2])
+                    ->where('data_contestacao','>=',date('Y-m-d H:i:s',strtotime('-45 Days')));
             })
             ->count();
     }
@@ -143,7 +149,7 @@ class Contestacoes extends Controller
     /**
      * Pega supervisor ou monitor por cargo
      *
-     * @param int $cargo id do cargo do usuário
+     * @param int $cargo id do cargo buscado
      * @return App\Users\User
      */
     public function getSupOrMoni(int $cargo)
